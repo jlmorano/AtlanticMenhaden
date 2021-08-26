@@ -1,0 +1,45 @@
+---
+title: "Overview of Spatio-Temporal Distribution of Atlantic Menhaden Project"
+author: "Janelle Morano"
+date: "last updated 8/20/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ph.D. Dissertation Project: Quantifying Spatio-Temporal Responses of Marine Ecosystems to Climate Change and Other Anthropogenic Habitat Modifications to Facilitate Adaptive Management Strategies
+
+Janelle L. Morano
+Department of Natural Resources and the Environment, Cornell University, Ithaca, NY 14850
+
+# Summary
+My dissertation research is focused on the spatio-temporal responses of the marine ecosystem to climate change to improve forecasts of species distributions and adapt responsive management practices. I am particularly interested in trade-offs in model architecture and different surveys that affect bias and accuracy in spatio-temporal predictions at various scales. I want to evaluate options for alternative sampling designs and modeling architectures that support adaptive management strategies and future planning efforts.
+
+Currently, I am building a spatio-temporal model of Atlantic menhaden to understand population response at various scales and forecast its distribution under various climate change and offshore wind development scenarios.
+
+## Background
+
+Marine species are responding to dramatic changes in the marine environment caused by climate change through adaptation, mortality, or movement. When properly characterizing the spatio-temporal distribution and abundance of species, we reveal the underlying ecosystem processes and dynamics that influence species populations and community dynamics. Accounting for these processes can reduce the bias in existing population models and improve the accuracy of predicting species distributions under future seascape scenarios (e.g., climate change scenarios, offshore wind development). The accuracy and precision of spatio-temporal distributions are best identified with species distribution models (SDM) that account for unmeasured variables and processes (i.e. latent variables or random effects), including spatial autocorrelation (neighboring samples are more similar to each other than those that are farther apart). These models can also be used to explore and address situations where species may not be appropriately captured by a fixed survey, either temporally or spatially, as a result of a changing ecosystem. For example, species movements to deeper waters, latitudinal shifts outside a survey region, or shifts in the timing of seasonal migrations. Forage fish (juvenile fish and small pelagic fishes) are important prey for large pelagic and protected species; their populations are sensitive to environmental conditions, but their spatial distributions are often overlooked. 
+
+I am currently using Atlantic menhaden, Brevoortia tyrannus, as a case study. Menhaden are planktivorous schoolers found in coastal waters from Florida to Nova Scotia and are important prey to fish, birds, and marine mammals. Menhaden spend the winter off the southeastern US coast and move north in spring. In the summer, they stratify and school by age/size, and older fish move farther north. Adults in the north migrate south beginning in late summer.
+
+Following a peak in the late 1950s, adult abundance declined through the 1960s. Abundance increased in the late 1970s through the mid-1990s, and decreased through the 2000s (Figure 8). In 2017, adult abundance was relatively high, yet juvenile abundance was low. Abundance patterns across the coast are not temporally even, where increased abundance was in the south in the 70s-90s, then in the north in the early 2000s (Buchheister et al., 2016). There is anecdotal evidence that menhaden abundance has increased in the NY Bight region since about 2015.
+
+## Goals
+1. Build a functioning spatio-temporal model in R-INLA and VAST that predicts the distribution of menhaden by depth and bottom temperature (to complete in September 2020).
+1. Compare the bias and accuracy and evaluate tradeoffs between INLA and VAST models (to complete in Fall 2020).
+1. Data for Atlantic menhaden model (biological survey data and environmental data), sourced and cleaned (to complete in Fall 2020). 
+1. Compare the bias and accuracy and evaluate tradeoffs in different survey sources and scales (to complete in Fall 2020).
+
+# Recent Accomplishments
+1. Model of the distribution of Atlantic menhaden 1963-2019 in VAST, without covariates (depth, bottom temp), using unscrutinized NEFSC bottom trawl data.
+1. Submitted abstract to present at November AFS meeting; outlined manuscript.
+
+# Upcoming Activities
+1. Continuing to work through adding covariates to VAST with as many resources as possible.
+1. Incorporate NEAMAP data.
+1. Assess challenges or things I should know about incorporating multiple datasets and then revisit status of state data (NY, NJ, CT, etc) for menhaden.

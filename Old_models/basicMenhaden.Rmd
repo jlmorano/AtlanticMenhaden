@@ -1,0 +1,186 @@
+---
+title: "Basic Menhaden Model"
+author: "Janelle Morano"
+date: "5/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Research Question
+For basic exploration purposes, I want to know what is the the distribution of menhaden, and how has it changed in recent years?
+Does bottom temperature explain their distribution patterns?
+
+Conceptually, my model is:
+
+Probability of Encounter & Catch Rate = Abundance + Bottom Water Temp + Catchability + Spatial Variation + Temporal Variation + Spatio-Temporal Variation
+
+The goal is to get this model working and then add covariates of depth and bottom temperature.
+
+## Getting a basic model of Atlantic menhaden distribution in VAST
+
+This is built off of the index standardization model <https://github.com/James-Thorson-NOAA/VAST/wiki/Index-standardization>
+
+Load VAST. It's important that these versions of VAST and its dependencies are running:
+
+* R version 4.0.5 (2021-03-31)
+* Platform: x86_64-apple-darwin17.0 (64-bit)
+* Running under: macOS Mojave 10.14.6
+* FishStatsUtils_2.8.0 
+* VAST_3.6.1           
+* TMB_1.7.19 
+* Matrix_1.2-8
+
+```{r libraries}
+# Load package
+library(VAST)
+sessionInfo()
+```
+
+## Load Data Set
+
+For right now, I'm using a dataset with abundance and biomass of Atlantic menhaden that came from Kevin Friedland at NOAA Narrangansett. It is NEFSC bottom trawl data that has been standardized for biomass in ways that I don't currently know. So these are data for playing around with, but not to draw any kind of scientific conclusions from until I've had a chance to prepare my own valid dataset. 
+
+The data include the absence of menhaden at sample sites. Where the columns correspond to the model input as follows:
+
+* Observations = ABUNDANCE
+* Year = YEAR
+* Vessel = SVVESSEL
+* Area Swept = Area_swept (faked data)
+* Latitude = LAT
+* Longitude = LON
+* Stratum Name = STRATUM 
+* Survey Name = CRUISE6 (not being referenced, I think)
+* not in model yet: Covariate = BOTTEMP (bottom temperature)
+
+
+```{r data}
+### Using NEFSC bottom trawl survey data with positive catches and the absences at all survey locations
+data <- read.csv("/Users/janellemorano/Git/Reference-R-scripts/VAST_exploration/survdat.menhaden.csv", header = TRUE)
+head(data)
+```
+
+I am missing Area swept. So I'm going to fudge it and add 0.01 to every row.
+```{r echo=FALSE}
+data$AreaSwept_km2 <- 0.01
+```
+
+Let's look at all of the sample locations, where "species" is sample or menhaden.
+
+```{r mapdata, echo=FALSE}
+library(tidyverse)
+library(sp)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(viridis)
+
+# Create basemap
+world <- ne_countries(scale = "medium", returnclass = "sf")  
+
+ggplot(data = world) +
+  geom_sf() +
+  coord_sf (xlim = c(-85,-60), ylim = c (28,46), expand = FALSE ) +
+  geom_point(data = subset(data, species %in% c('sample')),
+             aes (x = LON, y = LAT)) + 
+  theme_bw() +
+  theme (axis.text = element_blank()) +
+  xlab("longitude") + 
+  ylab("latitude")
+
+```
+
+```{r menhaden}
+ggplot(data = world) +
+  geom_sf() +
+  coord_sf (xlim = c(-85,-60), ylim = c (28,46), expand = FALSE ) +
+  geom_point(data = subset(data, species %in% c('menhaden')),
+             aes (x = LON, y = LAT, color = ABUNDANCE)) + 
+  scale_color_continuous(type = "viridis") +
+  scale_fill_viridis() +
+  theme_bw() +
+  theme (axis.text = element_blank()) +
+  #facet_wrap(~YEAR) +
+  xlab("longitude") + 
+  ylab("latitude")
+
+```
+
+## Select model settings
+
+Set Region= 'User' to use the user-defined extrapolation grid, defined by the extent of the survey.
+
+I would like the distribution of the encounter probability to be the default delta model and the positive catch rates to be Poisson, but as currently configured, the model converges when the distribution is gamma and encounter probability is default delta model.
+```{r modelset}
+settings = make_settings( n_x = 250, 
+                          Region = 'User', 
+                          purpose = "index2", 
+                          #strata.limits = example$strata.limits, #this was in the simple model example but not sure how it would interface here with a user-defined grid
+                          knot_method = 'grid',
+                          ObsModel= c(2,0),#, 1st value encounter probabilities = Poisson (7), gamma (2) lognormal (1), 2nd value catch rate= 0 default conventional delta model (the order is incorrect on the VAST input Google doc, OR IS IT???)),
+                          bias.correct = FALSE )
+#need to look more into next step
+settings$FieldConfig[2,] <- 0 ## turn off temporal components
+```
+
+This can be done before or after setting the model settings, but you need to read the extrapolation grid data to 'user_region'.
+```{r region}
+user_region <- readRDS('user_region.rds')
+```
+
+## Fit the model
+The model is predicting the encounter probability in the first step and the positive catch rate at each location in the second step where each are a function of the Year, Lat/Lon location, abundance, area swept, and vessel effects. This doesn't have any covariates (depth or bottom temp) yet.
+```{r modelrun}
+# fit = fit_model( "settings" = settings,
+#                  "Lat_i" = data$LAT,
+#                  "Lon_i" = data$LON,
+#                  "t_i" = data$YEAR, #time
+#                  "b_i" = data$ABUNDANCE, #catch
+#                  "a_i" = data$AreaSwept_km2, #area swept, This is FAKED and NOT REAL
+#                  "v_i"= data$SVVESSEL,
+#                  "input_grid" = user_region)
+
+```
+![Area the abundance is being predicted over and the number of knots used to calculate over the surface.](/Users/janellemorano/Git/VAST output_DONOTGIT/basicmenhaden_Julyoutput/Data_and_knots.png)
+
+## Plot the results
+
+```{r output}
+# This is how you plot it, but here I will include each relevant plot from a run outside this Markdown
+# plot( fit )
+```
+Output figures from VAST:
+
+1. 
+![Aniso.png](/Users/janellemorano/Git/Reference-R-scripts/VAST_exploration/basicmenhaden_Julyoutput/Aniso.png)
+
+1. Center of gravity
+![center_of_gravity.png](/Users/janellemorano/Git/Reference-R-scripts/VAST_exploration/basicmenhaden_Julyoutput/center_of_gravity.png)
+
+![Data_and_knots.png](/Users/janellemorano/Git/Reference-R-scripts/VAST_exploration/_currentrun/Data_and_knots.png)
+
+![Data_by_year.png](/Users/janellemorano/Git/Reference-R-scripts/VAST_exploration/_currentrun/Data_by_year.png)
+
+![Effective_Area.png](/Users/janellemorano/Git/Reference-R-scripts/VAST_exploration/_currentrun/Effective_Area.png)
+
+![Index-Biomass.png](/Users/janellemorano/Git/Reference-R-scripts/VAST_exploration/_currentrun/Index-Biomass.png)
+
+![In_density-predicted.png](/Users/janellemorano/Git/Reference-R-scripts/VAST_exploration/_currentrun/ln_density-predicted.png)
+
+![RangeEdge_E_km.png](/Users/janellemorano/Git/Reference-R-scripts/VAST_exploration/_currentrun/RangeEdge_E_km.png)
+
+![RangeEdge_N_km.png](/Users/janellemorano/Git/Reference-R-scripts/VAST_exploration/_currentrun/RangeEdge_N_km.png)
+
+
+1. The distribution of Atlantic menhaden
+![Atlantic menhaden density within the survey region.](/Users/janellemorano/Git/Reference-R-scripts/VAST_exploration/_currentrun/ln_density-predicted.png)
+
+This model is calculating the index of abundance or the average catch rate per year, and there is an anomaly in 2019. This demonstrates that the data are not necessarily the most reliable catch of menhaden.
+
+
+## Questions
+1. How do I interpret the Ansio figure?
+1. How does the number of knots affect the results?
+1. Can I successfully configure the model such that the distribution of the encounter probability is Poisson and catch rate affect is lognormal? Or, am I misinterpreting things? What is the most appropriate distribution for this system? 
+

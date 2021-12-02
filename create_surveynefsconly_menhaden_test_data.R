@@ -2,7 +2,7 @@
 ### This creates test data for initial VAST model building and exploration using NEFSC bottom trawl data that Kevin Friedland cleaned and shared. Menhaden positive counts are pulled out and saved with covariates AND adds ALL SAMPLE LOCATIONS so there are zero counts for menhaden.
 ### Janelle L. Morano
 
-### Updated November 30, 2021 to address duplications in Survdat data
+### TRYING TO UPDATE to address duplications in Survdat data. The data are listed for each length, meaning, abundance and biomass are duplicated for each site. 
 
 ############
 

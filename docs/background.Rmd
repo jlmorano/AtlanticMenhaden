@@ -1,0 +1,68 @@
+---
+title: "Background"
+author: "Janelle Morano"
+date: "10/21/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Climate Change Impacts
+Marine species are responding to dramatic changes in the marine environment caused by climate change through adaptation, mortality, or movement, and these responses can be tracked by understanding how the spatial distribution of a population may be changing. When we properly characterize the spatio-temporal distribution and abundance of species, we can reveal the underlying ecosystem processes that influence its population and community dynamics. Species distribution models (SDM) that account for unmeasured variables and processes (i.e. latent variables or random effects), including spatial autocorrelation (neighboring samples are more similar to each other than those that are farther apart), can reduce the bias in population models and improve the accuracy of predicting species distributions under future seascape scenarios (e.g., climate change scenarios, offshore wind development). These models can also be used to explore and address situations where species may not be appropriately captured by a fixed survey, either temporally or spatially, as a result of a changing ecosystem. For example, species movements to deeper waters, latitudinal shifts outside a survey region, or shifts in the timing of seasonal migrations. 
+
+# Menhaden
+Forage fish (juvenile fish and small pelagic fishes) are important prey for large pelagic and protected species; their populations are sensitive to environmental conditions, but their spatial distributions are often overlooked. I am currently using Atlantic menhaden, *Brevoortia tyrannus*, as a case study. Menhaden are planktivorous schoolers found in coastal waters from Florida to Nova Scotia and are important prey to fish, birds, and marine mammals (Figure \@ref(fig:distribution)). Menhaden spend the winter off the southeastern US coast and move north in spring. In the summer, they stratify and school by age/size, and older fish move farther north until the late summer when they migrate south again. Following many forage fish population characteristics, menhaden population has cycles of increasing and decreasing abundance. Menhaden abundance peaked in the 1950s and then decreased precipitously, maintaining a relatively low abundance through the 1980s. Since the 1990s, abudance has trended to increase, with abudance in recent years being more similar to the 1950s (Figure \@ref(fig:stock)). Spatially, abundance patterns across the coast are not temporally even, where increased abundance was in the south in the 70s-90s, then in the north in the early 2000s (Buchheister et al., 2016). There is anecdotal evidence that menhaden abundance has increased in the NY Bight region in recent years.
+
+```{r distribution, echo=FALSE, message=FALSE, fig.align="center", fig.cap= "The distribution of sampled menhaden in the NEFSC bottom trawl surveys, 1963-2019, and the NEAMAP bottom trawl surveys, 2007-2020. Note that recent years are plotted on top of past years, which may obscure contractions or expansions of the range in past years."}
+library (tidyverse)
+library(sp)
+library (rnaturalearth)
+library (rnaturalearthdata)
+library(viridis)
+
+data <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden_sampledata.csv", header = TRUE)
+spring.data <- data %>%
+  filter(Season == 'SPRING')
+fall.data <- data %>%
+  filter(Season == 'FALL')
+
+# Create basemap
+world <- ne_countries(scale = "medium", returnclass = "sf")  
+
+# Plot menhaden spatial distribution from survey data
+# Spring
+ggplot(data = world) +
+  geom_sf() +
+  coord_sf (xlim = c(-83,-60), ylim = c (25,48), expand = FALSE ) +
+  geom_point(data = spring.data,
+             aes (x = Longitude, y = Latitude, color = Year)) + 
+  scale_color_continuous(type = "viridis") +
+  scale_fill_viridis() +
+  theme_bw() +
+  theme (axis.text = element_blank()) +
+  xlab("longitude") + 
+  ylab("latitude") +
+  ggtitle("Spring")
+
+# Fall
+ggplot(data = world) +
+  geom_sf() +
+  coord_sf (xlim = c(-83,-60), ylim = c (25,48), expand = FALSE ) +
+  geom_point(data = fall.data,
+             aes (x = Longitude, y = Latitude, color = Year)) + 
+  scale_color_continuous(type = "viridis") +
+  scale_fill_viridis() +
+  theme_bw() +
+  theme (axis.text = element_blank()) +
+  xlab("longitude") + 
+  ylab("latitude") +
+  ggtitle("Fall")
+```
+
+<center>
+
+![**(#fig:stock) Biomass of age 1+ Atlantic menhaden stock, 1955-2017. Reproduced from SEDAR (2020).**](/Users/janellemorano/DATA/AtlanticmenhadenBiomass_fromSEDAR2020.png){width=50%}
+
+</center>

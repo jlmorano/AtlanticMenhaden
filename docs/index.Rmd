@@ -1,7 +1,7 @@
 ---
-title: "index"
+title: "About"
 author: "Janelle Morano"
-date: "12/2/2021"
+date: "10/21/2021"
 output: html_document
 ---
 
@@ -9,4 +9,18 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Spatio-Temporal Distribution of Atlantic Menhaden
+# Project Overview
+
+**Ph.D. Dissertation: Quantifying Spatio-Temporal Responses of Marine Ecosystems to Climate Change and Other Anthropogenic Habitat Modifications to Facilitate Adaptive Management Strategies**
+
+My dissertation research is focused on the spatio-temporal responses of the marine ecosystem to climate change to improve forecasts of species distributions and adapt responsive management practices. I am particularly interested in understanding the trade-offs in model architecture and different surveys that affect bias and accuracy in spatio-temporal predictions at various scales. I want to use this information to recommend options for alternative sampling designs and modeling architectures that support adaptive management strategies and future planning efforts.
+
+Currently, I am building a spatio-temporal model of Atlantic menhaden to understand the factors influencing population response at various scales, while comparing model architectures (VAST, R-INLA) and using multiple sources of data. In the future, I will forecast menhaden distribution under various climate change and offshore wind development scenarios.
+
+My research is supported by the NMFS-Sea Grant Population and Ecosystem Dynamics Fellowship and the New York Department of Environmental Conservation.
+
+# Research Questions
+1. What drives the distribution and abundance patterns of Atlantic menhaden and other forage fishes?
+1. What is the forecasted distribution of Atlantic menhaden and other forage fishes under different climate scenarios and offshore wind development plans, and what are the potential impacts on the ecosystem and management of these fisheries?
+1. How could fisheries management adapt to changing distributions? What adaptive management strategies could be considered for future planning (e.g., modeling frameworks, survey designs, time-area closures)?
+

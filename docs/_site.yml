@@ -1,9 +1,15 @@
 name: "my-website"
 navbar:
-  title: "Our Collaborative Website"
+  title: "Spatio-Temporal Distribution of Atlantic Menhaden"
   left:
     - text: "About"
       href: index.html
     - text: "Results"
       href: results.html
 output_dir: "."
+output:
+  html_document:
+    theme: flatly
+    highlight: textmate
+    toc: true 
+    toc_float: true 

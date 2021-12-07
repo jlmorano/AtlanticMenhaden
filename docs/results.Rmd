@@ -9,6 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+*Disclaimer: These are results of my preliminary work that I use to synthesize and interpret with my mentors, probably riddled with problems. If you managed to stumble onto this, I'm sorry, because this is not going to be helpful to you.*
+
 # VAST Model of Distribution
 The model built in VAST is an index of abundance model that predicts the abundance as average catch over years and locations. This model uses data from the Northeast Fisheries Science Center (NEFSC) spring and fall bottom trawl surveys, 1963-2019, and the Northeast Area Monitoring and Assessment Program (NEAMAP) near shore trawl, 2007-2020. For this model, the data are limited to overlapping years, 2007-2019.
 
@@ -31,7 +33,7 @@ fall.data <- data %>%
 # Average Spring biomass per year
 sum.bio <- spring.data %>%
   group_by(Year) %>%
-  summarise(sum = sum(Weight))
+  summarise(sum = sum(Biomass))
 
 ggplot(data = sum.bio, aes(Year, sum)) +
   geom_line() +
@@ -46,7 +48,7 @@ ggplot(data = sum.bio, aes(Year, sum)) +
 # Average Fall biomass per year
 sum.bio <- fall.data %>%
   group_by(Year) %>%
-  summarise(sum = sum(Weight))
+  summarise(sum = sum(Biomass))
 
 ggplot(data = sum.bio, aes(Year, sum)) +
   geom_line() +
@@ -60,7 +62,7 @@ The estimates of abundance and distribution are made over the extrapolation grid
 
 <center>
 
-![**(#fig:knots) Area the abundance is being predicted over and the number of knots used to calculate over the surface.**](/Users/janellemorano/MODEL_OUTPUT/menhaden_2007-2019_bottemp_fall/Data_and_knots.png){width=50%}
+![**(#fig:knots) Area the abundance is being predicted over and the number of knots used to calculate over the surface.**](/Users/janellemorano/MODEL_OUTPUT/2007-2019-newDec7_spring/Data_and_knots.png){width=50%}
 
 </center>
 
@@ -68,11 +70,11 @@ For each sampled year of the NEFSC bottom trawl survey, 1963-2019, the Atlantic 
 
 <center>
 
-![**(#fig:dist) Estimated spatio-temporal distribution of Atlantic menhaden, 2007-2019, in Spring. Blue = 0-low abundance, red = high abundance.**](/Users/janellemorano/MODEL_OUTPUT/menhaden_2007-2019_bottempdepth_spring/spring_ln_density-predicted.png)
+![**(#fig:dist) Estimated spatio-temporal distribution of Atlantic menhaden, 2007-2019, in Spring. Dark blue = 0-low abundance, yellow = high abundance.**](/Users/janellemorano/MODEL_OUTPUT/2007-2019-newDec7_spring/ln_density-predicted.png)
 
 <center>
 
-![**(#fig:dist) Estimated spatio-temporal distribution of Atlantic menhaden, 2007-2019, in Fall. Blue = 0-low abundance, red = high abundance.**](/Users/janellemorano/MODEL_OUTPUT/menhaden_2007-2019_bottempdepth_fall/fall_ln_density-predicted.png)
+![**(#fig:dist) Estimated spatio-temporal distribution of Atlantic menhaden, 2007-2019, in Fall. Dark blue = 0-low abundance, yellow = high abundance.**](/Users/janellemorano/MODEL_OUTPUT/2007-2019-nnewDec7_fall/ln_density-predicted.png)
 
 </center>
 
@@ -81,11 +83,11 @@ To quantify the change in the distribution of species, there are a few metrics t
 
 <center>
 
-![**(#fig:center) The center of gravity of the Spring population (left graph = easting, right graph = northing). Refer to Figure 5.1 for a geographic easting and northing reference.**](/Users/janellemorano/MODEL_OUTPUT/menhaden_2007-2019_bottemp_spring/center_of_gravity.png){width=75%}
+![**(#fig:center) The center of gravity of the Spring population (left graph = easting, right graph = northing). Refer to Figure 5.1 for a geographic easting and northing reference.**](/Users/janellemorano/MODEL_OUTPUT/2007-2019-newDec7_spring/center_of_gravity.png){width=75%}
 
 <center>
 
-![**(#fig:center) The center of gravity of the Fall population (left graph = easting, right graph = northing). Refer to Figure 5.1 for a geographic easting and northing reference.**](/Users/janellemorano/MODEL_OUTPUT/menhaden_2007-2019_bottemp_fall/center_of_gravity.png){width=75%}
+![**(#fig:center) The center of gravity of the Fall population (left graph = easting, right graph = northing). Refer to Figure 5.1 for a geographic easting and northing reference.**](/Users/janellemorano/MODEL_OUTPUT/2007-2019-nnewDec7_fall/center_of_gravity.png){width=75%}
 
 </center>
 
@@ -93,11 +95,11 @@ The second metric is the distributional range edge, which, for marine species al
 
 <center>
 
-![**(#fig:nrange) Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).**](/Users/janellemorano/MODEL_OUTPUT/menhaden_2007-2019_bottemp_spring/RangeEdge_N_km.png){width=75%}
+![**(#fig:nrange) Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).**](/Users/janellemorano/MODEL_OUTPUT/2007-2019-newDec7_spring/RangeEdge_N_km.png){width=50%}
 
 <center>
 
-![**(#fig:nrange) Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).**](/Users/janellemorano/MODEL_OUTPUT/menhaden_2007-2019_bottemp_fall/RangeEdge_N_km.png){width=75%}
+![**(#fig:nrange) Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).**](/Users/janellemorano/MODEL_OUTPUT/2007-2019-nnewDec7_fall/RangeEdge_N_km.png){width=50%}
 
 </center>
 

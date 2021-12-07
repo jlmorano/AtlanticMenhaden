@@ -5,7 +5,7 @@
 #   - sample data
 #   - covariate data
 # last updated 10/1/2021
-
+# These data used in the model output presented at AFS Nov 2021
 ###############################################
 ###############################################
 

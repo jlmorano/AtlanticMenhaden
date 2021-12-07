@@ -24,3 +24,5 @@ My research is supported by the NMFS-Sea Grant Population and Ecosystem Dynamics
 1. What is the forecasted distribution of Atlantic menhaden and other forage fishes under different climate scenarios and offshore wind development plans, and what are the potential impacts on the ecosystem and management of these fisheries?
 1. How could fisheries management adapt to changing distributions? What adaptive management strategies could be considered for future planning (e.g., modeling frameworks, survey designs, time-area closures)?
 
+
+*remember* rmarkdown::render_site()

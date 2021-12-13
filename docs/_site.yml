@@ -6,6 +6,8 @@ navbar:
       href: index.html
     - text: "Background"
       href: background.html
+    - text: "Methods"
+      href: methods.html
     - text: "Results"
       href: results.html
 output_dir: "."

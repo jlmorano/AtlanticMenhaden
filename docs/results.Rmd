@@ -1,7 +1,7 @@
 ---
 title: "Results"
 author: "Janelle Morano"
-date: "12/7/2021"
+date: "12/13/2021"
 output: html_document
 ---
 
@@ -9,10 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-*Disclaimer: These are results of my preliminary work that I use to synthesize and interpret with my mentors, probably riddled with problems. If you managed to stumble onto this, I'm sorry, because this is not going to be helpful to you.*
-
-# VAST Model of Distribution
-The model built in VAST is an index of abundance model that predicts the abundance as average catch over years and locations. This model uses data from the Northeast Fisheries Science Center (NEFSC) spring and fall bottom trawl surveys, 1963-2019, and the Northeast Area Monitoring and Assessment Program (NEAMAP) near shore trawl, 2007-2020. For this model, the data are limited to overlapping years, 2007-2019.
 
 The biomass of menhaden varies over the years
 (Figure \@ref(fig:abundance))
@@ -66,7 +62,9 @@ The estimates of abundance and distribution are made over the extrapolation grid
 
 </center>
 
-For each sampled year of the NEFSC bottom trawl survey, 1963-2019, the Atlantic menhaden abundance is estimated across the sampled area. Note that these data are not verified as including all appropriate years and survey sites, and these data are pooling the spring and fall surveys into a single year. Thus, these results should be interpreted only as a preliminary understanding of the model output and should not be considered a representation of the actual ecology of menhaden. Given these caveats, in general, the distribution has changed periodically, with years of low abundance or absence in the north (Figure \@ref(fig:dist)). Menhaden are most abundant along the coast, with localized abundance offshore around Georges Bank and a localized absence in the NY Bight. More work is needed to examine this.
+Atlantic menhaden abundance was estimated across the sampled area within each season and for each year, 2007-2019, as predicted by depth and bottom temperature. Overall, menhaden distribution varies between seasons, between years, and between regions. Abundance is highest the mouth of the Chesapeake Bay and North Carolina coast over all years and between seasons. In the north, from the New York Bight to the Maine coast, abundance is lower than to the south, but there are years of higher abundance (Figure \@ref(fig:dist)). Menhaden are most abundant along the coast, with localized abundance offshore around Georges Bank and the NY Bight.
+
+Menhaden are more broadly distributed across the continental shelf in the spring than in the fall. In the fall, menhaden are more distributed toward the shore and to the north.
 
 <center>
 

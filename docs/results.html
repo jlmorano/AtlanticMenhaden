@@ -11,6 +11,7 @@
 
 <meta name="author" content="Janelle Morano" />
 
+<meta name="date" content="2021-12-13" />
 
 <title>Results</title>
 
@@ -325,6 +326,9 @@ div.tocify {
   <a href="background.html">Background</a>
 </li>
 <li>
+  <a href="methods.html">Methods</a>
+</li>
+<li>
   <a href="results.html">Results</a>
 </li>
       </ul>
@@ -341,15 +345,11 @@ div.tocify {
 
 <h1 class="title toc-ignore">Results</h1>
 <h4 class="author">Janelle Morano</h4>
-<h4 class="date">12/7/2021</h4>
+<h4 class="date">12/13/2021</h4>
 
 </div>
 
 
-<p><em>Disclaimer: These are results of my preliminary work that I use to synthesize and interpret with my mentors, probably riddled with problems. If you managed to stumble onto this, I’m sorry, because this is not going to be helpful to you.</em></p>
-<div id="vast-model-of-distribution" class="section level1">
-<h1>VAST Model of Distribution</h1>
-<p>The model built in VAST is an index of abundance model that predicts the abundance as average catch over years and locations. This model uses data from the Northeast Fisheries Science Center (NEFSC) spring and fall bottom trawl surveys, 1963-2019, and the Northeast Area Monitoring and Assessment Program (NEAMAP) near shore trawl, 2007-2020. For this model, the data are limited to overlapping years, 2007-2019.</p>
 <p>The biomass of menhaden varies over the years (Figure @ref(fig:abundance))</p>
 <div class="figure" style="text-align: center">
 <img src="results_files/figure-html/springabundance-1.png" alt="Total biomass of Atlantic menhaden NEFSC bottom trawl surveys, 1963-2019, from the Spring survey." width="50%" />
@@ -370,7 +370,8 @@ Total biomass of Atlantic menhaden NEFSC bottom trawl surveys, 1963-2019, from F
 <p class="caption"><strong>(#fig:knots) Area the abundance is being predicted over and the number of knots used to calculate over the surface.</strong></p>
 </div>
 </center>
-<p>For each sampled year of the NEFSC bottom trawl survey, 1963-2019, the Atlantic menhaden abundance is estimated across the sampled area. Note that these data are not verified as including all appropriate years and survey sites, and these data are pooling the spring and fall surveys into a single year. Thus, these results should be interpreted only as a preliminary understanding of the model output and should not be considered a representation of the actual ecology of menhaden. Given these caveats, in general, the distribution has changed periodically, with years of low abundance or absence in the north (Figure @ref(fig:dist)). Menhaden are most abundant along the coast, with localized abundance offshore around Georges Bank and a localized absence in the NY Bight. More work is needed to examine this.</p>
+<p>Atlantic menhaden abundance was estimated across the sampled area within each season and for each year, 2007-2019, as predicted by depth and bottom temperature. Overall, menhaden distribution varies between seasons, between years, and between regions. Abundance is highest the mouth of the Chesapeake Bay and North Carolina coast over all years and between seasons. In the north, from the New York Bight to the Maine coast, abundance is lower than to the south, but there are years of higher abundance (Figure @ref(fig:dist)). Menhaden are most abundant along the coast, with localized abundance offshore around Georges Bank and the NY Bight.</p>
+<p>Menhaden are more broadly distributed across the continental shelf in the spring than in the fall. In the fall, menhaden are more distributed toward the shore and to the north.</p>
 <center>
 <div class="figure">
 <img src="images/ln_density-predicted_spring.png" alt="" />
@@ -408,7 +409,6 @@ Total biomass of Atlantic menhaden NEFSC bottom trawl surveys, 1963-2019, from F
 </center>
 <p>Longitudinal range edge for Atlantic menhaden follows a similar static or stable trend (Figure @ref(fig:erange)), with the same caveats as with the latitudinal range edge figure. Additionally, longitudinal range edge is limited by the shoreline and the shape of it, and has less biogeographical theory support than poleward changes, so longitudinal range edge may not be as informative.</p>
 <center>
-</div>
 
 
 

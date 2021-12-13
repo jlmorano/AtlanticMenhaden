@@ -11,9 +11,9 @@
 
 <meta name="author" content="Janelle Morano" />
 
-<meta name="date" content="2021-10-21" />
+<meta name="date" content="2021-12-13" />
 
-<title>Background</title>
+<title>Methods</title>
 
 <script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -343,38 +343,24 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Background</h1>
+<h1 class="title toc-ignore">Methods</h1>
 <h4 class="author">Janelle Morano</h4>
-<h4 class="date">10/21/2021</h4>
+<h4 class="date">12/13/2021</h4>
 
 </div>
 
 
-<div id="climate-change-impacts" class="section level1">
-<h1>Climate Change Impacts</h1>
-<p>Marine species are responding to dramatic changes in the marine environment caused by climate change through adaptation, mortality, or movement, and these responses can be tracked by understanding how the spatial distribution of a population may be changing. When we properly characterize the spatio-temporal distribution and abundance of species, we can reveal the underlying ecosystem processes that influence its population and community dynamics. Species distribution models (SDM) that account for unmeasured variables and processes (i.e. latent variables or random effects), including spatial autocorrelation (neighboring samples are more similar to each other than those that are farther apart), can reduce the bias in population models and improve the accuracy of predicting species distributions under future seascape scenarios (e.g., climate change scenarios, offshore wind development). These models can also be used to explore and address situations where species may not be appropriately captured by a fixed survey, either temporally or spatially, as a result of a changing ecosystem. For example, species movements to deeper waters, latitudinal shifts outside a survey region, or shifts in the timing of seasonal migrations.</p>
+<p><em>Disclaimer: These are results of my preliminary work that I use to synthesize and interpret with my mentors, probably riddled with problems. If you managed to stumble onto this, I’m sorry, because this is not going to be helpful to you.</em></p>
+<div id="data" class="section level1">
+<h1>Data</h1>
+<p>Data are menhaden catch from the Northeast Fisheries Science Center (NEFSC) spring and fall bottom trawl surveys, 1963-2019, and the Northeast Area Monitoring and Assessment Program (NEAMAP) near shore trawl, 2007-2020. For this model, the data are limited to overlapping years, 2007-2019.</p>
+<p>Depth and bottom temperature measurements are concurrently taken for each sampled site within both surveys.</p>
 </div>
-<div id="menhaden" class="section level1">
-<h1>Menhaden</h1>
-<p>Forage fish (juvenile fish and small pelagic fishes) are important prey for large pelagic and protected species; their populations are sensitive to environmental conditions, but their spatial distributions are often overlooked. I am currently using Atlantic menhaden, <em>Brevoortia tyrannus</em>, as a case study. Menhaden are planktivorous schoolers found in coastal waters from Florida to Nova Scotia and are important prey to fish, birds, and marine mammals (Figure @ref(fig:distribution)). Menhaden spend the winter off the southeastern US coast and move north in spring. In the summer, they stratify and school by age/size, and older fish move farther north until the late summer when they migrate south again. Following many forage fish population characteristics, menhaden population has cycles of increasing and decreasing abundance. Menhaden abundance peaked in the 1950s and then decreased precipitously, maintaining a relatively low abundance through the 1980s. Since the 1990s, abudance has trended to increase, with abudance in recent years being more similar to the 1950s (Figure @ref(fig:stock)). Spatially, abundance patterns across the coast are not temporally even, where increased abundance was in the south in the 70s-90s, then in the north in the early 2000s (Buchheister et al., 2016). There is anecdotal evidence that menhaden abundance has increased in the NY Bight region in recent years.</p>
-<div class="figure" style="text-align: center">
-<img src="background_files/figure-html/distribution-1.png" alt="The distribution of sampled menhaden in the NEFSC bottom trawl surveys, 1963-2019, and the NEAMAP bottom trawl surveys, 2007-2020. Note that recent years are plotted on top of past years, which may obscure contractions or expansions of the range in past years." width="672" />
-<p class="caption">
-The distribution of sampled menhaden in the NEFSC bottom trawl surveys, 1963-2019, and the NEAMAP bottom trawl surveys, 2007-2020. Note that recent years are plotted on top of past years, which may obscure contractions or expansions of the range in past years.
-</p>
-</div>
-<div class="figure" style="text-align: center">
-<img src="background_files/figure-html/distribution-2.png" alt="The distribution of sampled menhaden in the NEFSC bottom trawl surveys, 1963-2019, and the NEAMAP bottom trawl surveys, 2007-2020. Note that recent years are plotted on top of past years, which may obscure contractions or expansions of the range in past years." width="672" />
-<p class="caption">
-The distribution of sampled menhaden in the NEFSC bottom trawl surveys, 1963-2019, and the NEAMAP bottom trawl surveys, 2007-2020. Note that recent years are plotted on top of past years, which may obscure contractions or expansions of the range in past years.
-</p>
-</div>
-<center>
-<div class="figure">
-<img src="/Users/janellemorano/DATA/AtlanticmenhadenBiomass_fromSEDAR2020.png" style="width:50.0%" alt="" />
-<p class="caption"><strong>(#fig:stock) Biomass of age 1+ Atlantic menhaden stock, 1955-2017. Reproduced from SEDAR (2020).</strong></p>
-</div>
-</center>
+<div id="distribution-model-in-vast" class="section level1">
+<h1>Distribution Model in VAST</h1>
+<p>The model built in VAST estimates the biomass density of menhaden at locations across a spatial area and over years as predicted by depth and bottom temperature in a spatio-temporally explicit model.</p>
+<p>Broadly, the model is conceptually as follows, however, I know that I am currently mis-representing the differences between the surveys with vessel effects and that needs to be fixed:</p>
+<p><span class="math inline">\(Density = TemporalVar(\beta) + SpatialVar(\omega) + SpatioTemporalVar(\varepsilon) + VesselEffects(\eta) + Depth(\nu1) + BottomTemp(\nu2)\)</span></p>
 </div>
 
 

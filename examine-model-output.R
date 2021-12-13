@@ -3,9 +3,16 @@
 # Janelle L. Morano
 # This assumes you ran a menhaden model in VAST 3.8.2 and you have the fit.fall and fit.spring in your environment still.
 # last updated 7 Dec 2021
+
+# 1. Density Estimates
+# 1.a. Re-Mapping Density Estimates
+# 2. Center of gravity
 ###############################################
 ###############################################
 
+####################
+# 1. Density Estimates
+####################
 # Look at density estimates
 summary_list <- summary(fit.spring)
 # log biomass density estimates at each extrapolation grid cell
@@ -18,11 +25,12 @@ ggplot(est_density, aes(Year, Density)) +
 # Now compare where values for SS3 table come. Should be sum of biomass
 total_biomass <- est_density %>%
   group_by(Year) %>%
-  mutate(Density, funs(cumsum))
+  mutate(Density, list(~cumsum))
 total_biomass <- aggregate(est_density$Density, by=list(Category=est_density$Year), FUN=sum)  
 
-# Density Predictions
-#############
+####################
+# 1.a. Re-Mapping Density Estimates
+####################
 
 # Spring
 #############
@@ -212,16 +220,15 @@ ggplot(data = world) +
 # ylab("latitude") 
 
 
+####################
 # Center of Gravity
-###############
+####################
 fit.spring[["Report"]][["mean_Z_ctm"]]
-# 1 is eastings
+# Spatial_axis = E_km is eastings
 easting <- fit.spring[["Report"]][["mean_Z_ctm"]][,,1]
-# 2 is northings
+# Spatial_axis = N_km is northings
 northing <- fit.spring[["Report"]][["mean_Z_ctm"]][,,2]
-# Year, not sure where it is so I'm going to guess it's in order from low to high and create
-year <- c(2007:2019)
-
+# pull together
 cog <- data.frame(northing, easting)
 write_csv(cog, file = "CenterofGravity_spring.csv")
 ggplot(cog, aes(x=easting, y=northing, color = "#FF68F46FF", lwd=5.0)) +

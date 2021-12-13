@@ -1,0 +1,24 @@
+---
+title: "Methods"
+author: "Janelle Morano"
+date: "12/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Disclaimer: These are results of my preliminary work that I use to synthesize and interpret with my mentors, probably riddled with problems. If you managed to stumble onto this, I'm sorry, because this is not going to be helpful to you.*
+
+# Data
+Data are menhaden catch from the Northeast Fisheries Science Center (NEFSC) spring and fall bottom trawl surveys, 1963-2019, and the Northeast Area Monitoring and Assessment Program (NEAMAP) near shore trawl, 2007-2020. For this model, the data are limited to overlapping years, 2007-2019.
+
+Depth and bottom temperature measurements are concurrently taken for each sampled site within both surveys.
+
+# Distribution Model in VAST
+The model built in VAST estimates the biomass density of menhaden at locations across a spatial area and over years as predicted by depth and bottom temperature in a spatio-temporally explicit model.
+
+Broadly, the model is conceptually as follows, however, I know that I am currently mis-representing the differences between the surveys with vessel effects and that needs to be fixed:
+
+$Density = TemporalVar(\beta) + SpatialVar(\omega) + SpatioTemporalVar(\varepsilon) + VesselEffects(\eta) + Depth(\nu1) + BottomTemp(\nu2)$

@@ -169,7 +169,7 @@ fit.spring = fit_model( "settings" = settings,
                  "t_i" = data.spring$Year, #time
                  "b_i" = data.spring$Biomass, #catch
                  "a_i" = data.spring$Areasw, #area swept
-                 "v_i"= data.spring$Cruise,
+                 "v_i"= data.spring$Cruise, #vessel effects, I think wrong
                  "X1_formula" = X1_formula, #depth
                  "X2_formula" = X2_formula, #bottemp
                  "covariate_data" = covariate_data.spring,

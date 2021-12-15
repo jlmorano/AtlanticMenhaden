@@ -11,14 +11,14 @@
 
 <meta name="author" content="Janelle Morano" />
 
-<meta name="date" content="2021-12-13" />
+<meta name="date" content="2021-12-15" />
 
 <title>Results</title>
 
 <script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -31,11 +31,8 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">
@@ -223,69 +220,6 @@ $(document).ready(function () {
 
 
 
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
-
-
 
 </head>
 
@@ -293,16 +227,6 @@ div.tocify {
 
 
 <div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -345,75 +269,85 @@ div.tocify {
 
 <h1 class="title toc-ignore">Results</h1>
 <h4 class="author">Janelle Morano</h4>
-<h4 class="date">12/13/2021</h4>
+<h4 class="date">12/15/2021</h4>
 
 </div>
 
 
-<p>The biomass of menhaden varies over the years (Figure @ref(fig:abundance))</p>
-<div class="figure" style="text-align: center">
-<img src="results_files/figure-html/springabundance-1.png" alt="Total biomass of Atlantic menhaden NEFSC bottom trawl surveys, 1963-2019, from the Spring survey." width="50%" />
+<style>
+p.caption {
+  font-size: 0.8em;
+}
+</style>
+<p>The total biomass of menhaden varies over the years in the spring <a href="#fig:springabun">1</a> and the fall <a href="#fig:fallabun">2</a>. <strong>Note: need to verify the units.</strong></p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:springabun"></span>
+<img src="results_files/figure-html/springabun-1.png" alt="Total biomass of Atlantic menhaden NEFSC bottom trawl surveys, 1963-2019, from the Spring survey." width="672" />
 <p class="caption">
-Total biomass of Atlantic menhaden NEFSC bottom trawl surveys, 1963-2019, from the Spring survey.
+Figure 1: Total biomass of Atlantic menhaden NEFSC bottom trawl surveys, 1963-2019, from the Spring survey.
 </p>
 </div>
-<div class="figure" style="text-align: center">
-<img src="results_files/figure-html/fallabundance-1.png" alt="Total biomass of Atlantic menhaden NEFSC bottom trawl surveys, 1963-2019, from Fall survey." width="50%" />
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:fallabun"></span>
+<img src="results_files/figure-html/fallabun-1.png" alt="Total biomass of Atlantic menhaden NEFSC bottom trawl surveys, 1963-2019, from Fall survey." width="672" />
 <p class="caption">
-Total biomass of Atlantic menhaden NEFSC bottom trawl surveys, 1963-2019, from Fall survey.
+Figure 2: Total biomass of Atlantic menhaden NEFSC bottom trawl surveys, 1963-2019, from Fall survey.
 </p>
 </div>
-<p>The estimates of abundance and distribution are made over the extrapolation grid that encompasses the sampled area (Figure @ref(fig:knots)). The knots (red dots) are used as computational points (Figure @ref(fig:knots)).</p>
+<p>Biomass is not correlated with any environmental conditions. Since water temperature has been a significant predictor of distribution among marine fishes, I will test how depth and temperature influence the spatio-temporal distribution of menhaden. Bottom temperature and sea surface temperature are highly correlated with each other, so I will use bottom temperature, also because the sampling method was with a bottom trawler.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:corr"></span>
+<img src="results_files/figure-html/corr-1.png" alt="Correlation between environmental variables and biomass." width="672" />
+<p class="caption">
+Figure 3: Correlation between environmental variables and biomass.
+</p>
+</div>
+<p>The estimates of abundance and distribution are made over the extrapolation grid that encompasses the sampled area (Figure <a href="#fig:knots">4</a>). The knots (red dots) are used as computational points (Figure <a href="#fig:knots">4</a>).</p>
 <center>
-<div class="figure">
-<img src="images/Data_and_knots.png" style="width:50.0%" alt="" />
-<p class="caption"><strong>(#fig:knots) Area the abundance is being predicted over and the number of knots used to calculate over the surface.</strong></p>
+<div class="figure"><span style="display:block;" id="fig:knots"></span>
+<img src="images/Data_and_knots.png" alt="" />
+<p class="caption"><strong>Figure 4:  Area the abundance is being predicted over and the number of knots used to calculate over the surface.</strong></p>
 </div>
 </center>
-<p>Atlantic menhaden abundance was estimated across the sampled area within each season and for each year, 2007-2019, as predicted by depth and bottom temperature. Overall, menhaden distribution varies between seasons, between years, and between regions. Abundance is highest the mouth of the Chesapeake Bay and North Carolina coast over all years and between seasons. In the north, from the New York Bight to the Maine coast, abundance is lower than to the south, but there are years of higher abundance (Figure @ref(fig:dist)). Menhaden are most abundant along the coast, with localized abundance offshore around Georges Bank and the NY Bight.</p>
+<p>Atlantic menhaden abundance was estimated across the sampled area within each season and for each year, 2007-2019, as predicted by depth and bottom temperature. Overall, menhaden distribution varies between seasons, between years, and between regions. Abundance is highest the mouth of the Chesapeake Bay and North Carolina coast over all years and between seasons. In the north, from the New York Bight to the Maine coast, abundance is lower than to the south, but there are years of higher abundance (Figure <a href="#fig:dist">5</a>). Menhaden are most abundant along the coast, with localized abundance offshore around Georges Bank and the NY Bight.</p>
 <p>Menhaden are more broadly distributed across the continental shelf in the spring than in the fall. In the fall, menhaden are more distributed toward the shore and to the north.</p>
 <center>
-<div class="figure">
+<div class="figure"><span style="display:block;" id="fig:dist"></span>
 <img src="images/ln_density-predicted_spring.png" alt="" />
-<p class="caption"><strong>(#fig:dist) Estimated spatio-temporal distribution of Atlantic menhaden, 2007-2019, in Spring. Dark blue = 0-low abundance, yellow = high abundance.</strong></p>
+<p class="caption"><strong>Figure 5:  Estimated spatio-temporal distribution of Atlantic menhaden, 2007-2019, in Spring. Dark blue = 0-low abundance, yellow = high abundance.</strong></p>
 </div>
 <center>
-<div class="figure">
+<div class="figure"><span style="display:block;" id="fig:dist"></span>
 <img src="images/ln_density-predicted_fall.png" alt="" />
-<p class="caption"><strong>(#fig:dist) Estimated spatio-temporal distribution of Atlantic menhaden, 2007-2019, in Fall. Dark blue = 0-low abundance, yellow = high abundance.</strong></p>
+<p class="caption"><strong>Figure 5:  Estimated spatio-temporal distribution of Atlantic menhaden, 2007-2019, in Fall. Dark blue = 0-low abundance, yellow = high abundance.</strong></p>
 </div>
 </center>
-<p>To quantify the change in the distribution of species, there are a few metrics that VAST calculates by default. The first is center of gravity, which is the mean spatial location of the sampled population, weighted by biomass (Figure @ref(fig:center)). This measure is most effective at assessing change over time if the distribution across the range is more homogenous and so it is unclear if this measurement is the most appropriate for this population. However, looking at the trend in recent years, there may be some movement more west and north, which could be interpreted as more coastal towards the north.</p>
+<p>To quantify the change in the distribution of species, there are a few metrics that VAST calculates by default. The first is center of gravity, which is the mean spatial location of the sampled population, weighted by biomass (Figure <a href="#fig:center">6</a>). This measure is most effective at assessing change over time if the distribution across the range is more homogenous and so it is unclear if this measurement is the most appropriate for this population. However, looking at the trend in recent years, there may be some movement more west and north, which could be interpreted as more coastal towards the north.</p>
 <center>
-<div class="figure">
+<div class="figure"><span style="display:block;" id="fig:center"></span>
 <img src="images/center_of_gravity_spring.png" style="width:75.0%" alt="" />
-<p class="caption"><strong>(#fig:center) The center of gravity of the Spring population (left graph = easting, right graph = northing). Refer to Figure 5.1 for a geographic easting and northing reference.</strong></p>
+<p class="caption"><strong>Figure 6:  The center of gravity of the Spring population (left graph = easting, right graph = northing). Refer to Figure 5.1 for a geographic easting and northing reference.</strong></p>
 </div>
 <center>
-<div class="figure">
+<div class="figure"><span style="display:block;" id="fig:center"></span>
 <img src="images/center_of_gravity_fall.png" style="width:75.0%" alt="" />
-<p class="caption"><strong>(#fig:center) The center of gravity of the Fall population (left graph = easting, right graph = northing). Refer to Figure 5.1 for a geographic easting and northing reference.</strong></p>
+<p class="caption"><strong>Figure 6:  The center of gravity of the Fall population (left graph = easting, right graph = northing). Refer to Figure 5.1 for a geographic easting and northing reference.</strong></p>
 </div>
 </center>
-<p>The second metric is the distributional range edge, which, for marine species along the US Atlantic coast, has been moving northward in relationship to warming ocean temperatures. VAST provides a calculation of the latitudinal and longitudinal range edge, or by northing and easting, respectively, by default. In the default figure format, the northern (BLUE) and southern (RED) range edges of Atlantic menhaden, along with the centroid (GREEN), appear to be static or stable (Figure @ref(fig:nrange)). However, when comparing the centroid in Figure @ref(fig:center) to the centroid in Figure @ref(fig:nrange), there may be detail of patterns of change that are lost in the scale of the range edge figure (Figure @ref(fig:nrange)). Additionally, the range edges are near the survey extents, so the NEFSC survey may not fully capture the extent of menhaden distribution.</p>
+<p>The second metric is the distributional range edge, which, for marine species along the US Atlantic coast, has been moving northward in relationship to warming ocean temperatures. VAST provides a calculation of the latitudinal and longitudinal range edge, or by northing and easting, respectively, by default. In the default figure format, the northern (BLUE) and southern (RED) range edges of Atlantic menhaden, along with the centroid (GREEN), appear to be static or stable (Figure <a href="#fig:nrange">7</a>). However, when comparing the centroid in Figure <a href="#fig:center">6</a> to the centroid in Figure <a href="#fig:nrange">7</a>, there may be detail of patterns of change that are lost in the scale of the range edge figure (Figure <a href="#fig:nrange">7</a>). Additionally, the range edges are near the survey extents, so the NEFSC survey may not fully capture the extent of menhaden distribution.</p>
 <center>
-<div class="figure">
+<div class="figure"><span style="display:block;" id="fig:nrange"></span>
 <img src="images/RangeEdge_N_km_spring.png" style="width:50.0%" alt="" />
-<p class="caption"><strong>(#fig:nrange) Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).</strong></p>
+<p class="caption"><strong>Figure 7:  Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).</strong></p>
 </div>
 <center>
-<div class="figure">
+<div class="figure"><span style="display:block;" id="fig:nrange"></span>
 <img src="images/RangeEdge_N_km_fall.png" style="width:50.0%" alt="" />
-<p class="caption"><strong>(#fig:nrange) Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).</strong></p>
+<p class="caption"><strong>Figure 7:  Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).</strong></p>
 </div>
 </center>
-<p>Longitudinal range edge for Atlantic menhaden follows a similar static or stable trend (Figure @ref(fig:erange)), with the same caveats as with the latitudinal range edge figure. Additionally, longitudinal range edge is limited by the shoreline and the shape of it, and has less biogeographical theory support than poleward changes, so longitudinal range edge may not be as informative.</p>
+<p>Longitudinal range edge for Atlantic menhaden follows a similar static or stable trend (Figure <a href="#fig:erange"><strong>??</strong></a>), with the same caveats as with the latitudinal range edge figure. Additionally, longitudinal range edge is limited by the shoreline and the shape of it, and has less biogeographical theory support than poleward changes, so longitudinal range edge may not be as informative.</p>
 <center>
 
 
 
-</div>
-</div>
 
 </div>
 
@@ -446,35 +380,6 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
-<script>
-$(document).ready(function ()  {
-
-    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
-    $('.unlisted.unnumbered').addClass('toc-ignore')
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

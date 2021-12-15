@@ -22,3 +22,17 @@ The model built in VAST estimates the biomass density of menhaden at locations a
 Broadly, the model is conceptually as follows, however, I know that I am currently mis-representing the differences between the surveys with vessel effects and that needs to be fixed:
 
 $Density = TemporalVar(\beta) + SpatialVar(\omega) + SpatioTemporalVar(\varepsilon) + VesselEffects(\eta) + Depth(\nu1) + BottomTemp(\nu2)$
+
+```
+fit = fit_model( "settings" = settings,
+                 "Lat_i" = data.spring$Latitude,
+                 "Lon_i" = data.spring$Longitude,
+                 "t_i" = data.spring$Year, #time
+                 "b_i" = data.spring$Biomass, #catch in biomass
+                 "a_i" = data.spring$Areasw, #area swept
+                 "v_i"= data.spring$Cruise, #vessel effects, I think wrong as I've done it
+                 "X1_formula" = X1_formula, #depth
+                 "X2_formula" = X2_formula, #bottemp
+                 "covariate_data" = covariate_data, #depth and bottemp data
+                 "input_grid" = user_region)
+```

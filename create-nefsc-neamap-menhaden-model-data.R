@@ -4,7 +4,7 @@
 # Compile data from NEFSC and NEAMAP into: 
 #   - sample data
 #   - covariate data
-# last updated 12/7/2021
+# last updated 12/14/2021
 # These data are updated from previous NEFSC data presented at AFS Nov 2021
 ###############################################
 ###############################################
@@ -22,7 +22,7 @@ library(janitor)
 # "create-NEFSC-menhaden-data.R"
 # These data have menhaden positive catch and absences in NEFSC bottom trawl
 
-nefsc <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/nefsc.menhaden.csv")
+nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.csv")
 
 # Clean up NEFSC data to make it match desired df
 nefsc.2 <- nefsc %>%
@@ -115,3 +115,60 @@ unique(covariate_data$Survey)
 ####################
 #save this as a new dataset
 write.csv(covariate_data,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden_covariate_data.csv", row.names = TRUE)
+
+
+###################
+# Make Complete dataset
+###################
+# This is all data together for correlations and other data analyses.
+
+# NEFSC data
+#############
+nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.csv")
+
+# Grab catch and envt'l data
+corr.nefsc <- nefsc %>%
+  select(stratum, year, season, lat, lon, depth, surftemp, surfsalin, bottemp, botsalin, abundance, biomass) %>%
+  add_column(Survey = "NEFSC", .before = "stratum")
+
+corr.nefsc$stratum <- as.character(corr.nefsc$stratum)
+
+# Add NEAMAP data to dataframe
+#################
+neamap <- read.csv("/Users/janellemorano/DATA/NEAMAP/NEAMAP_Atlantic Menhaden_2007_2021.csv", header = TRUE)
+colnames(neamap)
+# [1] "cruise"    "station"   "year"      "season"    "towbegin"  "timezone"  "region"    "dstrat"   
+# [9] "latitude"  "longitude" "areasw"    "depth"     "WT"        "SA"        "DO"        "PS"       
+# [17] "vimscode"  "count"     "weight"   
+corr.neamap <- neamap %>%
+  select(region, year, season, latitude, longitude, depth, WT, SA, count, weight) %>%
+  rename(stratum = region,
+         lat = latitude,
+         lon = longitude,
+         bottemp = WT,
+         botsalin = SA,
+         abundance = count,
+         biomass = weight) %>%
+  add_column(Survey = "NEAMAP", .before = "stratum") %>%
+  add_column(surftemp = NA, .after = "depth") %>%
+  add_column(surfsalin = NA, .before = "bottemp")
+
+# verify they match
+colnames(corr.nefsc)
+colnames(corr.neamap)
+str(corr.nefsc)
+str(corr.neamap)
+
+# bind into biodata
+corrdata <- bind_rows(corr.nefsc, corr.neamap)
+corrdata <- clean_names(corrdata, "upper_camel")
+
+# verify it looks ok
+plot(corrdata$Lon, corrdata$Lat)
+plot(corrdata$Year, corrdata$Abundance)
+plot(corrdata$Year, corrdata$Biomass)
+
+# Write dataset as .csv file
+####################
+#save this as a new dataset
+write.csv(corrdata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/combined-catch-envtl.csv", row.names = TRUE)

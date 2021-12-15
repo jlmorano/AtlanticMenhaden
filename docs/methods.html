@@ -361,6 +361,17 @@ div.tocify {
 <p>The model built in VAST estimates the biomass density of menhaden at locations across a spatial area and over years as predicted by depth and bottom temperature in a spatio-temporally explicit model.</p>
 <p>Broadly, the model is conceptually as follows, however, I know that I am currently mis-representing the differences between the surveys with vessel effects and that needs to be fixed:</p>
 <p><span class="math inline">\(Density = TemporalVar(\beta) + SpatialVar(\omega) + SpatioTemporalVar(\varepsilon) + VesselEffects(\eta) + Depth(\nu1) + BottomTemp(\nu2)\)</span></p>
+<pre><code>fit = fit_model( &quot;settings&quot; = settings,
+                 &quot;Lat_i&quot; = data.spring$Latitude,
+                 &quot;Lon_i&quot; = data.spring$Longitude,
+                 &quot;t_i&quot; = data.spring$Year, #time
+                 &quot;b_i&quot; = data.spring$Biomass, #catch in biomass
+                 &quot;a_i&quot; = data.spring$Areasw, #area swept
+                 &quot;v_i&quot;= data.spring$Cruise, #vessel effects, I think wrong as I&#39;ve done it
+                 &quot;X1_formula&quot; = X1_formula, #depth
+                 &quot;X2_formula&quot; = X2_formula, #bottemp
+                 &quot;covariate_data&quot; = covariate_data, #depth and bottemp data
+                 &quot;input_grid&quot; = user_region)</code></pre>
 </div>
 
 

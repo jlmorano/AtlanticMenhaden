@@ -118,15 +118,16 @@ To quantify the change in the distribution of species, there are a few metrics t
 
 </center>
 
-The second metric is the distributional range edge, which, for marine species along the US Atlantic coast, has been moving northward in relationship to warming ocean temperatures. VAST provides a calculation of the latitudinal and longitudinal range edge, or by northing and easting, respectively, by default. In the default figure format, the northern (BLUE) and southern (RED) range edges of Atlantic menhaden, along with the centroid (GREEN), appear to be static or stable (Figure \@ref(fig:nrange)). However, when comparing the centroid in Figure \@ref(fig:center) to the centroid in Figure \@ref(fig:nrange), there may be detail of patterns of change that are lost in the scale of the range edge figure (Figure \@ref(fig:nrange)). Additionally, the range edges are near the survey extents, so the NEFSC survey may not fully capture the extent of menhaden distribution. 
+The second metric is the distributional range edge, which, for marine species along the US Atlantic coast, has been moving northward in relationship to warming ocean temperatures. VAST provides a calculation of the latitudinal and longitudinal range edge, or by northing and easting, respectively. Looking at the poleward shifts (latitudinal or northing edges), the northern (BLUE) and southern (RED) range edges of Atlantic menhaden, along with the centroid (GREEN), appear to be at latitude around the NYBight region in the spring (Figure \@ref(fig:springrange)) and fall (Figure \@ref(fig:fallrange)). This is more northern that the density maps would appear to suggest, given that the highest densities are at the Chesapeake and NC coast. There is a wider range edge in the spring (Figure \@ref(fig:springrange)) than the fall (Figure \@ref(fig:fallrange)), but I may not be interpreting the graph correctly, because the circles do not capture the southern edge. Overall, the range edge appears to be static or stable over years in both seasons.
+
 
 <center>
 
-![**(#fig:nrange) Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).**](/Users/janellemorano/Git/AtlanticMenhaden/docs/images/RangeEdge_N_km_spring.png){width=50%}
+![**(#fig:springrange) Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).**](/Users/janellemorano/Git/AtlanticMenhaden/docs/images/RangeEdge_N_km_spring.png){width=50%}
 
 <center>
 
-![**(#fig:nrange) Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).**](/Users/janellemorano/Git/AtlanticMenhaden/docs/images/RangeEdge_N_km_fall.png){width=50%}
+![**(#fig:fallrange) Latitudinal (in northing, N_km) range edge. The northern edge is BLUE (0.95 = 95% biomass) and the southern edges is RED (0.05 = 5% biomass). The centroid is GREEN (0.5 = 50% of biomass).**](/Users/janellemorano/Git/AtlanticMenhaden/docs/images/RangeEdge_N_km_fall.png){width=50%}
 
 </center>
 

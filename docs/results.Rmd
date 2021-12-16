@@ -1,7 +1,7 @@
 ---
 title: "Results"
 author: "Janelle Morano"
-date: "12/15/2021"
+date: "`r format(Sys.time(), '%d %b %Y')`"
 output: 
   bookdown::html_document2:
     fig_caption: yes

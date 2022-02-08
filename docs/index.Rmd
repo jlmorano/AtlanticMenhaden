@@ -11,18 +11,21 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Project Overview
 
-**Ph.D. Dissertation: Quantifying Spatio-Temporal Responses of Marine Ecosystems to Climate Change and Other Anthropogenic Habitat Modifications to Facilitate Adaptive Management Strategies**
+**Ph.D. Dissertation: Measuring where marine species may go in response to climate change and ways to adapt management strategies to be responsive and proactive**
 
-My dissertation research is focused on the spatio-temporal responses of the marine ecosystem to climate change to improve forecasts of species distributions and adapt responsive management practices. I am particularly interested in understanding the trade-offs in model architecture and different surveys that affect bias and accuracy in spatio-temporal predictions at various scales. I want to use this information to recommend options for alternative sampling designs and modeling architectures that support adaptive management strategies and future planning efforts.
+*Jargony title: Quantifying Spatio-Temporal Responses of Marine Ecosystems to Climate Change and Other Anthropogenic Habitat Modifications to Facilitate Adaptive Management Strategies*
 
-Currently, I am building a spatio-temporal model of Atlantic menhaden to understand the factors influencing population response at various scales, while comparing model architectures (VAST, R-INLA) and using multiple sources of data. In the future, I will forecast menhaden distribution under various climate change and offshore wind development scenarios.
+My dissertation research is focused on the spatio-temporal responses of the marine ecosystem to climate change to improve forecasts of species distributions and adapt responsive management practices. I am particularly interested in understanding decision trade-offs in building predictive models and effectively communicating the uncertainty and risk that support adaptive management strategies and future planning efforts. 
 
 My research is supported by the NMFS-Sea Grant Population and Ecosystem Dynamics Fellowship and the New York Department of Environmental Conservation.
 
-# Research Questions
-1. What drives the distribution and abundance patterns of Atlantic menhaden and other forage fishes?
-1. What is the forecasted distribution of Atlantic menhaden and other forage fishes under different climate scenarios and offshore wind development plans, and what are the potential impacts on the ecosystem and management of these fisheries?
-1. How could fisheries management adapt to changing distributions? What adaptive management strategies could be considered for future planning (e.g., modeling frameworks, survey designs, time-area closures)?
+## Research Questions
+1. What is the current distribution of marine species, how has it changed recently, and what are the major factors influencing the distribution? My goal is to gain a deeper understanding of spatio-temporal statistical models, the trade-offs in bias and accuracy when selecting parameters and the spatial and temporal limitations of data.
+1. What is the forecasted distribution of marine species under different climate scenarios, and what are the potential impacts and risks associated with ecosystem management, particularly with fishing and offshore wind development plans? My goal is to provide information that is useful to identify risks and challenges.
+1. How could fisheries science and management adapt to changing distributions? Can we distinguish between a population that has move its distribution outside of fixed sampling area and a population that is declining? My goal is to give guidance for adaptive management strategies that could be considered for future planning (e.g., modeling frameworks, survey designs, time-area closures).
+
+## Current Project
+Currently, I am building a spatio-temporal model of Atlantic menhaden to understand if menhaden distribution has shifted northward and/or offshore in recent years and evaluate the influence of water temperature and prey availability. 
 
 
 *remember* rmarkdown::render_site()

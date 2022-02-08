@@ -1,7 +1,7 @@
 ---
 title: "Background"
 author: "Janelle Morano"
-date: "10/21/2021"
+date: "`r format(Sys.time(), '%d %b %Y')`"
 output: html_document
 ---
 
@@ -66,3 +66,9 @@ ggplot(data = world) +
 ![**(#fig:stock) Biomass of age 1+ Atlantic menhaden stock, 1955-2017. Reproduced from SEDAR (2020).**](/Users/janellemorano/DATA/AtlanticmenhadenBiomass_fromSEDAR2020.png){width=50%}
 
 </center>
+
+# Sampling Techniques
+NOAA's Northeast Fisheries Science Center bottom trawl surveys are conducted twice a year annual since 1963, making this among the longest statistically-designed sampling surveys in the US. But menhaden, along with other forage fishes, are mid-water to surface schooling fishes. This means that bottom trawl sampling is not targeted for forage fishes, and likely an inadequate way to sample these fishes. However, it is the only offshore sampling survey that covers a large part of menhaden distribution.
+
+State surveys are conducted in state waters, more inshore. Some are bottom trawls still. 
+ 

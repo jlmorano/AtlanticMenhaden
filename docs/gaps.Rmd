@@ -1,0 +1,17 @@
+---
+title: "Gaps & Still To Do"
+author: "Janelle Morano"
+date: "`r format(Sys.time(), '%d %b %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Build the ideal model in VAST
+1. Fully interpret the output: model estimates and biological interpretation
+1. Temporal changes in water temperature
+1. Get plankton data into model
+1. Get feedback from ASMFC
+1. Get state data into model

@@ -10,6 +10,8 @@ navbar:
       href: methods.html
     - text: "Results"
       href: results.html
+    - text: "Gaps & Still To Do"
+      href: gaps.html
 output_dir: "."
 output:
   html_document:

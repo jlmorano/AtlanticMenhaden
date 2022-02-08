@@ -16,9 +16,9 @@ p.caption {
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
-
 ```
 
+# Menhaden and Environmental Conditions
 
 The total biomass of menhaden varies over the years in the spring \@ref(fig:springabun) and the fall \@ref(fig:fallabun). **Note: need to verify the units.**
 
@@ -64,6 +64,12 @@ ggplot(data = sum.bio, aes(Year, sum)) +
   ylab("Total Biomass (kg)")
 ```
 
+## More to add here
+temp at latitudes over time
+
+regression between biomass and temp (maybe depth)
+
+## correlations
 Biomass is not correlated with any environmental conditions. Since water temperature has been a significant predictor of distribution among marine fishes, I will test how depth and temperature influence the spatio-temporal distribution of menhaden. Bottom temperature and sea surface temperature are highly correlated with each other, so I will use bottom temperature, also because the sampling method was with a bottom trawler.
 
 ```{r corr, echo=FALSE, message=FALSE, fig.align="center", fig.cap= "Correlation between environmental variables and biomass."}
@@ -82,7 +88,7 @@ ggcorr(corrdata)
 # ggcorr(corr.fall)
 ```
 
-
+# VAST Model Estimates
 The estimates of abundance and distribution are made over the extrapolation grid that encompasses the sampled area (Figure \@ref(fig:knots)). The knots (red dots) are used as computational points (Figure \@ref(fig:knots)).
 
 <center>

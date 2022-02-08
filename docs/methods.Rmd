@@ -11,12 +11,25 @@ knitr::opts_chunk$set(echo = TRUE)
 
 *Disclaimer: These are results of my preliminary work that I use to synthesize and interpret with my mentors, probably riddled with problems. If you managed to stumble onto this, I'm sorry, because this is not going to be helpful to you.*
 
-# Data
+# Research Questions and Hypotheses
+What is the spatio-temporal distribution of menhaden and how does it change over seasons and years? Are there more menhaden in the north in recent years than in the past? Are they moving more offshore?
+
+Hypothesis 1: menhaden are expanding their range more northward as ocean temperature warms overall over years. 
+Hypothesis 2: menhaden abundance is increasing but is not correlated with expanding distribution because their overall population is lower than what would drive density-dependent distribution.
+Hypothesis 3: menhaden are migrating earlier in the spring and later in the fall as the timing of seasonal warming and cooling changes.
+
+# Biomass Data
 Data are menhaden catch from the Northeast Fisheries Science Center (NEFSC) spring and fall bottom trawl surveys, 1963-2019, and the Northeast Area Monitoring and Assessment Program (NEAMAP) near shore trawl, 2007-2020. For this model, the data are limited to overlapping years, 2007-2019.
 
-Depth and bottom temperature measurements are concurrently taken for each sampled site within both surveys.
+# Model Parameters
+Menhaden migration and spawning is closely associated with water temperature conditions, where migration occurs during XX range and spawning during XX range. Surface water temperature explains much of the northward distributional shift of east coast marine fishes, and often, bottom temperature more strongly explains distributional shifts into deeper water. Model parameters include depth and bottom temperature measurements, which are concurrently taken for each sampled site within both surveys.
+
+Menhaden feed on phyto- and zooplankton as juveniles and young adults until XX size. Water temperature may also influece the distribution and timing of blooms. 
 
 # Distribution Model in VAST
+The *ideal model* will predict the density of menhaden as a function of time, space, and the interaction of time and space, based on the bottom temperature, depth, and the distribution of plankton.
+
+*The current model I have built...*
 The model built in VAST estimates the biomass density of menhaden at locations across a spatial area and over years as predicted by depth and bottom temperature in a spatio-temporally explicit model.
 
 Broadly, the model is conceptually as follows, however, I know that I am currently mis-representing the differences between the surveys with vessel effects and that needs to be fixed:

@@ -27,6 +27,17 @@ ave.nyb <- nyb %>%
   group_by(year_name, month_name) %>%
   summarise(avg_bottemp = mean(bot_temp))
 
+# Making a quick and dirty output of temp by depth for exploring in NYBight
+# Average Bottom Temp per month, by depth category
+nyb <- nyb %>% 
+  mutate(depth_cat = case_when(bot_depth < 50 ~ "<50",
+                               bot_depth >= 50 & bot_depth <= 100 ~ "50-100",
+                               bot_depth > 100 & bot_depth <= 250 ~ "101-250",
+                               bot_depth > 250 ~ ">250"))
+ave.nyb <- nyb %>%
+  group_by(year_name, month_name, depth_cat) %>%
+  summarise(avg_bottemp = mean(bot_temp), avg_surftemp = mean(surf_temp))
+write.csv(ave.nyb,"Monthly_water_temp_NYBight_2007-2019.csv")
 
 # By month
 

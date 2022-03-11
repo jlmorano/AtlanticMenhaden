@@ -4,8 +4,8 @@
 # Compile data from NEFSC and NEAMAP into: 
 #   - sample data
 #   - covariate data
-# last updated 12/14/2021
-# These data are updated from previous NEFSC data presented at AFS Nov 2021
+# last updated 2/22/2022
+# These data are updated to include NEFSC data from 2021
 ###############################################
 ###############################################
 
@@ -18,11 +18,13 @@ library(janitor)
 
 # NEFSC data
 #############
-# These are NEFSC bottom trawl data from Survdat output originally given to me by Kevin Friedland. These data were then cleaned in:
+# These are NEFSC bottom trawl data from Survdat output. These data were then cleaned in:
 # "create-NEFSC-menhaden-data.R"
 # These data have menhaden positive catch and absences in NEFSC bottom trawl
 
-nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.csv")
+# nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.csv")  # nefsc 1963-2019
+
+nefsc <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/nefsc.menhaden.1963-2021.csv") # nefsc 1963-2021
 
 # Clean up NEFSC data to make it match desired df
 nefsc.2 <- nefsc %>%
@@ -66,6 +68,7 @@ plot(biodata$Year, biodata$Biomass)
 # Write dataset as .csv file
 ####################
 #save this as a new dataset
+# THIS OVERWRITES EXISTING FILE!!
 write.csv(biodata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden_sampledata.csv", row.names = TRUE)
 
 ######################
@@ -114,6 +117,7 @@ unique(covariate_data$Survey)
 # Write dataset as .csv file
 ####################
 #save this as a new dataset
+# THIS OVERWRITES EXISTING FILE!!
 write.csv(covariate_data,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden_covariate_data.csv", row.names = TRUE)
 
 
@@ -171,4 +175,5 @@ plot(corrdata$Year, corrdata$Biomass)
 # Write dataset as .csv file
 ####################
 #save this as a new dataset
+# THIS OVERWRITES EXISTING FILE!!
 write.csv(corrdata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/combined-catch-envtl.csv", row.names = TRUE)

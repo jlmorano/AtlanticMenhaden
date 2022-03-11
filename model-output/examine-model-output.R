@@ -55,27 +55,12 @@ D_gt <- D_gt %>% as.data.frame() %>%
   pivot_longer(-cell, names_to = "YearRep", values_to='D')
 D <- merge(D_gt, mdl$PlotDF, by.x='cell', by.y='x2i')
 PredDensity.spring <- D %>%
-  mutate(Year = case_when(
-    YearRep == "V1" ~ "2007",
-    YearRep == "V2" ~ "2008",
-    YearRep == "V3" ~ "2009",
-    YearRep == "V4" ~ "2010",
-    YearRep == "V5" ~ "2011",
-    YearRep == "V6" ~ "2012",
-    YearRep == "V7" ~ "2013",
-    YearRep == "V8" ~ "2014",
-    YearRep == "V9" ~ "2015",
-    YearRep == "V10" ~ "2016",
-    YearRep == "V11" ~ "2017",
-    YearRep == "V12" ~ "2018",
-    YearRep == "V13" ~ "2019",
-  ))
-PredDensity.spring <- PredDensity.spring %>%
+  rename(Year = YearRep) %>%
   mutate(D, logD =log(D))
 PredDensity.spring <- tibble(PredDensity.spring)
 write_csv(PredDensity.spring, file = "PredDensity_spring.csv")
-min(PredDensity.spring$logD) #-24.31025
-max(PredDensity.spring$logD) #24.31025
+min(PredDensity.spring$logD) #-25.74753 [(ln(re 1e-06 m-2.kg))]
+max(PredDensity.spring$logD) #22.43316 [(ln(re 1e-06 m-2.kg))]
 
 # Fall
 #############
@@ -100,27 +85,12 @@ D_gt <- D_gt %>% as.data.frame() %>%
   pivot_longer(-cell, names_to = "YearRep", values_to='D')
 D <- merge(D_gt, mdl$PlotDF, by.x='cell', by.y='x2i')
 PredDensity.fall <- D %>%
-  mutate(Year = case_when(
-    YearRep == "V1" ~ "2007",
-    YearRep == "V2" ~ "2008",
-    YearRep == "V3" ~ "2009",
-    YearRep == "V4" ~ "2010",
-    YearRep == "V5" ~ "2011",
-    YearRep == "V6" ~ "2012",
-    YearRep == "V7" ~ "2013",
-    YearRep == "V8" ~ "2014",
-    YearRep == "V9" ~ "2015",
-    YearRep == "V10" ~ "2016",
-    YearRep == "V11" ~ "2017",
-    YearRep == "V12" ~ "2018",
-    YearRep == "V13" ~ "2019",
-  ))
-PredDensity.fall <- PredDensity.fall %>%
+  rename(Year = YearRep) %>%
   mutate(D, logD =log(D))
 PredDensity.fall <- tibble(PredDensity.fall)
 write_csv(PredDensity.fall, file = "PredDensity_fall.csv")
-min(PredDensity.fall$logD) #-24.53828
-max(PredDensity.fall$logD) #33.16595
+min(PredDensity.fall$logD) #-27.65603 [(ln(re 1e-06 m-2.kg))]
+max(PredDensity.fall$logD) #31.98642 [(ln(re 1e-06 m-2.kg))]
 
 
 # Correcting scales between seasons
@@ -131,14 +101,14 @@ max(PredDensity.fall$logD) #33.16595
 den.spring <- read_csv("/Users/janellemorano/MODEL_OUTPUT/_currentrun/PredDensity_spring.csv")
 den.fall <- read_csv("/Users/janellemorano/MODEL_OUTPUT/_currentrun/PredDensity_fall.csv")
 
-# 33.2 was max value across both seasons
+# 33 was max value across both seasons
 den.spring <- mutate(den.spring, CorrDen = logD/33)
 max(den.spring$CorrDen)
-# 0.7366744
+# 0.6797928
 min(den.spring$CorrDen)
 den.fall <- mutate(den.fall, CorrDen = logD/33)
 max(den.fall$CorrDen)
-# 1.005029
+# 0.9692856
 min(den.fall$CorrDen)
 
 # Now use den.spring and den.fall datasets and $CorrDen to graph predicted density
@@ -154,42 +124,42 @@ world <- ne_countries(scale = "medium", returnclass = "sf")
 us <- ne_states(geounit = "United States of America", returnclass = "sf")  
 canada <- ne_states(geounit = "Canada", returnclass = "sf")
 
-## Draw just 1 or 2 years for Spring
+## Draw just 1 years for Spring
 ggplot(data = world) +
   geom_sf(data = us) + 
   geom_sf(data = canada) +
-  coord_sf (xlim = c(-83,-60), ylim = c (25,48), expand = FALSE ) +
-  geom_point(data = subset(den.spring, Year %in% c(2007:2018)), 
+  coord_sf (xlim = c(-81,-64), ylim = c (32,46), expand = FALSE ) +
+  geom_point(data = subset(den.spring, Year %in% c(2019)), 
              aes(Lon, Lat, color=CorrDen, group=NULL), #used to be log(D)
              ## These settings are necessary to avoid
              ## overlplotting which is a problem here. May need
              ## to be tweaked further.
-             size=.5, stroke=0.5,shape=16) + 
+             size=1, stroke=0.5,shape=16) + 
   facet_wrap('Year', ncol = 1) +
-  theme(strip.text.x = element_text(size = 6),
+  theme(strip.text.x = element_text(size = 15),
         strip.background = element_blank()) +
-  scale_color_viridis_c(option = "magma", limit = c(-0.79, 1), oob = scales::squish) +
+  scale_color_viridis_c(option = "viridis", limit = c(-0.79, 1), oob = scales::squish) +
   theme_classic() +
   theme(axis.text = element_blank()) +
   xlab("longitude") + 
   ylab("latitude") +
   ggtitle("Spring")
 
-## Draw just 1 or 2 years for Fall
+## Draw just 1 years for Fall
 ggplot(data = world) +
   geom_sf(data = us) + 
   geom_sf(data = canada) +
-  coord_sf (xlim = c(-83,-60), ylim = c (25,48), expand = FALSE ) +
+  coord_sf (xlim = c(-81,-64), ylim = c (32,46), expand = FALSE ) +
   geom_point(data = subset(den.fall, Year %in% c(2019)), 
              aes(Lon, Lat, color=CorrDen), #used to be log(D)   #, group=NULL
              ## These settings are necessary to avoid
              ## overlplotting which is a problem here. May need
              ## to be tweaked further.
-             size=.5, stroke=0.5,shape=16) + 
+             size=1, stroke=0.5,shape=16) + 
   facet_wrap(~Year, ncol = 1) +
   theme(strip.background = element_blank(), 
         strip.text = element_blank()) +
-  scale_color_viridis_c(option = "magma", limit = c(-0.79, 1), oob = scales::squish) +
+  scale_color_viridis_c(option = "viridis", limit = c(-0.79, 1), oob = scales::squish) +
   theme_classic() +
   theme(axis.text = element_blank()) +
   xlab("longitude") + 
@@ -202,7 +172,7 @@ ggplot(data = world) +
   # geom_sf(data = us) + 
   # geom_sf(data = canada) +
   geom_sf() + # use this when not using "us" and "canada"
-  coord_sf (xlim = c(-83,-60), ylim = c (30,48), expand = FALSE ) +
+  coord_sf (xlim = c(-83,-60), ylim = c (25,48), expand = FALSE ) +
   geom_point(data = subset(den.fall, Year %in% c(2007:2018)), # if all data (data = den.spring, 
              aes(Lon, Lat, color=CorrDen, group=NULL), #used to be log(D)
              ## These settings are necessary to avoid

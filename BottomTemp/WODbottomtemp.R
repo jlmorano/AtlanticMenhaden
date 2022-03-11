@@ -253,3 +253,5 @@ rm(list = ls(all.names = TRUE))#will remove everything in workspace and hidden o
 
 write.csv(finalDDD,"WOD_CTD_format_D50_2007-2019.csv")
 rm(list = ls(all.names = TRUE))#will remove everything in workspace and hidden objects
+
+temp <- read.csv("/Users/janellemorano/DATA/WOD/WOD_CTD_format_D50_2007-2019_NYBight.csv", header = TRUE)

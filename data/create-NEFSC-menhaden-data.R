@@ -3,8 +3,10 @@
 # Janelle L. Morano
 # This takes the copy of Survdat I have (currently from Kevin Friedland)
 # and cleans it to include just menhaden samples, 
-# specifically removing duplications resulting from catch-size rows
-# last updated 12/6/2021
+# specifically removing duplications resulting from catch-size rows.
+# This was updated 2/22/2022 to run on Survdat data from Sean Lucey that includes 2021
+#
+# last updated 2/22/2021
 ###############################################
 ###############################################
 
@@ -14,9 +16,15 @@ library(janitor)
 
 # NEFSC data
 ###############
-# These are NEFSC bottom trawl data from Survdat output that I got from Kevin Friedland, but those data duplicate biomass and abundance by row for every length
 
-load("/Users/janellemorano/DATA/NEFSC-Survdat/Survdat_3_2020.RData")
+
+# These are NEFSC bottom trawl data from Survdat output that I got from Kevin Friedland, but those data duplicate biomass and abundance by row for every length
+# load("/Users/janellemorano/DATA/NEFSC-Survdat/Survdat_3_2020.RData")
+
+# These are updated NEFSC bottom trawl data that includes 2022 from Sean Lucey
+load("/Users/janellemorano/DATA/NEFSC-Survdat/Survdat_2021.RData")
+survdat <- data$survdat
+
 # NUMLEN is the number of fish at each LENGTH at the lat/lon sampled, but the ABUNDANCE and BIOMASS is the sum of all fish (of that species), so ABUNDANCE and BIOMASS values are repeated for each LENGTH.
 # Therefore, I can drop LENGTH and NUMLEN and then pull only one row at each lat/long for each species.
 
@@ -70,7 +78,7 @@ plot(combined$year, combined$abundance)
 plot(combined2$year, combined2$abundance)
 
 # Keep this as a dataset for NEFSC survey locations
-write.csv(nefsc.samples,"/Users/janellemorano/DATA/NEFSC-Survdat/NEFSCsurvlocs_DecUpdated.csv", row.names = TRUE)
+write.csv(nefsc.samples,"/Users/janellemorano/DATA/NEFSC-Survdat/NEFSCsurvlocs_1963-2021.csv", row.names = TRUE)
 
 # Save the menhaden positive catch and absences as a new dataset
-write.csv(combined2,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/nefsc.menhaden.csv", row.names = TRUE)
+write.csv(combined2,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/nefsc.menhaden.1963-2021.csv", row.names = TRUE)

@@ -1,8 +1,8 @@
 # Atlantic menhaden distribution model
 ###############################################
 # Janelle L. Morano
-# Model in VAST 3.8.2 using NEFSC and NEAMAP (updated as of 7 Dec 2021) data
-# last updated 7 Dec 2021
+# Model in VAST 3.8.2 using NEFSC and NEAMAP (updated as of 22 Feb 2022) data
+# last updated 22 Feb 2022
 ###############################################
 ###############################################
 
@@ -88,18 +88,18 @@ library(dplyr)
 
 # SPRING
 data.spring <- data %>%
-  filter(Year >= 2007 & Year <= 2019) %>%
+  filter(Year >= 2007 & Year <= 2021) %>%
   filter(Season == "SPRING")
 covariate_data.spring <- covariate_data %>%
-  filter(Year >= 2007 & Year <= 2019) %>%
+  filter(Year >= 2007 & Year <= 2021) %>%
   filter(Season == "SPRING")
 
 # FALL
 data.fall <- data %>%
-  filter(Year >= 2007 & Year <= 2019) %>%
+  filter(Year >= 2007 & Year <= 2021) %>%
   filter(Season == "FALL")
 covariate_data.fall <- covariate_data %>%
-  filter(Year >= 2007 & Year <= 2019) %>%
+  filter(Year >= 2007 & Year <= 2021) %>%
   filter(Season == "FALL")
 
 
@@ -164,8 +164,8 @@ user_region <- readRDS('/Users/janellemorano/MODEL_OUTPUT/_currentrun/user_regio
 
 # SPRING
 fit.spring = fit_model( "settings" = settings,
-                 "Lat_i" = data.spring$Latitude,
-                 "Lon_i" = data.spring$Longitude,
+                 "Lat_i" = data.spring$Lat,
+                 "Lon_i" = data.spring$Lon,
                  "t_i" = data.spring$Year, #time
                  "b_i" = data.spring$Biomass, #catch
                  "a_i" = data.spring$Areasw, #area swept

@@ -2,7 +2,8 @@
 ###############################################
 # Janelle L. Morano
 # Model in VAST 3.8.2 using NEFSC and NEAMAP (updated as of 22 Feb 2022) data
-# last updated 22 Feb 2022
+# 2021 covariate data is missing right now, so subsetted to keep out 2021 from analysis
+# last updated 1 April 2022
 ###############################################
 ###############################################
 
@@ -40,7 +41,7 @@
 # Best practice to clean up and then restart R
 rm(list = ls(all.names = TRUE)) #will clear all objects including hidden objects.
 gc() #free up memory and report the memory usage
-# Restart R now
+# ACTION: Restart R now
 
 # Working directory needs to have the extrapolation grid (User_Region.rds)
 # Previous runs that produce Kmeans_knots and Kmeans_extrapolation should be kept in the directory for faster processing (but only if the extrapolation grid has not changed!)
@@ -88,10 +89,10 @@ library(dplyr)
 
 # SPRING
 data.spring <- data %>%
-  filter(Year >= 2007 & Year <= 2021) %>%
+  filter(Year >= 2007 & Year <= 2020) %>%
   filter(Season == "SPRING")
 covariate_data.spring <- covariate_data %>%
-  filter(Year >= 2007 & Year <= 2021) %>%
+  filter(Year >= 2007 & Year <= 2020) %>%
   filter(Season == "SPRING")
 
 # FALL

@@ -18,6 +18,54 @@ p.caption {
 knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
 ```
 
+```{r distribution, echo=FALSE, message=FALSE, fig.align="center", fig.cap= "The distribution of sampled menhaden in the NEFSC bottom trawl surveys, 1963-2019, and the NEAMAP bottom trawl surveys, 2007-2020. Note that recent years are plotted on top of past years, which may obscure contractions or expansions of the range in past years."}
+library (tidyverse)
+library(sp)
+library (rnaturalearth)
+library (rnaturalearthdata)
+library(viridis)
+
+data <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden_sampledata.csv", header = TRUE)
+spring.data <- data %>%
+  filter(Season == 'SPRING')
+fall.data <- data %>%
+  filter(Season == 'FALL')
+
+# Create basemap
+world <- ne_countries(scale = "medium", returnclass = "sf")  
+
+# Plot menhaden spatial distribution from survey data
+# Spring
+ggplot(data = world) +
+  geom_sf() +
+  coord_sf (xlim = c(-83,-60), ylim = c (25,48), expand = FALSE ) +
+  geom_point(data = spring.data,
+             aes (x = Longitude, y = Latitude, color = Year)) + 
+  scale_color_continuous(type = "viridis") +
+  scale_fill_viridis() +
+  theme_bw() +
+  theme (axis.text = element_blank()) +
+  xlab("longitude") + 
+  ylab("latitude") +
+  ggtitle("Spring")
+
+# Fall
+ggplot(data = world) +
+  geom_sf() +
+  coord_sf (xlim = c(-83,-60), ylim = c (25,48), expand = FALSE ) +
+  geom_point(data = fall.data,
+             aes (x = Longitude, y = Latitude, color = Year)) + 
+  scale_color_continuous(type = "viridis") +
+  scale_fill_viridis() +
+  theme_bw() +
+  theme (axis.text = element_blank()) +
+  xlab("longitude") + 
+  ylab("latitude") +
+  ggtitle("Fall")
+```
+
+<center>
+
 # Menhaden and Environmental Conditions
 
 The total biomass of menhaden varies over the years in the spring \@ref(fig:springabun) and the fall \@ref(fig:fallabun). **Note: need to verify the units.**

@@ -60,6 +60,10 @@ cov_dat = data.frame(
 table("year_season"=cov_dat$Year, "Actual_year"=cov_dat$Year_Cov)
 table("year_season"=cov_dat$Year, "Actual_season"=cov_dat$Season)
 
+# ## Subsample to test with a smaller dataset
+samp_dat <- filter(samp_dat, year_season <= 10)
+cov_dat <- filter(cov_dat, Year <= 10)
+
 #####
 ## Model settings
 #####

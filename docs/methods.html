@@ -11,7 +11,7 @@
 
 <meta name="author" content="Janelle Morano" />
 
-<meta name="date" content="2022-02-08" />
+<meta name="date" content="2022-04-28" />
 
 <title>Methods</title>
 
@@ -348,31 +348,53 @@ div.tocify {
 
 <h1 class="title toc-ignore">Methods</h1>
 <h4 class="author">Janelle Morano</h4>
-<h4 class="date">08 Feb 2022</h4>
+<h4 class="date">28 Apr 2022</h4>
 
 </div>
 
 
 <p><em>Disclaimer: These are results of my preliminary work that I use to synthesize and interpret with my mentors, probably riddled with problems. If you managed to stumble onto this, I’m sorry, because this is not going to be helpful to you.</em></p>
-<div id="research-questions-and-hypotheses" class="section level1">
-<h1>Research Questions and Hypotheses</h1>
+<div id="research-questions-and-hypotheses" class="section level2">
+<h2>Research Questions and Hypotheses</h2>
 <p>What is the spatio-temporal distribution of menhaden and how does it change over seasons and years? Are there more menhaden in the north in recent years than in the past? Are they moving more offshore?</p>
-<p>Hypothesis 1: menhaden are expanding their range more northward as ocean temperature warms overall over years. Hypothesis 2: menhaden abundance is increasing but is not correlated with expanding distribution because their overall population is lower than what would drive density-dependent distribution. Hypothesis 3: menhaden are migrating earlier in the spring and later in the fall as the timing of seasonal warming and cooling changes.</p>
+<p>Hypothesis 1: menhaden are expanding their range more northward as ocean temperature warms overall over years.</p>
+<p>Hypothesis 2: menhaden abundance is increasing but is not correlated with expanding distribution because their overall population is lower than what would drive density-dependent distribution.</p>
+<p>Hypothesis 3: menhaden are migrating earlier in the spring and later in the fall as the timing of seasonal warming and cooling changes.</p>
 </div>
-<div id="biomass-data" class="section level1">
-<h1>Biomass Data</h1>
-<p>Data are menhaden catch from the Northeast Fisheries Science Center (NEFSC) spring and fall bottom trawl surveys, 1963-2019, and the Northeast Area Monitoring and Assessment Program (NEAMAP) near shore trawl, 2007-2020. For this model, the data are limited to overlapping years, 2007-2019.</p>
+<div id="biological-data" class="section level2">
+<h2>Biological Data</h2>
+<ul>
+<li>Menhaden catch from the Northeast Fisheries Science Center (NEFSC) spring and fall bottom trawl surveys, 1963-2019</li>
+<li>Northeast Area Monitoring and Assessment Program (NEAMAP) near shore trawl, 2007-2020</li>
+</ul>
 </div>
-<div id="model-parameters" class="section level1">
-<h1>Model Parameters</h1>
-<p>Menhaden migration and spawning is closely associated with water temperature conditions, where migration occurs during XX range and spawning during XX range. Surface water temperature explains much of the northward distributional shift of east coast marine fishes, and often, bottom temperature more strongly explains distributional shifts into deeper water. Model parameters include depth and bottom temperature measurements, which are concurrently taken for each sampled site within both surveys.</p>
-<p>Menhaden feed on phyto- and zooplankton as juveniles and young adults until XX size. Water temperature may also influece the distribution and timing of blooms.</p>
+<div id="environmental-covariate-data" class="section level2">
+<h2>Environmental Covariate Data</h2>
+<p>Concurrent measurements from biomass surveys:</p>
+<ul>
+<li>Depth</li>
+<li>Bottom temperature</li>
+</ul>
+<p>Future…</p>
+<ul>
+<li>chlorophyll-a</li>
+<li>currents</li>
+<li>wind</li>
+</ul>
 </div>
-<div id="distribution-model-in-vast" class="section level1">
-<h1>Distribution Model in VAST</h1>
-<p>The <em>ideal model</em> will predict the density of menhaden as a function of time, space, and the interaction of time and space, based on the bottom temperature, depth, and the distribution of plankton.</p>
-<p><em>The current model I have built…</em> The model built in VAST estimates the biomass density of menhaden at locations across a spatial area and over years as predicted by depth and bottom temperature in a spatio-temporally explicit model.</p>
-<p>Broadly, the model is conceptually as follows, however, I know that I am currently mis-representing the differences between the surveys with vessel effects and that needs to be fixed:</p>
+<div id="model-parameters" class="section level2">
+<h2>Model Parameters</h2>
+<ul>
+<li>Area swept: missing for NEFSC</li>
+<li>Catchability: missing</li>
+<li>Vessel effects: using different surveys as factor, but this is probably wrong</li>
+</ul>
+</div>
+<div id="distribution-model" class="section level2">
+<h2>Distribution Model</h2>
+<p><em>The current model I have built…</em></p>
+<p>VAST: estimates the biomass density of menhaden at locations across a spatial area and over years as predicted by depth and bottom temperature in a spatio-temporally explicit model.</p>
+<p>Broadly, the model is conceptually as follows, however,</p>
 <p><span class="math inline">\(Density = TemporalVar(\beta) + SpatialVar(\omega) + SpatioTemporalVar(\varepsilon) + VesselEffects(\eta) + Depth(\nu1) + BottomTemp(\nu2)\)</span></p>
 <pre><code>fit = fit_model( &quot;settings&quot; = settings,
                  &quot;Lat_i&quot; = data.spring$Latitude,
@@ -380,11 +402,16 @@ div.tocify {
                  &quot;t_i&quot; = data.spring$Year, #time
                  &quot;b_i&quot; = data.spring$Biomass, #catch in biomass
                  &quot;a_i&quot; = data.spring$Areasw, #area swept
-                 &quot;v_i&quot;= data.spring$Cruise, #vessel effects, I think wrong as I&#39;ve done it
+                 &quot;v_i&quot;= data.spring$Cruise, #representing vessel effects, but this is wrong
                  &quot;X1_formula&quot; = X1_formula, #depth
                  &quot;X2_formula&quot; = X2_formula, #bottemp
                  &quot;covariate_data&quot; = covariate_data, #depth and bottemp data
                  &quot;input_grid&quot; = user_region)</code></pre>
+<p><em>What needs to be improved…</em></p>
+<ul>
+<li>Resolve differences between surveys and account for catchability; Area swept is accurate for NEAMAP but not true for NEFSC and may be incorporated into how the Survdat data are transformed</li>
+<li>Spatially varying bottemp?</li>
+</ul>
 </div>
 
 

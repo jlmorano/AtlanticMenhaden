@@ -9,9 +9,11 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-1. Build the ideal model in VAST
-1. Fully interpret the output: model estimates and biological interpretation
-1. Temporal changes in water temperature
-1. Get plankton data into model
-1. Get feedback from ASMFC
-1. Get state data into model
+Questions and remaining tasks:
+
+1. Compare models (NEFSC; NEAMAP & NEFSC; with spatio-temporal effects; without)
+1. Develop seasonal model
+1. PCA (or EOF - what's the difference?) model
+1. Consider spatially-varying bottom temp
+1. Gather model estimates and evaluation metrics
+1. Get plankton data into model?

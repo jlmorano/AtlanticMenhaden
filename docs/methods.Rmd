@@ -20,28 +20,6 @@ Hypothesis 2: menhaden abundance is increasing but is not correlated with expand
 
 Hypothesis 3: menhaden are migrating earlier in the spring and later in the fall as the timing of seasonal warming and cooling changes.
 
-## Biological Data
-
-* Menhaden catch from the Northeast Fisheries Science Center (NEFSC) spring and fall bottom trawl surveys, 1963-2019
-* Northeast Area Monitoring and Assessment Program (NEAMAP) near shore trawl, 2007-2020
-
-## Environmental Covariate Data
-Concurrent measurements from biomass surveys:
-
-* Depth
-* Bottom temperature
-
-Future...
-
-* chlorophyll-a
-* currents
-* wind
-
-## Model Parameters
-
-* Area swept: missing for NEFSC
-* Catchability: missing
-* Vessel effects: using different surveys as factor, but this is probably wrong
 
 ## Distribution Model
 
@@ -71,3 +49,21 @@ fit = fit_model( "settings" = settings,
 
 * Resolve differences between surveys and account for catchability; Area swept is accurate for NEAMAP but not true for NEFSC and may be incorporated into how the Survdat data are transformed
 * Spatially varying bottemp?
+
+## Model Comparison
+
+```{r, echo=FALSE}
+library(kableExtra)
+m1 <- c("beta, omega, epsilon", "depth, bottemp", "NEFSC", "1968-2021")
+m2 <- c("beta, omega, epsilon", "depth, bottemp", "NEFSC & NEAMAP", "2007-2020")
+m3 <- c("beta, omega", "depth, bottemp", "NEFSC & NEAMAP", "2007-2020")
+table <- rbind(m1, m2, m3)
+colnames(table) <- c("Spatio-Temporal", "Covariates", "Survey", "Years")
+
+table %>%
+  kbl() %>%
+  kable_styling()
+
+```
+
+

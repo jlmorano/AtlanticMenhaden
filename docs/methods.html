@@ -37,6 +37,8 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -361,35 +363,6 @@ div.tocify {
 <p>Hypothesis 2: menhaden abundance is increasing but is not correlated with expanding distribution because their overall population is lower than what would drive density-dependent distribution.</p>
 <p>Hypothesis 3: menhaden are migrating earlier in the spring and later in the fall as the timing of seasonal warming and cooling changes.</p>
 </div>
-<div id="biological-data" class="section level2">
-<h2>Biological Data</h2>
-<ul>
-<li>Menhaden catch from the Northeast Fisheries Science Center (NEFSC) spring and fall bottom trawl surveys, 1963-2019</li>
-<li>Northeast Area Monitoring and Assessment Program (NEAMAP) near shore trawl, 2007-2020</li>
-</ul>
-</div>
-<div id="environmental-covariate-data" class="section level2">
-<h2>Environmental Covariate Data</h2>
-<p>Concurrent measurements from biomass surveys:</p>
-<ul>
-<li>Depth</li>
-<li>Bottom temperature</li>
-</ul>
-<p>Future…</p>
-<ul>
-<li>chlorophyll-a</li>
-<li>currents</li>
-<li>wind</li>
-</ul>
-</div>
-<div id="model-parameters" class="section level2">
-<h2>Model Parameters</h2>
-<ul>
-<li>Area swept: missing for NEFSC</li>
-<li>Catchability: missing</li>
-<li>Vessel effects: using different surveys as factor, but this is probably wrong</li>
-</ul>
-</div>
 <div id="distribution-model" class="section level2">
 <h2>Distribution Model</h2>
 <p><em>The current model I have built…</em></p>
@@ -412,6 +385,82 @@ div.tocify {
 <li>Resolve differences between surveys and account for catchability; Area swept is accurate for NEAMAP but not true for NEFSC and may be incorporated into how the Survdat data are transformed</li>
 <li>Spatially varying bottemp?</li>
 </ul>
+</div>
+<div id="model-comparison" class="section level2">
+<h2>Model Comparison</h2>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+Spatio-Temporal
+</th>
+<th style="text-align:left;">
+Covariates
+</th>
+<th style="text-align:left;">
+Survey
+</th>
+<th style="text-align:left;">
+Years
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+m1
+</td>
+<td style="text-align:left;">
+beta, omega, epsilon
+</td>
+<td style="text-align:left;">
+depth, bottemp
+</td>
+<td style="text-align:left;">
+NEFSC
+</td>
+<td style="text-align:left;">
+1968-2021
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m2
+</td>
+<td style="text-align:left;">
+beta, omega, epsilon
+</td>
+<td style="text-align:left;">
+depth, bottemp
+</td>
+<td style="text-align:left;">
+NEFSC &amp; NEAMAP
+</td>
+<td style="text-align:left;">
+2007-2020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m3
+</td>
+<td style="text-align:left;">
+beta, omega
+</td>
+<td style="text-align:left;">
+depth, bottemp
+</td>
+<td style="text-align:left;">
+NEFSC &amp; NEAMAP
+</td>
+<td style="text-align:left;">
+2007-2020
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 

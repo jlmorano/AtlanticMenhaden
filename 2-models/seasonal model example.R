@@ -131,7 +131,9 @@ fit  = fit_model("settings" = settings,
                  "X_contrasts" = list(Season = contrasts(cov_dat$Season, contrasts = FALSE), Year_Cov = contrasts(cov_dat$Year_Cov, contrasts = FALSE)),
                  "newtonsteps" = 1,
                  "PredTF_i" = samp_dat[, 'Dummy'],
-                 "Map" = Map_adjust )
+                 "Map" = Map_adjust,
+                 newtonsteps=0, #added this per Jim to try to speed things up
+                 getsd=FALSE) #added this per Jim to try to speed things up
 
 #
 plot( fit,

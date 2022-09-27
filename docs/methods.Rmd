@@ -55,8 +55,8 @@ fit = fit_model( "settings" = settings,
 ```{r, echo=FALSE}
 library(kableExtra)
 m1 <- c("beta, omega, epsilon", "depth, bottemp", "NEFSC", "1968-2021")
-m2 <- c("beta, omega, epsilon", "depth, bottemp", "NEFSC & NEAMAP", "2007-2020")
-m3 <- c("beta, omega", "depth, bottemp", "NEFSC & NEAMAP", "2007-2020")
+m2 <- c("beta, omega", "depth, bottemp", "NEFSC & NEAMAP", "2007-2020")
+m3 <- c("beta, omega, epsilon", "depth, bottemp", "NEFSC & NEAMAP", "2007-2020")
 table <- rbind(m1, m2, m3)
 colnames(table) <- c("Spatio-Temporal", "Covariates", "Survey", "Years")
 

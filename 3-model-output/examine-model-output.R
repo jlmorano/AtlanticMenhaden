@@ -13,33 +13,30 @@
 ####################
 # 1. Density Estimates
 ####################
-# Look at density estimates
-summary_list <- summary(fit.spring)
-# log biomass density estimates at each extrapolation grid cell
-est_density <- summary_list$Density_dataframe
-# This figure should match the Abundance Index figure
-library(tidyverse)
-ggplot(est_density, aes(Year, Density)) +
-  geom_boxplot()
 
-# Now compare where values for SS3 table come. Should be sum of biomass
-total_biomass <- est_density %>%
-  group_by(Year) %>%
-  mutate(Density, list(~cumsum))
-total_biomass <- aggregate(est_density$Density, by=list(Category=est_density$Year), FUN=sum)  
 
-####################
-# 1.a. Re-Mapping Density Estimates
-####################
+# SD-- still working on
+sd <- fit.spring$parameter_estimates$SD$sd
+
+
+sample = sample_variable(Sdreport=fit.spring$parameter_estimates$SD, Obj=fit.spring$tmb_list$Obj, variable_name="D_gct" )
+
+# Sample from joint precision matrix
+jointp <- as.matrix(fit.spring$parameter_estimates$SD$jointPrecision)
+
+# https://github.com/pbs-assess/sdmTMB#calculating-uncertainty-on-spatial-predictions
+# Following above, compute the SE at each location manually using many predictions for each location from your simulation replicates.  You can probably hack this together by doing some manual manipulation of the predicted densities provided by the simulate_data() function in FishStatsUtils, for a VAST model.  
+
+simulate_data(jointp[1:10,1:10], type = 3, random_seed = NULL)
+samps <- gather_sims(fit.spring, nsim = 1000)
+
+
+
+
 
 # Spring
 #############
-## Remake map list locally for recreating plots
-mdl <- make_map_info(Region = settings$Region,
-                     spatial_list = fit.spring$spatial_list,
-                     Extrapolation_List = fit.spring$extrapolation_list)
-
-## Below shows to you get the model estimate of density, D_gct,
+## Get the model estimate of density, D_gct,
 ## for each grid (g), category (c; not used here single
 ## univariate); and year (t); and link it spatially to a lat/lon
 ## extrapolation point.  You can do this for any _gct or _gc
@@ -58,28 +55,18 @@ PredDensity.spring <- D %>%
   rename(Year = YearRep) %>%
   mutate(D, logD =log(D))
 PredDensity.spring <- tibble(PredDensity.spring)
+# Write to a csv for keeping and using later
 write_csv(PredDensity.spring, file = "PredDensity_spring.csv")
-min(PredDensity.spring$logD) #-25.74753 [(ln(re 1e-06 m-2.kg))]
-max(PredDensity.spring$logD) #22.43316 [(ln(re 1e-06 m-2.kg))]
+min(PredDensity.spring$logD) #-24.96282 [(ln(re 1e-06 m-2.kg))]
+max(PredDensity.spring$logD) #24.01938 [(ln(re 1e-06 m-2.kg))]
+
 
 # Fall
 #############
-## Remake map list locally for recreating plots
-mdl.fall <- make_map_info(Region = settings$Region,
-                          spatial_list = fit.fall$spatial_list,
-                          Extrapolation_List = fit.fall$extrapolation_list)
-
-## Below shows to you get the model estimate of density, D_gct,
-## for each grid (g), category (c; not used here single
-## univariate); and year (t); and link it spatially to a lat/lon
-## extrapolation point.  You can do this for any _gct or _gc
-## variable in the Report.
+## Repeat steps from above
 names(fit.fall$Report)[grepl('_gc|_gct', x=names(fit.fall$Report))]
 
 D_gt <- fit.fall$Report$D_gct[,1,] # drop the category
-#dimnames(D_gt) <- list(cell=1:nrow(D_gt), year=years) #not working
-## tidy way of doing this, reshape2::melt() does
-## it cleanly but is deprecated
 D_gt <- D_gt %>% as.data.frame() %>%
   tibble::rownames_to_column(var = "cell") %>%
   pivot_longer(-cell, names_to = "YearRep", values_to='D')
@@ -88,9 +75,45 @@ PredDensity.fall <- D %>%
   rename(Year = YearRep) %>%
   mutate(D, logD =log(D))
 PredDensity.fall <- tibble(PredDensity.fall)
+# Write to a csv for keeping and using later
 write_csv(PredDensity.fall, file = "PredDensity_fall.csv")
 min(PredDensity.fall$logD) #-27.65603 [(ln(re 1e-06 m-2.kg))]
 max(PredDensity.fall$logD) #31.98642 [(ln(re 1e-06 m-2.kg))]
+
+
+####################
+# 2. Abundance Index
+####################
+# This figure should match the Abundance Index figure
+library(tidyverse)
+ggplot(est_density, aes(Year, Density)) +
+  geom_boxplot()
+
+# Now compare where values for SS3 table come. Should be sum of biomass
+total_biomass <- est_density %>%
+  group_by(Year) %>%
+  mutate(Density, list(~cumsum))
+total_biomass <- aggregate(est_density$Density, by=list(Category=est_density$Year), FUN=sum)  
+
+####################
+# 3. Re-Mapping Density Estimates
+####################
+
+# Spring
+#############
+## Remake map list locally for recreating plots
+mdl.spring <- make_map_info(Region = settings$Region,
+                     spatial_list = fit.spring$spatial_list,
+                     Extrapolation_List = fit.spring$extrapolation_list)
+
+
+# Fall
+#############
+## Remake map list locally for recreating plots
+mdl.fall <- make_map_info(Region = settings$Region,
+                          spatial_list = fit.fall$spatial_list,
+                          Extrapolation_List = fit.fall$extrapolation_list)
+
 
 
 # Correcting scales between seasons
@@ -98,18 +121,22 @@ max(PredDensity.fall$logD) #31.98642 [(ln(re 1e-06 m-2.kg))]
 # The max and min density between seasons is not equal, so to directly compare, re-scale the density
 
 # Read in the density output to make sure I have what I need
-den.spring <- read_csv("/Users/janellemorano/MODEL_OUTPUT/_currentrun/PredDensity_spring.csv")
-den.fall <- read_csv("/Users/janellemorano/MODEL_OUTPUT/_currentrun/PredDensity_fall.csv")
+den.spring <- read_csv("/Users/janellemorano/MODEL_OUTPUT/Atlantic-menhaden-distribution-model-20220401 Spring gamma/PredDensity_spring.csv")
+den.fall <- read_csv("/Users/janellemorano/MODEL_OUTPUT/Atlantic-menhaden-distribution-model-20220401 Fall gamma/PredDensity_fall.csv")
 
-# 33 was max value across both seasons
-den.spring <- mutate(den.spring, CorrDen = logD/33)
+max(den.spring$logD)
+max(den.fall$logD)
+# 32 was max value across both seasons
+den.spring <- mutate(den.spring, CorrDen = logD/32)
 max(den.spring$CorrDen)
-# 0.6797928
+# 0.7506057
 min(den.spring$CorrDen)
-den.fall <- mutate(den.fall, CorrDen = logD/33)
+# -0.7800881
+den.fall <- mutate(den.fall, CorrDen = logD/32)
 max(den.fall$CorrDen)
-# 0.9692856
+# 0.9995762
 min(den.fall$CorrDen)
+# -0.8642411
 
 # Now use den.spring and den.fall datasets and $CorrDen to graph predicted density
 
@@ -173,7 +200,7 @@ ggplot(data = world) +
   # geom_sf(data = canada) +
   geom_sf() + # use this when not using "us" and "canada"
   coord_sf (xlim = c(-83,-60), ylim = c (25,48), expand = FALSE ) +
-  geom_point(data = subset(den.fall, Year %in% c(2007:2018)), # if all data (data = den.spring, 
+  geom_point(data = subset(den.fall, Year %in% c(2007:2021)), # if all data (data = den.spring, 
              aes(Lon, Lat, color=CorrDen, group=NULL), #used to be log(D)
              ## These settings are necessary to avoid
              ## overlplotting which is a problem here. May need
@@ -182,8 +209,8 @@ ggplot(data = world) +
   facet_wrap('Year') +
   theme(strip.text.x = element_blank(),
         strip.background = element_blank()) +
-  # scale_color_continuous(type = "viridis") +
-  scale_color_viridis_c(option = "magma") +
+  scale_color_continuous(type = "viridis") +
+  # scale_color_viridis_c(option = "magma") +
   theme_classic() + #theme_bw()
   theme(axis.text = element_blank()) #+
 # xlab("longitude") + 
@@ -201,6 +228,7 @@ northing <- fit.spring[["Report"]][["mean_Z_ctm"]][,,2]
 # pull together
 cog <- data.frame(northing, easting)
 write_csv(cog, file = "CenterofGravity_spring.csv")
+cog <- drop_units(cog)
 ggplot(cog, aes(x=easting, y=northing, color = "#FF68F46FF", lwd=5.0)) +
   geom_line()+
   theme_classic()
@@ -215,6 +243,7 @@ year <- c(2007:2019)
 
 cog <- data.frame(year, northing, easting)
 write_csv(cog, file = "CenterofGravity_fall.csv")
+cog <- drop_units(cog)
 ggplot(cog, aes(x=easting, y=northing, color = "#FF68F46FF", lwd=5.0)) +
   geom_line()+
   theme_classic()
@@ -234,3 +263,6 @@ ggplot(cog, aes(x=year, y=northing)) +
 #easting
 ggplot(cog, aes(x=year, y=easting)) +
   geom_line()
+
+
+

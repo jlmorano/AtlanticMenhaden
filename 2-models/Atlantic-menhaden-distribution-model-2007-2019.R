@@ -73,6 +73,11 @@ sapply(covariate_data, function(x) sum(is.na(x)))
 # Just remove them for now
 covariate_data <- na.omit(covariate_data)
 
+# check for NAs in data, too
+sapply(data, function(x) sum(is.na(x)))
+# remove them
+data <- na.omit(data)
+
 # The above dataset is the full date range, but NEAMAP is only from 2007-2021, and NEFSC is 1963-2019.
 # Modify the dataset for only overlapping years, 2007-2019, AND dividing into SPRING and FALL seasons.
 library(dplyr)
@@ -155,8 +160,8 @@ user_region <- readRDS('/Users/janellemorano/MODEL_OUTPUT/_currentrun/user_regio
 
 # SPRING
 fit.spring = fit_model( "settings" = settings,
-                 "Lat_i" = data.spring$Latitude,
-                 "Lon_i" = data.spring$Longitude,
+                 "Lat_i" = data.spring$Lat,
+                 "Lon_i" = data.spring$Lon,
                  "t_i" = data.spring$Year, #time
                  "b_i" = data.spring$Weight, #catch
                  "a_i" = data.spring$Areasw, #area swept
@@ -168,8 +173,8 @@ fit.spring = fit_model( "settings" = settings,
 
 # FALL
 fit.fall = fit_model( "settings" = settings,
-                 "Lat_i" = data.fall$Latitude,
-                 "Lon_i" = data.fall$Longitude,
+                 "Lat_i" = data.fall$Lat,
+                 "Lon_i" = data.fall$Lon,
                  "t_i" = data.fall$Year, #time
                  "b_i" = data.fall$Weight, #catch
                  "a_i" = data.fall$Areasw, #area swept

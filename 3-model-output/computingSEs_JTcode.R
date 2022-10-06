@@ -22,9 +22,9 @@ Obj <- fit.spring$tmb_list$Obj
 Opt = nlminb( start=Obj$par, obj=Obj$fn, gr=Obj$gr ) 
  #nlminb(startp, objective function); like TMB but not as efficient; SE via bootstrap; b means bounded; optimization to minimize (sum of squares maybe?) using the parameters, the function that may be the model, and gr=gradient=slope
 
-# TRY OPTIM instead of nlminb. Can we generate a Hessian matrix to get the cross correlations
+# TRY OPTIM instead of nlminb. Can we generate a Hessian matrix to get the cross correlations?
 
-# Parameter values are now different, but I don't know why...
+# Parameter values are now different, because of the optimization process
 
 #* Get joint precision report
 Opt$SD = sdreport( Obj, getJointPrecision=TRUE )
@@ -62,6 +62,7 @@ sample_SE = function( variable_name, n_samples = 500, mu, prec ){
     return(mu + z4) #temp set to "ok"
   }
   u_zr = rmvnorm_prec( mu=mu, prec=prec, n.sims=n_samples)
+  
   # Calculate REPORTed variable for each sample
   for( rI in 1:n_samples ){
     # Var = Obj$report( par=u_zr[,rI] )[[variable_name]]  #* NOT SURE WHAT'S HAPPENING HERE.. Function that takes a parameter and turns it into a list?? IT LOOKS LIKE IT'S TRYING TO GRAB A VALUE OR VARIABLE FROM THE PAR OBJECT FROM THE FIT BUT BASED ON THE SAMPLED PREC MATRIX; u_zr[,rI] = column seq through n_samples,

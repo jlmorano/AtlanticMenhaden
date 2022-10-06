@@ -1,10 +1,14 @@
 # Atlantic menhaden distribution model
 ###############################################
 # Janelle L. Morano
-# Model in VAST 3.8.2 using NEFSC and NEAMAP (updated as of 22 Feb 2022) data
-# 2007-2021*
-# *2021 depth/temp data is missing right now, so subsetted to keep out 2021 from analysis
-# last updated 30 April 2022 (created example to share)
+# Model in VAST 3.8.2 using NEFSC and NEAMAP data*
+# model structure last updated 30 April 2022
+
+# *NEFSC and NEAMAP data 2007-2022 last updated 28 Sep 2022**
+# **2022 depth/temp data is missing right now, so when NAs excluded, 2022 is ommitted from analysis
+
+# System Info updated 30 Sep 2022
+
 ###############################################
 ###############################################
 
@@ -62,15 +66,17 @@ library(splines)  # Used to include basis-splines
 library(effects)  # Used to visualize covariate effects
 
 sessionInfo()
-# R version 4.1.2 (2021-11-01)
+# R version 4.2.1 (2022-06-23)
 # Platform: x86_64-apple-darwin17.0 (64-bit)
-# Running under: macOS Monterey 12.1
-# FishStatsUtils_2.10.2 units_0.7-2         
-# VAST_3.8.2      
-# TMB_1.7.22           
-# compiler_4.1.2  Matrix_1.3-4    tools_4.1.2     sp_1.4-6        INLA_21.02.23   Rcpp_1.0.8     
-# splines_4.1.2   grid_4.1.2      lattice_0.20-45
-
+# Running under: macOS Monterey 12.6
+# FishStatsUtils_2.11.0 units_0.8-0         
+# VAST_3.9.1      
+# TMB_1.9.1           
+# Rcpp_1.0.9       lattice_0.20-45  MASS_7.3-57      grid_4.2.1       DBI_1.1.3       
+# nlme_3.1-157     survey_4.1-1     INLA_22.05.07    minqa_1.2.4      nloptr_2.0.3    
+# sp_1.5-0         Matrix_1.5-1     boot_1.3-28      lme4_1.1-30      tools_4.2.1     
+# survival_3.3-1   abind_1.4-5      compiler_4.2.1   colorspace_2.0-3 mitools_2.4     
+# insight_0.18.4   nnet_7.3-17
 
 # Data Prep
 ####################
@@ -84,7 +90,7 @@ sessionInfo()
 data <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden_sampledata.csv", header = TRUE)
 # covariate data
 covariate_data <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden_covariate_data.csv", header = TRUE)
-# If I didn't name the covariate data correctly, fix the lat/lon
+# If I didn't name the covariate data correctly (as Lat and Lon), fix the lat/lon
 library(dplyr)
 covariate_data <- covariate_data %>%
   rename(Lat = Latitude,
@@ -94,28 +100,29 @@ covariate_data <- covariate_data %>%
 # The model won't run if there are NA values for a covariate
 sapply(covariate_data, function(x) sum(is.na(x)))
 # Yes, there are NAs in Depth, Surftemp, Surfsalin, Bottemp, Botsalin.
-# The large number missing values for Surftemp and Surfsalin are because these were not recorded for NEAMAP, but I'm not using them anyway
-# Remove them, because the missing values for Bottemp will be a problem
+# The large number missing values for Surftemp and Surfsalin are because these were not recorded for NEAMAP, but I'm not using those columns anyway. Drop those columns
+covariate_data <- select(covariate_data, -c(Surftemp, Surfsalin, Botsalin))
+
+# Remove NAs, because the missing values for Bottemp will be a problem
 covariate_data <- na.omit(covariate_data)
 
-# The above dataset is the full date range, but NEAMAP is only from 2007-2021, and NEFSC is 1963-2019.
-# Modify the dataset for only overlapping years, 2007-2019, AND dividing into SPRING and FALL seasons.
-library(dplyr)
+# The above dataset is the full date range, but NEAMAP is only from 2007-2022, and NEFSC is 1963-2021.
+# Modify the dataset for only overlapping years, 2007-2022, AND dividing into SPRING and FALL seasons.
 
 # SPRING
 data.spring <- data %>%
-  filter(Year >= 2007 & Year <= 2020) %>%
+  filter(Year >= 2007 & Year <= 2021) %>%
   filter(Season == "SPRING")
 covariate_data.spring <- covariate_data %>%
-  filter(Year >= 2007 & Year <= 2020) %>%
+  filter(Year >= 2007 & Year <= 2021) %>%
   filter(Season == "SPRING")
 
 # FALL
 data.fall <- data %>%
-  filter(Year >= 2007 & Year <= 2019) %>%
+  filter(Year >= 2007 & Year <= 2021) %>%
   filter(Season == "FALL")
 covariate_data.fall <- covariate_data %>%
-  filter(Year >= 2007 & Year <= 2019) %>%
+  filter(Year >= 2007 & Year <= 2021) %>%
   filter(Season == "FALL")
 
 

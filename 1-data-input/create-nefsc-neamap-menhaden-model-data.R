@@ -4,8 +4,8 @@
 # Compile data from NEFSC and NEAMAP into: 
 #   - sample data
 #   - covariate data
-# last updated 2/22/2022
-# These data are updated to include NEFSC data from 2021
+# last updated 9/28/2022
+# These data are updated to include NEFSC data from 2022
 ###############################################
 ###############################################
 
@@ -19,12 +19,17 @@ library(janitor)
 # NEFSC data
 #############
 # These are NEFSC bottom trawl data from Survdat output. These data were then cleaned in:
-# "create-NEFSC-menhaden-data.R"
+# "Git/surveydata/create-NEFSC-menhaden-data.R"
 # These data have menhaden positive catch and absences in NEFSC bottom trawl
 
-# nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.csv")  # nefsc 1963-2019
+# nefsc 1963-2019
+# nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.csv") 
 
-nefsc <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/nefsc.menhaden.1963-2021.csv") # nefsc 1963-2021
+# nefsc 1963-2021
+# nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.1963-2021.csv") 
+# nefsc 1963-2022
+# copy also at "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/nefsc.menhaden.1963-2022.csv"
+nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.1963-2022.csv") 
 
 # Clean up NEFSC data to make it match desired df
 nefsc.2 <- nefsc %>%
@@ -33,8 +38,8 @@ nefsc.2 <- nefsc %>%
          latitude = lat,
          longitude = lon) %>%
   add_column(Survey = "NEFSC", .before = "cruise") %>%
-#### AREA SWEPT STILL NEEDS TO BE ADDRESSED
-  add_column(areasw = 0.01, .before = "abundance")
+#### AREA SWEPT = 0.0384 from http://archive.nefmc.org/nemulti/closed%20area%20working%20group/121106/Swept%20Area%20and%20CPUE.pdf and https://github.com/pinskylab/OceanAdapt/issues/27
+  add_column(areasw = 0.0384, .before = "abundance")
 nefsc.2$cruise <- as.character(nefsc.2$cruise)
 nefsc.2$station <- as.character(nefsc.2$station)
 nefsc.2$stratum <- as.character(nefsc.2$stratum)
@@ -128,7 +133,7 @@ write.csv(covariate_data,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/m
 
 # NEFSC data
 #############
-nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.csv")
+nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.1963-2022.csv")
 
 # Grab catch and envt'l data
 corr.nefsc <- nefsc %>%

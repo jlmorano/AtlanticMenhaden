@@ -101,8 +101,8 @@ fit_orig = fit_model("settings" = settings,
                      "X1config_cp" = X1config_cp_use,
                      "X2config_cp" = X2config_cp_use,
                      "covariate_data" = cov_dat,
-                     "X1_formula" = formula_use,
-                     "X2_formula" = formula_use,
+                     "X1_formula" = formula_use, #first linear predictor
+                     "X2_formula" = formula_use, #second linear predictor
                      "X_contrasts" = list(Season = contrasts(cov_dat$Season, contrasts = FALSE), Year_Cov = contrasts(cov_dat$Year_Cov, contrasts = FALSE)),
                      "run_model" = FALSE,
                      "PredTF_i" = samp_dat[, 'Dummy'] )
@@ -132,7 +132,7 @@ fit  = fit_model("settings" = settings,
                  "newtonsteps" = 1,
                  "PredTF_i" = samp_dat[, 'Dummy'],
                  "Map" = Map_adjust,
-                 newtonsteps=0, #added this per Jim to try to speed things up
+                 # newtonsteps=1, #added this per Jim to try to speed things up
                  getsd=FALSE) #added this per Jim to try to speed things up
 
 #

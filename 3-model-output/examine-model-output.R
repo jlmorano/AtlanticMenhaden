@@ -4,38 +4,60 @@
 # This assumes you ran a menhaden model in VAST 3.8.2 and you have the fit.fall and fit.spring in your environment still.
 # last updated 7 Dec 2021
 
-# 1. Density Estimates
+# 1. Standard Error Estimates
 # 1.a. Re-Mapping Density Estimates
 # 2. Center of gravity
 ###############################################
 ###############################################
 
 ####################
-# 1. Density Estimates
+# 1. Standard Error Estimates
 ####################
 
+# Optimize
+Opt = nlminb( start=Obj$par, obj=Obj$fn, gr=Obj$gr )
+Opt$SD = sdreport( Obj, getJointPrecision=TRUE )
 
-# SD-- still working on
-sd <- fit.spring$parameter_estimates$SD$sd
+# Function to generate samples
+sample_SE = function( variable_name, n_samples = 500, mu, prec ){
+  # Sample from GMRF using sparse precision
+  rmvnorm_prec <- function(mu, prec, n.sims) {
+    z <- matrix(rnorm(length(mu) * n.sims), ncol=n.sims)
+    L <- Matrix::Cholesky(prec, super=TRUE)
+    z <- Matrix::solve(L, z, system = "Lt") ## z = Lt^-1 %*% z
+    z <- Matrix::solve(L, z, system = "Pt") ## z = Pt    %*% z
+    z <- as.matrix(z)
+    return(mu + z)
+  }
+  u_zr = rmvnorm_prec( mu=mu, prec=prec, n.sims=n_samples)
+  # Calculate REPORTed variable for each sample
+  for( rI in 1:n_samples ){
+    Var = Obj$report( par=u_zr[,rI] )[[variable_name]]
+    if(is.vector(Var)) Var = as.array(Var)
+    if(rI==1) Var_zr = Var
+    if(rI>=2){
+      Var_zr = abind::abind( Var_zr, Var, along=length(dim(Var))+1 )
+    }
+  }
+  # Return value
+  return( apply(Var_zr, MARGIN=1:(length(dim(Var_zr))-1), FUN=sd) )
+}
+
+SE_g = sample_SE( variable_name="D_gct", mu=Obj$env$last.par.best, prec=Opt$SD$jointPrecision )
 
 
-sample = sample_variable(Sdreport=fit.spring$parameter_estimates$SD, Obj=fit.spring$tmb_list$Obj, variable_name="D_gct" )
 
-# Sample from joint precision matrix
-jointp <- as.matrix(fit.spring$parameter_estimates$SD$jointPrecision)
-
-# https://github.com/pbs-assess/sdmTMB#calculating-uncertainty-on-spatial-predictions
-# Following above, compute the SE at each location manually using many predictions for each location from your simulation replicates.  You can probably hack this together by doing some manual manipulation of the predicted densities provided by the simulate_data() function in FishStatsUtils, for a VAST model.  
-
-simulate_data(jointp[1:10,1:10], type = 3, random_seed = NULL)
-samps <- gather_sims(fit.spring, nsim = 1000)
-
-
-
-
+####################
+# 1.a. Re-Mapping Density Estimates
+####################
 
 # Spring
 #############
+## Remake map list locally for recreating plots
+mdl <- make_map_info(Region = settings$Region,
+                     spatial_list = fit.spring$spatial_list,
+                     Extrapolation_List = fit.spring$extrapolation_list)
+
 ## Get the model estimate of density, D_gct,
 ## for each grid (g), category (c; not used here single
 ## univariate); and year (t); and link it spatially to a lat/lon
@@ -44,9 +66,6 @@ samps <- gather_sims(fit.spring, nsim = 1000)
 names(fit.spring$Report)[grepl('_gc|_gct', x=names(fit.spring$Report))]
 
 D_gt <- fit.spring$Report$D_gct[,1,] # drop the category
-#dimnames(D_gt) <- list(cell=1:nrow(D_gt), year=years) #not working
-## tidy way of doing this, reshape2::melt() does
-## it cleanly but is deprecated
 D_gt <- D_gt %>% as.data.frame() %>%
   tibble::rownames_to_column(var = "cell") %>%
   pivot_longer(-cell, names_to = "YearRep", values_to='D')
@@ -55,10 +74,15 @@ PredDensity.spring <- D %>%
   rename(Year = YearRep) %>%
   mutate(D, logD =log(D))
 PredDensity.spring <- tibble(PredDensity.spring)
+
+
+# Append SE estimates to Density Estimates
+# PredDensity.spring$SE <- SE_g
+
 # Write to a csv for keeping and using later
 write_csv(PredDensity.spring, file = "PredDensity_spring.csv")
-min(PredDensity.spring$logD) #-24.96282 [(ln(re 1e-06 m-2.kg))]
-max(PredDensity.spring$logD) #24.01938 [(ln(re 1e-06 m-2.kg))]
+min(PredDensity.spring$logD) #-22.68194 [(ln(re 1e-06 m-2.kg))]
+max(PredDensity.spring$logD) #31.08053 [(ln(re 1e-06 m-2.kg))]
 
 
 # Fall

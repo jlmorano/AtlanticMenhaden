@@ -1,13 +1,13 @@
 # Atlantic menhaden distribution model
 ###############################################
 # Janelle L. Morano
-# Model in VAST 3.8.2 using NEFSC and NEAMAP data*
+# Model in VAST 3.9.1 using NEFSC and NEAMAP data*
 # model structure last updated 30 April 2022
 
 # *NEFSC and NEAMAP data 2007-2022 last updated 28 Sep 2022**
 # **2022 depth/temp data is missing right now, so when NAs excluded, 2022 is ommitted from analysis
 
-# System Info updated 30 Sep 2022
+# System Info updated 20 October 2022
 
 ###############################################
 ###############################################
@@ -161,6 +161,9 @@ X1_formula = ~ bs( log(DepthScale), degree=2, intercept=FALSE)
 # Define formula for Bottom Temp
 X2_formula = ~ bs( log(Bottemp), degree=2, intercept=FALSE)
 
+## Should is be this instead??
+# X1_formula = ~ poly(log(DepthScale), degree=2) + poly( log(Bottemp), degree=2 )
+# And should X2 be the same?
 
 # User-Defined Extrapolation Grid
 ####################
@@ -223,7 +226,7 @@ fit.fall = fit_model( "settings" = settings,
 # Save R environment for creating minimal example to share
 # save.image(file = "Atlantic-menhaden-distribution-model-20220401_output.RData")
 
-load("/Users/janellemorano/Git/AtlanticMenhaden/model-output/Atlantic-menhaden-distribution-model-20220401_output.RData")
+# load("/Users/janellemorano/Git/AtlanticMenhaden/model-output/Atlantic-menhaden-distribution-model-20220401_output.RData")
 
 # First, set the working directory to save the plots to a spot where I won't GIT the output because of size limitations.
 # !Currently, output from spring and fall model are going to same place, so need to manually move output

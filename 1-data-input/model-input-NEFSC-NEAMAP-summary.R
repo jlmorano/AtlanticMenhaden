@@ -5,9 +5,20 @@
 # These data are used in the VAST menhaden model
 # These analyses are for intuition of what is happening with menhaden and temperature
 
-# last updated 15 August 2022
+# last updated 25 October 2022
 ###############################################
 ###############################################
+
+# Table of Contents
+## Map of survey data
+## Abundance v. Year
+#### GAM
+## Abundance v. Temp
+#### GAM
+## Abundance at Sample Sites within Statistical survey areas
+#### GLM or GAM
+## Biomass at Sample Sites within Statistical survey areas
+#### GLM or GAM
 
 library(tidyverse)
 library(janitor)
@@ -31,6 +42,37 @@ surv.fall <- filter(surveydata, Season == "FALL")
 # Spring: color="#7AD151FF"
 # Fall: color="#414487FF"
 # theme_classic()
+
+############################
+#### Map of survey data
+############################
+
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+# Create basemap
+world <- ne_countries(scale = "medium", returnclass = "sf")  
+us <- ne_states(geounit = "United States of America", returnclass = "sf")  
+canada <- ne_states(geounit = "Canada", returnclass = "sf")  
+state_prov <- rnaturalearth::ne_states(c("united states of america", "canada", returnclass = "sf"))
+
+# Add NEFSC and NEAMAP survey areas
+strata <- st_read("/Users/janellemorano/DATA/NEFSC strata/BTS_Strata.shp")
+nmp.strata <- st_read("/Users/janellemorano/DATA/NEAMAP/NEAMAP Strata/NMDepthStrataPolgyons.shp")
+
+ggplot(data = world) +  
+  geom_sf(data = us, fill = "grey") + #CCCC99
+  geom_sf(data = canada, fill = "grey") +
+  geom_sf(data = strata, color = "black", fill = "#1f78b4") + 
+  geom_sf(data = nmp.strata, color = "black", fill = "#b2df8a") +
+  coord_sf (xlim = c(-82,-62), ylim = c (23,47), expand = FALSE ) +
+  theme_void() +
+  theme(panel.background = element_rect(fill = "slategray2")) + ##66CCFF
+  theme (axis.text = element_blank()) +
+  xlab("longitude") + 
+  ylab("latitude")
+
 
 
 #### Abundance vs Year
@@ -199,6 +241,8 @@ plot( sm(temp.gam.fall.viz, 1) ) +
   l_points(shape = 19, size = 1, alpha = 0.1) + theme_classic() +
   ggtitle("Fall Abundance by Temperature")
 
+
+############################
 #### Abundance at Sample Sites within Statistical survey areas
 ############################
 library(sf)
@@ -219,6 +263,7 @@ state_prov <- rnaturalearth::ne_states(c("united states of america", "canada", r
 
 library(gganimate)
 library(gifski)
+
 # Plot Abundance at survey locations
 # Spring
 # surv.spring.sub <- surv.spring %>% filter(Year >= 2007 & Year <= 2019 )
@@ -269,3 +314,65 @@ ggplot(data = world) +
   labs(x= "longitude", 
        y = "latitude",
        title = "Fall")
+
+
+
+# NEFSC: glm of log(Abundance) ~ Bottemp + Stratum + Season
+glm1 <- glm(log(Abundance +1) ~ Bottemp + Stratum + Season, data = surveydata)
+summary(glm1)
+
+# Map which of these strata are significant
+strata <- st_read("/Users/janellemorano/DATA/NEFSC strata/BTS_Strata.shp")
+plot(st_geometry(strata))
+
+# # color statistically sig strata
+# ggplot() +
+#   geom_sf(data = strata, aes(color = factor(STRATA)))
+#   # geom_sf_label(aes(label = STRATA))
+
+# Filter out only the ***sig strata
+strata.ex <- strata %>%
+  filter(STRATA %in% c(11, 14,15,2,3,3180,3270,3360,3420,3430,4,6,7500,7560,7590,7620,7860))
+ggplot() +
+  geom_sf(data = strata) +
+  geom_sf(data = strata.ex, aes(fill = "red", colour = "red")) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
+# Filter out >.05 sig strata
+strata.sig <- strata %>%
+  filter(STRATA %in% c(10,12,1240,1270,1280,13,1370,1380,3150,3240,3300,3400,3440,7,7510,7530,7570,7600,7630,7770,7830, 11,14,15,2,3,3180,3270,3360,3420,3430,4,6,7500,7560,7590,7620,7860))
+ggplot() +
+  geom_sf(data = strata) +
+  geom_sf(data = strata.sig, aes(fill = "red", colour = "red")) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
+############################
+#### Biomass at Sample Sites within Statistical survey areas
+############################
+
+# Biomass v. Year
+library(ggbreak) 
+library(patchwork)
+ggplot(surveydata, aes(x=Year, y=Biomass, color = Season)) +
+  scale_colour_manual(values = c("#414487FF","#7AD151FF")) +
+  scale_y_break(c(1000, 3500)) +
+  geom_point() +
+  theme_classic() +
+  labs(x= " ", y = "Biomass (kg/tow)") 
+
+# NEFSC: glm of Biomass ~ Bottemp + Stratum + Season
+glm2 <- glm(Biomass ~ Bottemp + Stratum + Season, data = surveydata)
+summary(glm2)
+
+# Filter out >.05 sig strata
+strata.sig <- strata %>%
+  filter(STRATA %in% c(14,3350))
+ggplot() +
+  geom_sf(data = strata) +
+  geom_sf(data = strata.sig, aes(fill = "red", colour = "red")) +
+  theme_minimal() +
+  theme(legend.position = "none")

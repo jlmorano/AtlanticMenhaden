@@ -20,6 +20,8 @@ Obj <- fit.spring$tmb_list$Obj
 
 # Optimize
 Opt = nlminb( start=Obj$par, obj=Obj$fn, gr=Obj$gr ) 
+# This may take a while, perhaps >20 mins
+
  #nlminb(startp, objective function); like TMB but not as efficient; SE via bootstrap; b means bounded; optimization to minimize (sum of squares maybe?) using the parameters, the function that may be the model, and gr=gradient=slope
 
 # TRY OPTIM instead of nlminb. Can we generate a Hessian matrix to get the cross correlations?
@@ -40,11 +42,12 @@ sample_SE = function( variable_name, n_samples = 500, mu, prec ){
   #
   # Sample from GMRF using sparse precision
   #* function to generate a complete precision matrix using the sparse precision matrix, mu, and number of samples given
-  #* testing...mu = Obj$env$last.par.best, 
-  #* WHAT IS MU REPRESENTING HERE? The optimized parameters? The diagonal?
+  #* testing first function "rmvnorm_prec"
+  #*           mu = Obj$env$last.par.best, 
+  #* WHAT IS MU REPRESENTING HERE? The optimized parameters? The diagonal? It's named numbers with names are parameters and some number of each parameter
   #*           n.sims = 100,
-  #*           prec=Opt$SD$jointPrecision
-  #*  ... rmvnorm_prec(mu, prec, n.sims)         
+  #*           prec=Opt$SD$jointPrecision  #so this is the optimized joint precision
+  #*  ... rmvnorm_prec(mu, prec, n.sims) 
   rmvnorm_prec <- function(mu, prec, n.sims) {
     #* rename the zs so not overwriting
     z <- matrix(rnorm(length(mu) * n.sims), ncol=n.sims) 
@@ -56,7 +59,7 @@ sample_SE = function( variable_name, n_samples = 500, mu, prec ){
     #* take inverse of the transpose of the Cholesky decomposition of the precision matrix z matrix of mu and number of simulations (WHAT DOES THIS REPRESENT?) and multiply it by  TO GET WHAT? (I don't understand what the "system =" does)
     z2 <- Matrix::solve(L, z, system = "Lt") ## solving ax = b; z = Lt^-1 %*% z 
     # lt <- Matrix::solve(L, z, system = "Lt")
-    z3 <- Matrix::solve(L, z, system = "Pt") ## z = Pt    %*% z
+    z3 <- Matrix::solve(L, z2, system = "Pt") ## z = Pt    %*% z
     # pt <- Matrix::solve(L, z, system = "Pt") ## z = Pt    %*% z
     z4 <- as.matrix(z3)
     return(mu + z4) #temp set to "ok"
@@ -65,8 +68,8 @@ sample_SE = function( variable_name, n_samples = 500, mu, prec ){
   
   # Calculate REPORTed variable for each sample
   for( rI in 1:n_samples ){
-    # Var = Obj$report( par=u_zr[,rI] )[[variable_name]]  #* NOT SURE WHAT'S HAPPENING HERE.. Function that takes a parameter and turns it into a list?? IT LOOKS LIKE IT'S TRYING TO GRAB A VALUE OR VARIABLE FROM THE PAR OBJECT FROM THE FIT BUT BASED ON THE SAMPLED PREC MATRIX; u_zr[,rI] = column seq through n_samples,
-    Var = Obj$report( par=u_zr[,1] )[[yhat_g]] #this is for testing
+    # Var = Obj$report( par=u_zr[,rI] )[[variable_name]]  #* NOT SURE WHAT'S HAPPENING HERE.. Function that takes a parameter (here the first column of u_zr) and turns it into a list?? IT LOOKS LIKE IT'S TRYING TO GRAB A VALUE OR VARIABLE FROM THE PAR OBJECT FROM THE FIT BUT BASED ON THE SAMPLED PREC MATRIX; u_zr[,rI] = column seq through n_samples,
+    Var = Obj$report( par=u_zr[,1] )[[D_gct]] #this is for testing
     
     if(is.vector(Var)) Var = as.array(Var)
     if(rI==1) Var_zr = Var
@@ -82,8 +85,11 @@ sample_SE = function( variable_name, n_samples = 500, mu, prec ){
 
 
 
-#* Generate SEs
-SE_g = sample_SE( variable_name="yhat_g", mu=Obj$env$last.par.best, prec=Opt$SD$jointPrecision )
+
+#* Generate SEs from density estimates D_gct
+SE_g = sample_SE( variable_name="D_gct", mu=Obj$env$last.par.best, prec=Opt$SD$jointPrecision )
+
+# Output is an array with rows=samples, but then 15 matrices...why?
 
 # ###*trying function and applying to previous fit data and fudging this
 # load("/Users/janellemorano/Git/AtlanticMenhaden/model-output/Atlantic-menhaden-distribution-model-20220401_output.RData")

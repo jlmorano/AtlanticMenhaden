@@ -1,0 +1,114 @@
+---
+title: "Computing SEs"
+author: "Janelle Morano"
+date: "2022-10-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Sampling from Precision Matrix for Calculating Standard Errors
+
+The joint precision covariance matrix represents the uncertainty of fixed effects, of random effects given fixed effect, of random effects accumulated from fixed effects, and how uncertainty about fixed effects affects uncertainty about random effects.  
+
+The joint covariance is the inverse of the joint precision matrix, and this provides the variance from which the standard error can be calculated. However, it is too computationally intensive to take the inverse of the joint precision matrix, so uncertainty must be approximated. The standard error of the predicted densities at each location across the grid can be estimated by sampling from the precision matrix of the model fit and taking the MLE of the parameters from a given distribution, to reconstruct variation at each sample.
+
+To approximate uncertainty at locations across the mesh, use the function `sample_SE()` to generate MVN samples from the (existing) joint precision matrix, and plug those values into the calculation of mu (the model). The standard deviation of the samples is the approximate predictive standard error.
+
+## Run model fit
+Get model fit objects in working environment. This assumes the output is named "fit". The object will be a list of lists, including objects from TMB.
+
+Grab the objects under `fit$tmb_list$Obj`. 
+```{r}
+# Obj = objects output by fit under fit$tmb_list$Obj
+Obj <- fit.spring$tmb_list$Obj
+
+# fit$tmb_list$Obj is a list with the following objects:
+# ~$par = model parameters and their values
+# ~$fn = function, but not sure exactly what it's doing, maybe a random walk
+# ~$gr = gradient = set of starting slopes; function that I don't understand what it's doing
+# ~$he = hessian function; for computing hessian?
+# ~$hessian = hessian output, maybe?
+# ~$method = character code for method of what?
+# ~$retape = ??
+# ~$env
+# ~$report = function to generate list of parameter values from 'par'
+# ~$sim = function, not sure what's being simulated
+# ~$control = ??
+
+```
+
+Find the maximum likelihood estimates, given the parameters estimated from the model fit, the model function, and the gradient (slope) in the TMB objects.
+
+Use nlminb(startp, objective function); like TMB but not as efficient; SE via bootstrap; b means bounded; optimization to minimize (sum of squares maybe?) using the parameters, the function that may be the model, and gr=gradient=slope
+
+TRY OPTIM instead of nlminb. Can we generate a Hessian matrix to get the cross correlations?
+```{r}
+Opt = nlminb( start=Obj$par, obj=Obj$fn, gr=Obj$gr ) 
+# This may take a while, perhaps >20 mins
+```
+
+Parameter values are now maximum likelihood estimates.
+
+Now get the joint precision matrix of these new estimates.
+```{r}
+#* Get joint precision report
+Opt$SD = sdreport( Obj, getJointPrecision=TRUE )
+```
+
+The function `sample_SE()` generates MVN samples from the (existing) joint precision matrix, and plugs those values into the calculation of mu (the model). The output array representss the standard deviation of the samples in a matrix for each year category. This is the approximate predictive standard error. 
+
+```{r}
+sample_SE = function( variable_name, n_samples = 500, mu, prec ){
+  # Sample from Gaussian Markov Random Field (GMRF) (see TMB Documentation on density::GMRF_t class) using sparse precision
+  rmvnorm_prec <- function(mu, prec, n.sims) {
+    z <- matrix(rnorm(length(mu) * n.sims), ncol=n.sims)
+      ## construct a matrix of MVN numbers. Row number = number of mus times number of simulations user selects; column number = number of simulations user selects. 
+      ## This matrix will be a dense matrix.
+    L <- Matrix::Cholesky(prec, super=TRUE)
+      ## Cholesky decomposition of the model-generated sparse precision matrix. This is now an upper-triangle matrix
+    z <- Matrix::solve(L, z, system = "Lt") ## z = Lt^-1 %*% z
+      ## Re-compose the Cholesky decomp of the precision matrix in 2 steps...
+      ## First, take the inverse of the transpose of the Cholesky decomposition (L) of the precision matrix (z). The matrix is now a lower-triangle matrix.
+      ## What does "system" represent?
+    z <- Matrix::solve(L, z, system = "Pt") ## z = Pt    %*% z
+      ## Second, multiply the Cholesky decomposition (L, upper-matrix) by its inverse (z, the lower-triangle matrix).    
+    z <- as.matrix(z)
+    return(mu + z)
+  }
+  u_zr = rmvnorm_prec( mu=mu, prec=prec, n.sims=n_samples)
+      ## u_zr is now a constructed matrix of draws, where each column is the new simulated parameter values.
+  
+  # Calculate REPORTed variable (from TMB object) for each sample
+  for( rI in 1:n_samples ){
+    Var = Obj$report( par=u_zr[,rI] )[[variable_name]]
+    if(is.vector(Var)) Var = as.array(Var)
+    if(rI==1) Var_zr = Var
+    if(rI>=2){
+      Var_zr = abind::abind( Var_zr, Var, along=length(dim(Var))+1 )
+    }
+  }
+  # Return value
+  return( apply(Var_zr, MARGIN=1:(length(dim(Var_zr))-1), FUN=sd) )
+}
+```
+
+
+# Generate SEs
+The variable_name must be a named variable from the 'fit'. Here, D_gct is the predicted density, and that is what we want standard errors for.
+
+Apply the function.
+
+```{r}
+SE_g = sample_SE( variable_name="D_gct", mu=Obj$env$last.par.best, prec=Opt$SD$jointPrecision )
+```
+
+Now you have SE for your estimated densities across the sample area for each year.
+
+But WAIT...not right yet...
+
+
+You can append this to your estimated densities.
+

@@ -11,18 +11,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Project Overview
 
-**Ph.D. Dissertation: Measuring where marine species may go in response to climate change and ways to adapt management strategies to be responsive and proactive**
+**Ph.D. Dissertation: Forecasting and Adapting Fisheries Management for the Future:Quantifying Spatio-Temporal Responses of Forage Fishes to Climate Change**
 
-*Jargony title: Quantifying Spatio-Temporal Responses of Marine Ecosystems to Climate Change and Other Anthropogenic Habitat Modifications to Facilitate Adaptive Management Strategies*
+Where fish are and when they move depends on ideal habitat for feeding and spawning. As human-induced climate change is changing the marine ecosystem and impacts fishing communities [such that our historical understanding is not indicative of the future], fisheries management demands a more rapid and dynamic response. Forage species are an important link in the ecosystem because they are consumers of plankton and prey to managed and protected species of fishes, marine mammals, and birds, but we often lack information on the populations of most forage species. Quantitative metrics show that many marine species distributions are shifting and expanding along the US east coast as water temperatures warm, but less attention has been paid to quantifying local increases or decreases in distribution from the ecosystem interaction of abiotic and biotic conditions (e.g., water temperature, depth, prey availability) that may impact fishing and our understanding of the ecosystem and species adaptations, and particularly for forage fishes. Therefore, I will address three major questions: 
 
-My dissertation research is focused on the spatio-temporal responses of the marine ecosystem to climate change to improve forecasts of species distributions and adapt responsive management practices. I am particularly interested in understanding decision trade-offs in building predictive models and effectively communicating the uncertainty and risk that support adaptive management strategies and future planning efforts. 
+1.	Where are the forage fish along the US east coast currently; how and why has their distribution changed? 
+1.	Where will they be in future?
+1.	How can species distribution forecasts be incorporated into the current management process to adapt to anticipated distribution changes?
+
 
 My research is supported by the NMFS-Sea Grant Population and Ecosystem Dynamics Fellowship and the New York Department of Environmental Conservation.
 
-## Research Questions
-1. What is the current distribution of marine species, how has it changed recently, and what are the major factors influencing the distribution? My goal is to gain a deeper understanding of spatio-temporal statistical models, the trade-offs in bias and accuracy when selecting parameters and the spatial and temporal limitations of data.
-1. What is the forecasted distribution of marine species under different climate scenarios, and what are the potential impacts and risks associated with ecosystem management, particularly with fishing and offshore wind development plans? My goal is to provide information that is useful to identify risks and challenges.
-1. How could fisheries science and management adapt to changing distributions? Can we distinguish between a population that has move its distribution outside of fixed sampling area and a population that is declining? My goal is to give guidance for adaptive management strategies that could be considered for future planning (e.g., modeling frameworks, survey designs, time-area closures).
 
 ## Current Project
 Currently, I am building a spatio-temporal model of Atlantic menhaden to understand if menhaden distribution has shifted northward and/or offshore in recent years and evaluate the influence of water temperature and prey availability. 

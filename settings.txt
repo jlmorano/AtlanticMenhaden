@@ -2,27 +2,26 @@ $Version
 [1] "VAST_v13_1_0"
 
 $n_x
-[1] 350
+[1] 100
 
 $Region
-[1] "User"
+[1] "northwest_atlantic"
 
 $strata.limits
-     STRATA
-1 All_areas
+$strata.limits[[1]]
+[1] 1130 1140 1150 1160 1170 1180 1190 1200 1210
+
 
 $zone
 [1] NA
 
 $FieldConfig
-        Component_1 Component_2
-Omega   "IID"       "IID"      
-Epsilon "IID"       "IID"      
-Beta    "IID"       "IID"      
+  Omega1 Epsilon1   Omega2 Epsilon2 
+       1        1        1        1 
 
 $RhoConfig
    Beta1    Beta2 Epsilon1 Epsilon2 
-       0        0        0        0 
+       3        3        4        4 
 
 $VamConfig
 Method   Rank Timing 
@@ -33,14 +32,12 @@ Eta1 Eta2
    0    0 
 
 $ObsModel
-[1] 2 0
+[1] 1 1
 
 $vars_to_correct
 [1] "Index_cyl" "Index_ctl"
 
 $Options
-           Calculate_Range   Calculate_effective_area 
-                      TRUE                       TRUE 
 treat_nonencounter_as_zero 
                       TRUE 
 
@@ -48,7 +45,7 @@ $grid_size_km
 [1] 25
 
 $max_cells
-[1] 3500
+[1] 2000
 
 $knot_method
 [1] "grid"
@@ -57,7 +54,7 @@ $Method
 [1] "Mesh"
 
 $use_anisotropy
-[1] FALSE
+[1] TRUE
 
 $fine_scale
 [1] TRUE

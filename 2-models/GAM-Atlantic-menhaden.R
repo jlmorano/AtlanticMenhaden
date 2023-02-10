@@ -1,12 +1,21 @@
 # GAM-Atlantic-menhaden.R
 ######################################
 # Janelle L. Morano
+# GAM model of menhaden distribution
+# Primarily to compare with VAST model
 # Using NEFSC and NEAMAP data that goes into VAST menhaden model
-# GAM model to compare with VAST model
 
-# last updated 27 October 2022
+# last updated 31 January 2023
 ###############################################
 ###############################################
+
+#### 1. VAST mimic: GAM of Biomass by smooth(Year), Stratum, Bottemp, Depth
+#### 2. VAST mimic: GAM of log(Abundance +1) by smooth(Year), Stratum, Bottemp, Depth
+#### 3. GAM of log(Abundance+) by Year, Season, Bottemp, Depth, Lat
+#### 4. GAM of Biomass by smooth(Year), Stratum, Bottemp, Depth
+
+# Average density for each strata, over time
+# Average density for each strata, over time, smooth year
 
 library(tidyverse)
 library(janitor)
@@ -28,7 +37,7 @@ library(mgcv)
 
 # Spring
 springdata <- surveydata[surveydata$Season == "SPRING",]
-springdata <- surveydata[surveydata$Season == "SPRING" & surveydata$Biomass > 0,]
+# springdata <- surveydata[surveydata$Season == "SPRING" & surveydata$Biomass > 0,]
 
 spring.gam = gam(Biomass ~ s(Year) + Stratum + Bottemp + Depth, data = springdata)
 options(max.print=5.5E5)
@@ -133,7 +142,7 @@ preddata.ab <- data.frame(Year = springdata$Year,
 ab.pred.spring.gam <- predict.gam(ab.spring.gam, newdata = preddata.ab, se.fit=TRUE)
 head(ab.pred.spring.gam)
 
-plot(springdata$Biomass ~ springdata$Year)
+plot(springdata$Abundance ~ springdata$Year)
 lines(preddata.ab$Year, ab.pred.spring.gam$fit, col="red")
 lines(preddata.ab$Year, ab.pred.spring.gam$fit+2*ab.pred.spring.gam$se.fit,lty=2, col="red")
 lines(preddata.ab$Year, ab.pred.spring.gam$fit-2*ab.pred.spring.gam$se.fit,lty=2, col="red")
@@ -221,3 +230,29 @@ plot(log(surveydata$Abundance +1) ~ surveydata$Year)
 lines(preddata$Year, pred.abun.gam$fit, col="red")
 lines(preddata$Year, pred.abun.gam$fit+2*pred.abun.gam$se.fit,lty=2, col="red")
 lines(preddata$Year, pred.abun.gam$fit-2*pred.abun.gam$se.fit,lty=2, col="red")
+
+
+#### Average density for each strata, over time
+########################################################
+
+# Spring
+################
+springdata <- surveydata[surveydata$Season == "SPRING",]
+
+ab.spring.gam = gam(log(Abundance +1) ~ s(Year) + Stratum + Bottemp + Depth, data = springdata)
+options(max.print=5.5E5)
+summary(ab.spring.gam)
+plot(ab.spring.gam, main = "Spring")
+
+preddata.ab <- data.frame(Year = springdata$Year,
+                          Stratum = springdata$Stratum,
+                          Bottemp = springdata$Bottemp,
+                          Depth = springdata$Depth)
+ab.pred.spring.gam <- predict.gam(ab.spring.gam, newdata = preddata.ab, se.fit=TRUE)
+head(ab.pred.spring.gam)
+
+plot(springdata$Abundance ~ springdata$Year)
+lines(preddata.ab$Year, ab.pred.spring.gam$fit, col="red")
+lines(preddata.ab$Year, ab.pred.spring.gam$fit+2*ab.pred.spring.gam$se.fit,lty=2, col="red")
+lines(preddata.ab$Year, ab.pred.spring.gam$fit-2*ab.pred.spring.gam$se.fit,lty=2, col="red")
+

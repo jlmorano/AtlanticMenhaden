@@ -40,8 +40,8 @@ ggplot(data = world) +
   geom_sf(data = canada, fill = "grey") +
   geom_sf(data = strata, color = "black", fill = "#1f78b4") + 
   geom_sf(data = nmp.strata, color = "black", fill = "#b2df8a") +
-  geom_point(data = ct, aes(Longitude, Latitude), inherit.aes = FALSE, size = 0.3, color = "#253494") +
-  geom_point(data = wli, aes(Longitutde, Latitude), inherit.aes = FALSE, size = 0.3, color = "#41b6c4") +
+  # geom_point(data = ct, aes(Longitude, Latitude), inherit.aes = FALSE, size = 0.3, color = "#253494") +
+  # geom_point(data = wli, aes(Longitutde, Latitude), inherit.aes = FALSE, size = 0.3, color = "#41b6c4") +
   coord_sf (xlim = c(-82,-62), ylim = c (23,47), expand = FALSE ) +
   theme_void() +
   theme(panel.background = element_rect(fill = "white")) + # slategray2
@@ -50,3 +50,11 @@ ggplot(data = world) +
   ylab("latitude") +
   coord_sf(xlim = c(-74, -71), ylim = c(40, 42)) 
 
+
+
+# strata <- strata %>% st_set_crs()
+strata2 <- st_read("/Users/janellemorano/DATA/NEFSC_bt_strata/finstr_nad83.shp")
+nefsc <- st_geometry(strata2)
+plot(nefsc)
+plot(st_centroid(nefsc), add = TRUE, pch = 3, col = 'red')
+st_area(nefsc)

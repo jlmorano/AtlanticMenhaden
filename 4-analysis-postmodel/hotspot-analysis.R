@@ -1,8 +1,8 @@
 # Hotspot Analysis
 library(tidyverse)
 
-est_density.spring <- read.csv("/Users/janellemorano/MODEL_OUTPUT/Atlantic-menhaden-distribution-model-20220401 Spring gamma/PredDensity_spring.csv")
-est_density.fall <- read.csv("/Users/janellemorano/MODEL_OUTPUT/Atlantic-menhaden-distribution-model-20220401 Fall gamma/PredDensity_fall.csv")
+est_density.spring <- read.csv("/Users/janellemorano/MODEL_OUTPUT/Atlantic-menhaden-distribution-model-20230111 Spring/PredDensity_spring_1972-2021.csv")
+est_density.fall <- read.csv("/Users/janellemorano/MODEL_OUTPUT/Atlantic-menhaden-distribution-model-20230111 Fall/PredDensity_fall_1972-2021.csv")
 
 # Chesapeake Bay region: lat 35.8544 to 38.4208
 ches.spring <- est_density.spring %>%
@@ -89,19 +89,19 @@ ggplot(data = world) +
   # geom_sf(data = us, color = "gray", fill = "white") + #CCCC99
   # geom_sf(data = canada, color = "gray", fill = "white") +
   coord_sf (xlim = c(-81,-63.5), ylim = c (32,45), expand = FALSE ) +
-  geom_point(data = subset(est_density.spring, logD <10),  #zero sites
+  geom_point(data = subset(est_density.spring, logD <8),  #zero sites
              aes (x = Lon, y = Lat),
-             size=.5, stroke=0.25,shape=1, color="gray30") +
-  geom_point(data = subset(est_density.spring, logD >=10) %>% #non-zero sites
+             size=.5, stroke=0.25,shape=1, color= '#404788FF') + #gray50
+  geom_point(data = subset(est_density.spring, logD >=8) %>% #non-zero sites
                arrange(logD),
              aes (x = Lon, y = Lat), #instead of color =log(Abundance)
-             size=.5, stroke=0.75,shape=16, color = "red") +
+             size=.75, stroke=0.75,shape=16, color = "#FDE725FF") + #red
   # scale_color_viridis_c(option = "viridis") +
   theme_bw() +
   theme(axis.text = element_blank()) +
   theme(strip.text.x = element_text(size = 7),
         strip.background = element_blank()) +
-  facet_wrap('Year', ncol = 4) +
+  facet_wrap('Year', ncol = 8) +
   labs(x= "longitude", 
        y = "latitude",
        title = "Spring") 

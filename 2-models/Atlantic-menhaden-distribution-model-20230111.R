@@ -1,13 +1,13 @@
-# Atlantic menhaden distribution model
+# Atlantic-menhaden-distribution-model-20230111.R
 ###############################################
 # Janelle L. Morano
-# Model in VAST 3.9.1 using NEFSC and NEAMAP data*
-# model structure last updated 30 April 2022
+# Model in VAST 3.9.1 using NEFSC and NEAMAP data^
+# model structure last updated 11 January 2023
 
-# *NEFSC and NEAMAP data 2007-2022 last updated 28 Sep 2022**
-# **2022 depth/temp data is missing right now, so when NAs excluded, 2022 is ommitted from analysis
+# ^NEFSC and NEAMAP data 2007-2022 last updated 28 Sep 2022^^
+# ^^2022 depth/temp data is missing right now, so when NAs excluded, 2022 is omitted from analysis
 
-# System Info updated 20 October 2022
+# System Info updated 11 January 2023
 
 ###############################################
 ###############################################
@@ -81,8 +81,6 @@ sessionInfo()
 # Data Prep
 ####################
 
-## If using the "forsharing.RData" example, skip ahead to Fit the Model, line 181
-
 # Data were compiled in create-nefsc-neamap-menhaden-model-data.R
 # data include NEAMAP and NEFSC
 
@@ -107,22 +105,22 @@ covariate_data <- select(covariate_data, -c(Surftemp, Surfsalin, Botsalin))
 covariate_data <- na.omit(covariate_data)
 
 # The above dataset is the full date range, but NEAMAP is only from 2007-2022, and NEFSC is 1963-2021.
-# Modify the dataset for only overlapping years, 2007-2022, AND dividing into SPRING and FALL seasons.
+# Selecting 1972-2021
 
 # SPRING
 data.spring <- data %>%
-  filter(Year >= 2007 & Year <= 2021) %>%
+  filter(Year >= 1972 & Year <= 2021) %>%
   filter(Season == "SPRING")
 covariate_data.spring <- covariate_data %>%
-  filter(Year >= 2007 & Year <= 2021) %>%
+  filter(Year >= 1972 & Year <= 2021) %>%
   filter(Season == "SPRING")
 
 # FALL
 data.fall <- data %>%
-  filter(Year >= 2007 & Year <= 2021) %>%
+  filter(Year >= 1972 & Year <= 2021) %>%
   filter(Season == "FALL")
 covariate_data.fall <- covariate_data %>%
-  filter(Year >= 2007 & Year <= 2021) %>%
+  filter(Year >= 1972 & Year <= 2021) %>%
   filter(Season == "FALL")
 
 
@@ -165,24 +163,25 @@ X2_formula = ~ bs( log(Bottemp), degree=2, intercept=FALSE)
 # X1_formula = ~ poly(log(DepthScale), degree=2) + poly( log(Bottemp), degree=2 )
 # And should X2 be the same?
 
+
 # User-Defined Extrapolation Grid
 ####################
 # Set the extrapolation grid, created in "create extrapolation grid for menhaden.R" 
 user_region <- readRDS('/Users/janellemorano/MODEL_OUTPUT/_currentrun/user_region.rds')
 
-# Save R environment for creating minimal example to share
-# save.image(file = "NEFSC-NEAMAP-2007-2021.RData")
-
-# Load "forsharing.RData"
-# this will contain the fit.spring and fit.fall below, too, but fit.model can be re-run with changes
-# load("NEFSC-NEAMAP-2007-2021.RData")
 
 # Model Settings
 ####################
+# Beta = temporal variation
+# Omega = spatial variation
+# Epsilon = spatio-temporal variation
+
 settings = make_settings( n_x = 350, #350 knots with gamma dist has worked
                           Region = 'User', 
                           purpose = "index2", 
                           knot_method = 'grid', #must be 'samples' or 'grid'
+                          FieldConfig = c("Omega1" = 1, "Epsilon1" = 1, "Omega2" = 1, "Epsilon2" = 1),
+                          RhoConfig = c("Beta1" = 0, "Beta2" = 0, "Epsilon1" = 1, "Epsilon2" = 1),
                           ObsModel= c(2,0), # 1st value catch rate= lognormal = 1 OR gamma = 2; 
                           # 2nd value encounter probabilities= 0 default log-link
                           use_anisotropy=FALSE,
@@ -212,8 +211,8 @@ fit.fall = fit_model( "settings" = settings,
                       "Lat_i" = data.fall$Latitude,
                       "Lon_i" = data.fall$Longitude,
                       "t_i" = data.fall$Year, #time
-                      "b_i" = data.fall$Biomass, #catch
-                      "a_i" = data.fall$Areasw, #area swept
+                      "b_i" = as_units(data.fall$Biomass, "kg"), #catch
+                      "a_i" = as_units(data.fall$Areasw, "km^2"), #area swept
                       # "v_i"= data.fall$Cruise, #vessel effects, I think very wrong, so keep out
                       "X1_formula" = X1_formula, #depth
                       "X2_formula" = X2_formula, #bottemp
@@ -234,6 +233,7 @@ plot( fit.spring )
 
 # !!! Make sure you've moved the spring output before over-writing with these fall output!!!
 plot( fit.fall )
+
 
 # Examining Model Results
 ####################

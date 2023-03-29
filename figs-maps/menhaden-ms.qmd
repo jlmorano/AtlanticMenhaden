@@ -23,3 +23,15 @@ As climate change transforms ocean habitat, species are contracting, expanding, 
 
 
 ```
+
+# Figures & Tables
+
+1. Fig. Map of data surveyss
+1. Table. Model output values and parameters (compare to assessment and fedvstate)
+1. Fig. Map of USeast coast with graphs at latitude of
+- temp over years
+- chl over years
+- abundance over years
+1. Density in space by (how to visualize change over time?); highlight areas of stasis and change
+- strata
+- hotspot

@@ -76,9 +76,9 @@ ggplot(data = world) +
   geom_sf(data = canada, fill = "grey") +
   geom_sf(data = nefsc, color = "black", fill = "#1f78b4") + 
   geom_sf(data = neamap, color = "black", fill = "#b2df8a") +
-  coord_sf (xlim = c(-82,-62), ylim = c (23,47), expand = FALSE ) +
+  coord_sf (xlim = c(-82,-62), ylim = c (23,47), expand = FALSE ) + #East coast, Fl to Nova Scotia
   theme_void() +
-  theme(panel.background = element_rect(fill = "slategray2")) + ##66CCFF
+  theme(panel.background = element_rect(fill = "white")) + ##66CCFF, slategray2
   theme (axis.text = element_blank()) +
   xlab("longitude") + 
   ylab("latitude")

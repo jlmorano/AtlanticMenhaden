@@ -1,0 +1,25 @@
+---
+title: "Menhaden MS Outline"
+format:
+  docx:
+    toc: true
+    number-sections: true
+    highlight-style: github
+---
+
+# Abstract
+
+*SOTM abstract*
+As climate change transforms ocean habitat, species are contracting, expanding, and shifting their distributions as they adapt, yet these distributional changes are not equivalent across species and lead to changes in species assemblages and associated interactions. Forage fishes are an important link in the ecosystem because they are consumers of plankton and prey to managed and protected species, but changes in their distribution are less well known because they are not commonly the primary target for management and less data are typically available. We used Atlantic menhaden, Brevoortia tyrannus, as a case-study to apply  multi-scale spatio-temporal species distribution models to integrate fishery-independent data sources in order to identify seasonal patterns and decadal trends in distribution. Menhaden distribution patterns vary seasonally, with a broader, less dense, distribution across the continental shelf and from North Carolina to the Gulf of Maine in the spring, and more inshore, north, with higher density in the fall. Regions of high density vary between seasons and among years, but occur consistently near North Carolina, Chesapeake Bay, and New York Bight regions. Abundance and distribution patterns are associated with preferred temperature ranges for spawning and migration behavior in menhaden and prey availability (plankton and chlorophyll-a). This information can inform spatial management of menhaden and forecasting models of distribution of menhaden and other forage fishes under future climate scenarios.
+
+# Methods
+
+# Results
+
+
+```{r}
+#| label: fig-1
+#| fig-cap: Map of surveys
+
+
+```

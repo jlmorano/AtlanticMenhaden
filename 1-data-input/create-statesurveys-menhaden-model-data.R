@@ -1,4 +1,4 @@
-# GAM-LongIsland-Atlantic-menhaden.R
+# create-statesurveys-menhaden-model-data.R
 ######################################
 # Janelle L. Morano
 

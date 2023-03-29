@@ -20,12 +20,12 @@ Sources
 * NY Nearshore ocean trawl
 * NY Western Long Island
 * NY Peconic Bay
-# - CTLISTS data
-# - NYDEC Western Long Island Sound survey data
-# - NJ Ocean Trawl
-# - Delaware Bay
-# - (not yet) Maryland Gill Net (lacks lat/long info)
-# - ChesMMAP
-# - (not yet) VIMS Shad Gill net
-# - Georgia EMTS
+* CTLISTS data
+*  NYDEC Western Long Island Sound survey data
+* NJ Ocean Trawl
+* Delaware Bay
+* (not yet) Maryland Gill Net (lacks lat/long info)
+* ChesMMAP
+* (not yet) VIMS Shad Gill net
+* Georgia EMTS
 

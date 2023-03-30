@@ -7,7 +7,7 @@
 # ^NEFSC and NEAMAP data 2007-2022 last updated 28 Sep 2022^^
 # ^^2022 depth/temp data is missing right now, so when NAs excluded, 2022 is omitted from analysis
 
-# System Info updated 11 January 2023
+# System Info updated 30 March 2023
 
 ###############################################
 ###############################################
@@ -66,17 +66,13 @@ library(splines)  # Used to include basis-splines
 library(effects)  # Used to visualize covariate effects
 
 sessionInfo()
-# R version 4.2.1 (2022-06-23)
+# R version 4.2.3 (2023-03-15)
 # Platform: x86_64-apple-darwin17.0 (64-bit)
-# Running under: macOS Monterey 12.6
-# FishStatsUtils_2.11.0 units_0.8-0         
-# VAST_3.9.1      
-# TMB_1.9.1           
-# Rcpp_1.0.9       lattice_0.20-45  MASS_7.3-57      grid_4.2.1       DBI_1.1.3       
-# nlme_3.1-157     survey_4.1-1     INLA_22.05.07    minqa_1.2.4      nloptr_2.0.3    
-# sp_1.5-0         Matrix_1.5-1     boot_1.3-28      lme4_1.1-30      tools_4.2.1     
-# survival_3.3-1   abind_1.4-5      compiler_4.2.1   colorspace_2.0-3 mitools_2.4     
-# insight_0.18.4   nnet_7.3-17
+# Running under: macOS Monterey 12.6.3
+# FishStatsUtils_2.12.1         
+# VAST_3.10.1      
+# TMB_1.9.3           
+
 
 # Data Prep
 ####################

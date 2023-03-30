@@ -12,7 +12,7 @@
 # - (not yet) VIMS Shad Gill net
 # - Georgia EMTS
 
-# last updated 29 March 2023
+# last updated 30 March 2023
 ###############################################
 ###############################################
 
@@ -73,7 +73,7 @@ nj <- read.csv("/Users/janellemorano/DATA/NJ Ocean Trawl Survey/NJOTMenhadenCatc
 colnames(nj)
 #convert lat & lon columns to decimal degrees
 nj <- mutate(nj, Latitude = ELAT/100) %>%
-  mutate(nj, Longitude = ELONG/100)
+  mutate(nj, Longitude = ELONG/-100)
 
 nj2 <- nj %>%
   select(STRATUM, Month, STA, Year, Latitude, Longitude, ENDDEPTH, SALSURF, TEMPSURF, SALBOT, TEMPBOT, NUMBER, WEIGHT) %>%
@@ -111,7 +111,8 @@ de2 <- de %>%
          Weight.kg = WEIGHTkg) %>%
   add_column(Stratum = NA, .before = "Month") %>%
   add_column(Survey = "DEBay", .before = "Stratum") %>%
-  add_column(Season = NA, .after = "Stratum")
+  add_column(Season = NA, .after = "Stratum") %>%
+  mutate(Longitude = Longitude*-1) #Fix Longitude
 
 
 

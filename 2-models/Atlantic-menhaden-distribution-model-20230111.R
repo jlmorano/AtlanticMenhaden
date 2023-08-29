@@ -7,7 +7,7 @@
 # ^NEFSC and NEAMAP data 2007-2022 last updated 28 Sep 2022^^
 # ^^2022 depth/temp data is missing right now, so when NAs excluded, 2022 is omitted from analysis
 
-# System Info updated 30 March 2023
+# System Info updated 12 May 2023
 
 ###############################################
 ###############################################
@@ -68,7 +68,7 @@ library(effects)  # Used to visualize covariate effects
 sessionInfo()
 # R version 4.2.3 (2023-03-15)
 # Platform: x86_64-apple-darwin17.0 (64-bit)
-# Running under: macOS Monterey 12.6.3
+# Running under: macOS Monterey 12.6.5
 # FishStatsUtils_2.12.1         
 # VAST_3.10.1      
 # TMB_1.9.3           
@@ -81,9 +81,9 @@ sessionInfo()
 # data include NEAMAP and NEFSC
 
 # sample data
-data <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden_sampledata.csv", header = TRUE)
+data <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden-sample-data-202300504.csv", header = TRUE)
 # covariate data
-covariate_data <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden_covariate_data.csv", header = TRUE)
+covariate_data <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden-covariate-data-20230504.csv", header = TRUE)
 # If I didn't name the covariate data correctly (as Lat and Lon), fix the lat/lon
 library(dplyr)
 covariate_data <- covariate_data %>%

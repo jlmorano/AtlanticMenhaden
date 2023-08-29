@@ -33,7 +33,7 @@ utmzone <- floor((lon + 180)/6)+1
 
 ## Convert the final in polygon to UTM
 crs_UTM <- CRS(paste0("+proj=utm +zone=",utmzone," +ellps=WGS84 +datum=WGS84 +units=m +no_defs "))
-region_polygon1 <- spTransform(sps, crs_UTM)
+region_polygon <- spTransform(sps, crs_UTM)
 ### Construct the extroplation grid for VAST using sf package
 ## Size of grid **in meters** (since working in UTM). Controls
 ## the resolution of the grid.

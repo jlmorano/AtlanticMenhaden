@@ -9,10 +9,11 @@
 # - Delaware Bay
 # - (not yet) Maryland Gill Net (lacks lat/long info)
 # - ChesMMAP
-# - (not yet) VIMS Shad Gill net
+# - (not yet, and I think omit) VIMS Shad Gill net
 # - Georgia EMTS
+# - SEAMAP
 
-# last updated 30 March 2023
+# last updated 227 July 2023
 ###############################################
 ###############################################
 
@@ -47,7 +48,7 @@ ct2 <- ct %>%
 
 #---- NY Western Long Island Seine Survey -----
 
-wli <- read.csv("/Users/janellemorano/DATA/NY Western Long Island Seine Survey/WLI_menhaden_catch_data.csv", header = TRUE)
+wli <- read.csv("/Users/janellemorano/DATA/New York Western Long Island Seine Survey/WLI_menhaden_catch_data.csv", header = TRUE)
 # colnames(wli)
 wli <- clean_names(wli, "upper_camel")
 # colnames(wli)
@@ -69,11 +70,8 @@ wli2<- wli %>%
 
 #---- NJ Ocean Trawl Survey -----
 
-nj <- read.csv("/Users/janellemorano/DATA/NJ Ocean Trawl Survey/NJOTMenhadenCatch.csv", header = TRUE)
+nj <- read.csv("/Users/janellemorano/DATA/New Jersey Ocean Trawl Survey/NJOTMenhadenCatch.csv", header = TRUE)
 colnames(nj)
-#convert lat & lon columns to decimal degrees
-nj <- mutate(nj, Latitude = ELAT/100) %>%
-  mutate(nj, Longitude = ELONG/-100)
 
 nj2 <- nj %>%
   select(STRATUM, Month, STA, Year, Latitude, Longitude, ENDDEPTH, SALSURF, TEMPSURF, SALBOT, TEMPBOT, NUMBER, WEIGHT) %>%
@@ -88,6 +86,8 @@ nj2 <- nj %>%
          Weight.kg = WEIGHT) %>%
   add_column(Survey = "NJOT", .before = "Stratum") %>%
   add_column(Season = NA, .after = "Stratum")
+
+nj2$Stratum <- as.character(nj2$Stratum)
 
 
 
@@ -191,19 +191,136 @@ ga2 <- ga %>%
   add_column(BotTemp = NA, .after = "BotSalin")
 
 
-##### Merge datasets ------------------------------------------------------
+#---- SEAMAP -----
+
+seamap <- read.csv("/Users/janellemorano/DATA/SEAMAP/janelle.morano.Coastal Survey.ABUNDANCEBIOMASS.2023-06-06T15.35.29.csv", header = TRUE)
+colnames(seamap)
+
+# library(lubridate)
+seamap$DATE <- mdy(seamap$DATE)
+seamap$Month <- month(seamap$DATE)
+seamap$Day <- day(seamap$DATE)
+seamap$Year <- year(seamap$DATE)
+
+seamap2 <- seamap %>%
+  select(REGION, Month, Day, Year, LATITUDESTART, LONGITUDESTART, SALINITYSURFACE, SALINITYBOTTOM, TEMPSURFACE, TEMPBOTTOM, NUMBERTOTAL, SPECIESTOTALWEIGHT) %>%
+  rename(Stratum = REGION,
+         Latitude = LATITUDESTART,
+         Longitude = LONGITUDESTART,
+         SurfSalin = SALINITYSURFACE,
+         BotSalin = SALINITYBOTTOM,
+         SurfTemp = TEMPSURFACE,
+         BotTemp = TEMPBOTTOM,
+         MenhadenTotal = NUMBERTOTAL,
+         Weight.kg = SPECIESTOTALWEIGHT) %>%
+  add_column(Survey = "SEAMAP", .before = "Stratum") %>%
+  add_column(Season = NA, .after = "Stratum") %>%
+  add_column(Depth.m = NA, .after = "Longitude")
+
+seamap2$Stratum <- gsub("=","",as.character(seamap2$Stratum) )
+
+
+
+
+#----- Merge datasets ------------------------------------------------------
 
 # Verify colnames are the same
 colnames(ct2)
 colnames(wli2)
+colnames(nj2)
+colnames(de2)
+colnames(chesmap2)
+colnames(ga2)
+colnames(seamap2)
+
+unique(ct2$Year)
+# 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005
+# 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2021
+unique(wli2$Year)
+# 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005
+# 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021
+unique(nj2$Year)
+# 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009
+# 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2022
+unique(de2$Year)
+#  1966 1967 1968 1969 1970 1971 1974 1979 1980 1981 1982 1983 1984 1990 1991 1992 1993 1994 1995 1996 1997 1998
+# 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020
+# 2021 2022
+unique(chesmap2$Year)
+# 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018
+unique(ga2$Year)
+# 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 1995 1996
+# 1997 1998
+unique(seamap2$Year)
+# 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010
+# 2011 2012 2013 2014 2015 2016 2017 2018 2019 2021 2022   NA
+
+unique(ct2$Month)
+# 5  6  4  9 10
+unique(wli2$Month)
+# 5  6  7  8  4 10  9 11
+unique(nj2$Month)
+# 8  9 10 11  1  2  4  6 12  3  5  7
+unique(de2$Month)
+# 8  9 10 11 12  1  3  5  6  7  2  4
+unique(chesmap2$Month)
+# 3  5  7  9 10 11
+unique(ga2$Month)
+# 4  5  6  7  9  2  3  8 10  1 12 11
+unique(seamap2$Month)
+# 4  5  6  7  8 10 11  9 NA
 
 
 # Merge state data
-statedata <- bind_rows(ct2, wli2, nj2, de2, chesmap2, ga2)
+statedata <- bind_rows(ct2, wli2, nj2, de2, chesmap2, ga2, seamap2)
 unique(statedata$Survey)
-# "CTLISTS" "WLI"     "NJOT"    "DEBay"   ChesMMAP        "GAEMTS" 
+# "CTLISTS"  "WLI"      "NJOT"     "DEBay"    "ChesMMAP" "GAEMTS"   "SEAMAP" 
 unique(statedata$Month)
 
-# Write dataset as .csv file
+## Clean up
+colnames(statedata)
+# [1] "Survey"        "Stratum"       "Season"        "Month"         "Day"          
+# [6] "Year"          "Latitude"      "Longitude"     "Depth.m"       "SurfSalin"    
+# [11] "SurfTemp"      "BotSalin"      "BotTemp"       "MenhadenTotal" "Weight.kg" 
+unique(statedata$Survey) #OK
+unique(statedata$Season)
+# "SPRING " "FALL "   NA   
+unique(statedata$Month)
+# 5  6  4  9 10  7  8 11  1  2 12  3 NA
+unique(statedata$Year)
+# 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005
+# 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2021 2020 2022 1966 1967 1968 1969 1970
+# 1971 1974 1979 1980 1981 1982 1983   NA
+
+
+
+statedata <- statedata %>%
+  # Add Spring & Fall seasons (only)
+  mutate(Season = case_when(Month == 1 ~ NA, #I don't know why it won't accept a multiple, so doing this the hard way
+                            Month == 2 ~ NA, 
+                            Month == 3 ~ "SPRING", 
+                            Month == 4 ~ "SPRING", 
+                            Month == 5 ~ NA, 
+                            Month == 6 ~ NA, 
+                            Month == 7 ~ NA, 
+                            Month == 8 ~ NA, 
+                            Month == 9 ~ "FALL", 
+                            Month == 10 ~ "FALL", 
+                            Month == 11 ~ NA, 
+                            Month == 12 ~ NA)) %>% 
+  # Add Presence/Absence
+  mutate(Presence = ifelse(.$MenhadenTotal >0, 1, 0)) %>%
+  # Add state ID
+  mutate(State = case_when(Survey =="CTLISTS" ~ "RICTNY",
+                           Survey =="WLI" ~ "RICTNY",
+                           Survey =="NJOT" ~ "NJ",
+                           Survey =="DEBay" ~ "DEMD",
+                           Survey =="ChesMMAP" ~ "VA",
+                           Survey =="GAEMTS" ~ "NC",
+                           Survey =="SEAMAP" ~ "NC"))
+
+
+#----- Write dataset as .csv file --------------------------------------------------
+
 #### THIS WILL OVERWRITE!!
-# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/statesurvey_menhaden_data.csv", row.names = TRUE)
+# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/statesurvey_menhaden_data_20230727.csv", row.names = TRUE)

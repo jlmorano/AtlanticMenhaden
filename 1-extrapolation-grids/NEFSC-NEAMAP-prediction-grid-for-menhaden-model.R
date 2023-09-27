@@ -6,7 +6,7 @@
 # Use in sdmTMB
 # sf() compatible (*sp and rgdal are depreciated)
 
-# last updated 17 July 2023
+# last updated 12 September 2023
 ###############################################
 ###############################################
 
@@ -48,14 +48,28 @@ sf::sf_use_s2(FALSE)
 fedunion <- st_union(nefsc.sf$geometry, neamap.sf$geometry)
 plot(fedunion)
 
+# Project fedunion
+fedunion <- st_transform(fedunion, crs=st_crs(4269))
 
-#----- Join NEFSC & NEAMAP and then Make grid
-# The processing takes longer, but is more accurate than making a grid for each, then joining those
-fedgrid <- fedunion %>% 
-  st_make_grid(cellsize = 0.15, what = "centers") %>% # grid of points
-  st_intersection(fedunion) # only within the polygon
-ggplot() +
-  geom_sf(data = fedgrid)
+# Dissolve interior borders
+fedunion.ext <- st_union(fedunion)
+plot(fedunion.ext)
+
+
+#----- Make a 10x10 km grid over the NEFSC & NEAMAP survey extent
+# Extract the bounding box coordinates
+fedunion.bb <- st_bbox(fedunion.ext)
+
+# Convert to a spatial feature of a grid covering the extend of the bounding box with a single grid cell
+fedunion.bb.grid <- st_make_grid(fedunion.bb, n=1)
+
+# Make a new grid of 10x10 km
+fedunion.grid <- st_make_grid(fedunion.bb.grid, cellsize = 0.15, what = "centers") #ideally, move to 0.01 but it takes forever to process
+plot(fedunion.grid)
+
+# Intersect grid and survey extent
+fedgrid <- st_intersection(fedunion.grid, fedunion.ext)
+plot(fedgrid)
 
 
 #----- Convert grid to dataframe with lat/lon
@@ -66,6 +80,16 @@ fedgrid.LL <- fedgrid %>%
   st_coordinates() %>%
   # 3 to table /tibble
   as.data.frame()
+
+# Add UTM
+names(fedgrid.LL)[1] <- "Longitude"
+names(fedgrid.LL)[2] <- "Latitude"
+fedgrid.LL <- add_utm_columns(fedgrid.LL, c("Longitude", "Latitude"))
+fedgrid.LL$X <- round(fedgrid.LL$X)
+fedgrid.LL$Y <- round(fedgrid.LL$Y) 
+# # convert UTM from meters (default) to km
+# fedgrid.LL$X <- fedgrid.LL$X/1000
+# fedgrid.LL$Y <- fedgrid.LL$Y/1000
 
 
 #----- Write grid as rds file as a data.frame class for sdmTMB

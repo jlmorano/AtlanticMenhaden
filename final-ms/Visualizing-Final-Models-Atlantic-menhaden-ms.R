@@ -108,9 +108,9 @@ ggplot() +
   theme_classic() +
   theme(legend.position = "none") +
   theme(text = element_text(size = 14)) +
-  ylim(c(0,0.25)) +
+  ylim(c(0,1)) +
   labs(x= " ", y = "Presence") +
-  ggtitle("Spring")
+  ggtitle("Federal, Spring")
 #ggsave(file = "/Users/janellemorano/Git/AtlanticMenhaden/final-ms/figures/PA-GAM-federal-spring.png", width=5.5, height = 6)
 
 #----- Federal Fall
@@ -130,9 +130,9 @@ ggplot() +
   theme_classic() +
   theme(legend.position = "none") +
   theme(text = element_text(size = 14)) +  
-  ylim(c(0,0.25)) +
+  ylim(c(0,1)) +
   labs(x= " ", y = "Presence") +
-  ggtitle("Fall")
+  ggtitle("Federal, Fall")
 #ggsave(file = "/Users/janellemorano/Git/AtlanticMenhaden/final-ms/figures/PA-GAM-federal-fall.png", width=5.5, height = 6)
 
 #----- State Spring

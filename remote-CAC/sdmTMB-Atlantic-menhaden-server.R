@@ -1,14 +1,18 @@
-# sdmTMB-Atlantic-menhaden.R
+# sdmTMB-Atlantic-menhaden-server.R
 ######################################
 # Janelle L. Morano
 
 # Objectives:
 # Build spatial model in sdmTMB
 
+###########
+#### FOR RUNNING ON REMOTE WINDOWS SERVER!!!!
+###########
+
 # Primarily to compare with VAST model
 # Using NEFSC and NEAMAP data that goes into VAST menhaden model
 
-# last updated 5 September 2023
+# last updated 26 September 2023
 ###############################################
 ###############################################
 
@@ -19,7 +23,6 @@ gc() #free up memory and report the memory usage
 
 library(dplyr)
 library(ggplot2)
-# install.packages("sdmTMB", dependencies = TRUE)
 library(sdmTMB)
 library(sf)
 

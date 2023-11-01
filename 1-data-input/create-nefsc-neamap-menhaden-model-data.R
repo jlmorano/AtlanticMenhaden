@@ -17,7 +17,7 @@
 
 
 # last datasets created 12 June 2023
-# note that inshore/offshore designation is messed up
+# note that inshore/offshore designation is messed up in these sets
 # combined-catch-envtl-20230612.csv
 # VAST: menhaden-sample-data-20230612.csv
 # VAST: menhaden-covariate-data-20230612.csv

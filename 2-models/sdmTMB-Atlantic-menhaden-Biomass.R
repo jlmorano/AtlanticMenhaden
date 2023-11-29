@@ -7,38 +7,117 @@
 
 # Primarily to compare with VAST model
 
-# last updated 1 November 2023
+# last updated 27 November 2023
 ###############################################
 ###############################################
+
 
 # Best practice to clean up and then restart R
 rm(list = ls(all.names = TRUE)) #will clear all objects including hidden objects.
 gc() #free up memory and report the memory usage
 # ACTION: Restart R now
 
-library(tidyverse)
-library(ggplot2)
+# Load sdmTMB and verify that I'm running the correct version of dependencies
 # install.packages("sdmTMB", dependencies = TRUE)
 library(sdmTMB)
+# If any warnings or errors come up, be sure to install or update what is noted
+# Conflicts with Matrix will silently kill your models from compiling (i.e. sdmTMB will load but your models will fail)
+# If there is a conflict between versions of Matrix, etc. in sdmTMB, you can't load a fit model previously run. This may be related to glmmTMB. 
+# If different versions are needed of a package,
+# require(devtools)
+# install_version("Matrix", version = "1.6.1.1", repos = "http://cran.us.r-project.org")
+packageVersion('sdmTMB')
+# ‘0.4.1’ on Mac
+# '0.4.1' on VirtualPC
+
+
+library(tidyverse)
+library(ggplot2)
 library(sf)
 library(tictoc)
 library(viridisLite)
 
-###############################################
-# If there is a conflict between versions of Matrix, etc. in sdmTMB, you can't load a fit model previously run. This may be related to glmmTMB. 
-# If different versions are needed of a package,
-require(devtools)
-install_version("Matrix", version = "1.6.0", repos = "http://cran.us.r-project.org")
 
 sessionInfo()
+###### Mac
 # R version 4.3.0 (2023-04-21)
 # Platform: x86_64-apple-darwin20 (64-bit)
 # Running under: macOS Ventura 13.5.2
+# 
+# Matrix products: default
+# BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+# LAPACK: /Library/Frameworks/R.framework/Versions/4.3-x86_64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+# 
+# locale:
+#   [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+# 
+# time zone: America/New_York
+# tzcode source: internal
+# 
+# attached base packages:
+#   [1] stats     graphics  grDevices utils     datasets  methods   base     
+# 
+# other attached packages:
+#   [1] viridisLite_0.4.2 tictoc_1.2        sf_1.0-13         lubridate_1.9.2  
+# [5] forcats_1.0.0     stringr_1.5.0     dplyr_1.1.2       purrr_1.0.1      
+# [9] readr_2.1.4       tidyr_1.3.0       tibble_3.2.1      ggplot2_3.4.2    
+# [13] tidyverse_2.0.0   sdmTMB_0.4.1     
+# 
+# loaded via a namespace (and not attached):
+#   [1] sandwich_3.0-2     utf8_1.2.3         generics_0.1.3     class_7.3-22      
+# [5] KernSmooth_2.23-21 stringi_1.7.12     lattice_0.21-8     hms_1.1.3         
+# [9] magrittr_2.0.3     grid_4.3.0         estimability_1.4.1 timechange_0.2.0  
+# [13] mvtnorm_1.2-1      Matrix_1.6-1.1     e1071_1.7-13       DBI_1.1.3         
+# [17] survival_3.5-5     multcomp_1.4-25    mgcv_1.8-42        fansi_1.0.4       
+# [21] scales_1.2.1       TH.data_1.1-2      codetools_0.2-19   cli_3.6.1         
+# [25] rlang_1.1.1        units_0.8-2        munsell_0.5.0      splines_4.3.0     
+# [29] withr_2.5.0        visreg_2.7.0       tools_4.3.0        tzdb_0.4.0        
+# [33] coda_0.19-4        colorspace_2.1-0   assertthat_0.2.1   vctrs_0.6.2       
+# [37] R6_2.5.1           proxy_0.4-27       classInt_0.4-9     zoo_1.8-12        
+# [41] lifecycle_1.0.3    emmeans_1.8.6      MASS_7.3-60        pkgconfig_2.0.3   
+# [45] pillar_1.9.0       gtable_0.3.3       Rcpp_1.0.10        glue_1.6.2        
+# [49] tidyselect_1.2.0   rstudioapi_0.14    xtable_1.8-4       nlme_3.1-162      
+# [53] TMB_1.9.6          compiler_4.3.0
+
+
+###### Virtual PC
+# R  version 4.3.2 (2023-10-31 ucrt)
+# Platform: x86_64-w64-mingw32/x64 (64-bit)
+# Running under: Windows Server 2022 x64 (build 20348)
+# 
+# Matrix products: default
+# 
+# 
+# locale:
+#   [1] LC_COLLATE=English_United States.utf8  LC_CTYPE=English_United States.utf8   
+# [3] LC_MONETARY=English_United States.utf8 LC_NUMERIC=C                          
+# [5] LC_TIME=English_United States.utf8    
+# 
+# time zone: America/New_York
+# tzcode source: internal
+# 
+# attached base packages:
+#   [1] stats     graphics  grDevices utils     datasets  methods   base     
+# 
+# other attached packages:
+#   [1] viridisLite_0.4.2 tictoc_1.2        sf_1.0-14         ggplot2_3.4.4     tidyverse_2.0.0   sdmTMB_0.4.1     
+# 
+# loaded via a namespace (and not attached):
+#   [1] Matrix_1.6-1.1     gtable_0.3.4       dplyr_1.1.4        compiler_4.3.2     tidyselect_1.2.0  
+# [6] Rcpp_1.0.11        assertthat_0.2.1   splines_4.3.2      scales_1.2.1       lattice_0.22-5    
+# [11] R6_2.5.1           generics_0.1.3     classInt_0.4-10    tibble_3.2.1       units_0.8-4       
+# [16] munsell_0.5.0      DBI_1.1.3          pillar_1.9.0       rlang_1.1.2        utf8_1.2.4        
+# [21] cli_3.6.1          withr_2.5.2        magrittr_2.0.3     mgcv_1.9-0         class_7.3-22      
+# [26] grid_4.3.2         lifecycle_1.0.4    nlme_3.1-164       vctrs_0.6.4        KernSmooth_2.23-22
+# [31] proxy_0.4-27       glue_1.6.2         fansi_1.0.5        e1071_1.7-13       colorspace_2.1-0  
+# [36] tools_4.3.2        pkgconfig_2.0.3    visreg_2.7.0
+
 
 # Set working directory on Mac
 setwd("/Users/janellemorano")
 # Set working directory on Cloud Server PC
 setwd("D/:")
+
 
 
 
@@ -93,273 +172,28 @@ menhaden.fall <- menhaden %>%
 
 #----- Make the mesh
 
-mesh.spring <- make_mesh(menhaden.spring, xy_cols = c("Latitude", "Longitude"), n_knots = 200, type = "cutoff_search") #500
+mesh.spring <- make_mesh(menhaden.spring, xy_cols = c("Latitude", "Longitude"), n_knots = 300, type = "cutoff_search") #500
 # plot(mesh.spring)
 # mesh.spring$mesh$n # extract number of vertices/knots
-mesh.fall <- make_mesh(menhaden.fall, xy_cols = c("Latitude", "Longitude"), n_knots = 200, type = "cutoff_search")
+mesh.fall <- make_mesh(menhaden.fall, xy_cols = c("Latitude", "Longitude"), n_knots = 300, type = "cutoff_search")
 # plot(mesh.fall)
 
 
-#----- For Spatio-Temporal Models, Create Extrapolation Grid ---------------------------------
+#----- Read in Extrapolation Grid
+# Grid has bathymetry and bottom temp data for each X,Y
+# Read in SPRING grid by years
+nd.grid.yrs.spring <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP.rds")
+nd.grid.yrs.fall <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-fall_NEFSC-NEAMAP.rds")
 
-#----- Skip down to bottom to read in grid with years
-# # Prepare prediction grid by repeating info for every year
-# # on mac
-# # nd.grid.yrs <- readRDS("~/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP.rds")
-# # on Virtual PC
-# nd.grid.yrs <- readRDS("~/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP.rds")
-# 
-# # Extract years
-# years <- sort(unique(menhaden.spring$Year)) #collect years
-# 
-# # Prep some dfs to run loop properly
-# temp <- nd.grid.yrs
-# temp$Year <- years[1]
-# new.nd.grid.yrs <- temp
-# # Loop to amend the newdf2 prepped above
-# for (i in years[2:length(years)]) {
-#   temp$Year <- i #add the next year to the original list of lat/lon, bottemp
-#   new.nd.grid.yrs <- rbind(new.nd.grid.yrs, temp)
-# }
-# # After checking, copy back to replace nd.grid
-# nd.grid.yrs <- new.nd.grid.yrs
-# 
-# Add Bottemp, average for each year by depth and latitude
-mediantemp <- menhaden.spring %>%
-  group_by(Year, Depth, Latitude) %>%
-  summarise(Bottemp = median(Bottemp))
-
-# nd.grid.yrs3 <- nd.grid.yrs %>%
-  left_join(mediantemp,
-            by = c("Year", "Latitude"),relationship = "many-to-many")
-
-test <- nd.grid.yrs |> 
-  left_join(mediantemp, join_by(Year, Depth, Latitude))
-
-# Check for NAs
-sapply(nd.grid.yrs, function(x) sum(is.na(x)))
-
-# # Save as file
-# saveRDS(nd.grid.yrs, "~/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years_NEFSC-NEAMAP.rds")
-
-# Read in grid by years
-nd.grid.yrs <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years_NEFSC-NEAMAP.rds")
 # For Virtual PC
-nd.grid.yrs <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years_NEFSC-NEAMAP.rds")
+# nd.grid.yrs <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years_NEFSC-NEAMAP.rds")
+nd.grid.yrs.spring <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP.rds")
+nd.grid.yrs.fall <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-fall_NEFSC-NEAMAP.rds")
 
-# First check that the prediction grid is as expected
-# Subset a few years
-nd.grid.yrs2 <- nd.grid.yrs %>% filter(Year > 2010)
-ggplot() +
-  geom_point( data = nd.grid.yrs2, aes(X, Y, color = log(Depth)), size = 0.25) +
-  scale_color_viridis_c(direction = -1) +
-  facet_wrap(~Year) +
-  ggtitle("Prediction Grid Depth")
-ggplot() +
-  geom_point( data = nd.grid.yrs2, aes(X, Y, color = Bottemp), size = 0.25) +
-  scale_color_viridis_c(direction = -1) +
-  facet_wrap(~Year) +
-  ggtitle("Prediction Grid Bottemp")
+
+
 
 #----- Model fit  ------------------------------------------------------------
-
-#----- Poisson-link Delta Model ----------------------
-tic()
-delta.fit <- sdmTMB(
-  Biomass ~ 0 + as.factor(Year) + s(log(Depth)), #1+ s(Bottemp) +s(Depth)
-  data = menhaden.spring,
-  mesh = mesh.spring,
-  time = "Year", # column in `data`
-  family = delta_poisson_link_gamma(), #delta_gamma(link1 = "logit", link2 = "log)"; alternative, delta_lognormal() with binomial(link="logit") & lognormal(link="log")
-  # spatial = "on",
-  # spatiotemporal = "iid",
-  anisotropy = FALSE,
-  reml = TRUE 
-)
-toc()
-# 6821.11 sec elapsed sec elapsed s(Bottemp)+s(Depth)
-# 576.69 sec elapsed s(Bottemp)
-# 644.38 sec elapsed (poisson link, delta_poisson_link_gamma())
-
-## Basic sanity checks on model
-sanity(delta.fit)
-#See `?run_extra_optimization()`
-#ℹ Or refit with `control = sdmTMBcontrol(newton_loops = 1)`
-#Try simplifying the model, adjusting the mesh, or adding priors
-
-# Save and then move it to DATA storage
-# # on Virtual PC
-# saveRDS(delta.fit, file = "D:/MODEL_OUTPUT/delta-spatiotemporal-fit.rds")
-
-# Read in delta.fit file
-# delta.fit <- readRDS("~/MODEL_OUTPUT/delta-spatiotemporal-fit.rds")
-# delta.fit <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/3-model-output-save/sdmTMB/delta-spatiotemporal-fit.rds")
-tidy(delta.fit)
-param <- tidy(delta.fit, effects = "ran_pars", conf.int = TRUE)
-
-
-
-## Make Predictions
-nd.grid.yrs <- readRDS("D:/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years_NEFSC-NEAMAP.rds")
-# Now predict
-tic()
-p.delta <- predict(delta.fit, newdata = nd.grid.yrs)
-toc()
-# 10.64 sec elapsed
-saveRDS(p.delta, file = "D:/MODEL_OUTPUT/delta-spatiotemporal-predictions.rds" )
-
-# Get the Index Standardization
-delta.index <- get_index(p.delta, bias_correct = FALSE)
-
-# Plot the conditional effects of covariates (depth, temp)
-visreg_delta(delta.fit, xvar ="Bottemp", model = 1, gg = TRUE)
-visreg_delta(delta.fit, xvar ="Depth", model = 1, gg = TRUE)
-
-
-# Function to make maps
-plot_map <- function(dat, column) {
-  ggplot(dat, aes(X, Y, color = {{ column }})) +
-    geom_point() +
-    coord_fixed()
-}
-
-ggplot(p.delta, aes(X, Y, color = exp(est))) +
-  geom_point() +
-  coord_fixed() +
-  facet_wrap(~Year)
-
-plot_map(p.delta, est) +
-  scale_fill_viridis_c(
-    trans = "sqrt",
-    # trim extreme high values to make spatial variation more visible
-    na.value = "grey", limits = c(0, quantile(exp(p.delta$est), 0.995))
-  ) +
-  facet_wrap(~Year) +
-  ggtitle("Prediction (fixed effects + all random effects)",
-          subtitle = paste("maximum estimated biomass density =", round(max(exp(p.delta$est))))
-  )
-
-# Predictions with just fixed effects
-plot_map(p.delta, exp(est_non_rf)) +
-  scale_fill_viridis_c() +
-  ggtitle("Prediction (fixed effects only)")
-
-# Spatial random effects
-plot_map(p.delta, omega_s) +
-  scale_fill_gradient2() +
-  ggtitle("Spatial random effects only")
-
-
-
-
-
-
-
-
-#----- Spatial Model ----------
-# for ref: GAM model...Biomass ~ s(Year) + s(Bottemp) + s(Depth) + State, family ="quasipoisson"(link="log")
-tic()
-fit <- sdmTMB(
-  Biomass ~ s(Bottemp) + s(Depth),
-  data = menhaden.spring,
-  mesh = mesh.spring,
-  family = tweedie(link = "log"), #nbinom2(link = "log")
-  spatial = "on"
-)
-toc()
-fit
-
-## Extract parameters as a data frame
-tidy(fit, conf.int = TRUE)
-tidy(fit, effects = "ran_pars", conf.int = TRUE)
-
-## Basic sanity checks on model
-sanity(fit)
-
-## Look at smoother effect in link space with randomized quantile partial residuals
-visreg::visreg(fit, xvar = "Bottemp")
-
-# Or on the response scale
-visreg::visreg(fit, xvar = "Bottemp", scale = "response")
-
-# ## Make predictions on data
-# p <- predict(fit)
-# select(p, X, Y, est:omega_s) %>% as_tibble()
-
-# Import grid to make predictions over
-nd.grid <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/user_region_NEFSC-NEAMAP.rds")
-nd.grid$Bottemp <- median(menhaden.spring$Bottemp)
-nd.grid$Depth <- median(menhaden.spring$Depth) #Need to add correct bathymetry
-
-# # Should I not convert?
-# # convert UTM from meters (default) to km
-# nd.grid$X <- nd.grid$X*1000
-# nd.grid$Y <- nd.grid$Y*1000
-
-# Now predict over this grid
-pgrid <- predict(fit, newdata = nd.grid)
-
-# Plot predictions
-ggplot(pgrid, aes(X, Y, color = plogis(est))) +
-	geom_point() +
-  scale_color_viridis_c() +
-  coord_fixed() +
-  theme_classic()
-
-# Plot main effects contributions
-# !!! Because my bathymetry is incorrect in the prediction grid, this isn't going to look correct!!
-ggplot(pgrid, aes(X, Y, color = plogis(est_non_rf))) +
-  geom_point() +
-  scale_color_viridis_c() +
-  coord_fixed() +
-  theme_classic()
-
-# Plot spatial random effects
-ggplot(pgrid, aes(X, Y, color = omega_s)) +
-  geom_point() +
-  scale_color_viridis_c() +
-  coord_fixed() +
-  theme_classic()
-
-# Function to make maps
-plot_map <- function(dat, column) {
-  ggplot(dat, aes(X, Y, color = {{ column }})) +
-    geom_point() +
-    coord_fixed()
-}
-
-
-# Predictions with all fixed and random effects
-# Subset a few years
-# p2a <- p2 %>% filter(Year > 2010)
-
-ggplot(p2, aes(X, Y, color = exp(est))) +
-  geom_point() +
-  coord_fixed() +
-  facet_wrap(~Year)
-
-plot_map(p2, est) +
-  scale_fill_viridis_c(
-    trans = "sqrt",
-    # trim extreme high values to make spatial variation more visible
-    na.value = "grey", limits = c(0, quantile(exp(p2$est), 0.995))
-  ) +
-  facet_wrap(~Year) +
-  ggtitle("Prediction (fixed effects + all random effects)",
-          subtitle = paste("maximum estimated biomass density =", round(max(exp(p2$est))))
-  )
-
-# Predictions with just fixed effects
-plot_map(p2, exp(est_non_rf)) +
-  scale_fill_viridis_c() +
-  ggtitle("Prediction (fixed effects only)")
-
-# Spatial random effects
-plot_map(p2, omega_s) +
-  scale_fill_gradient2() +
-  ggtitle("Spatial random effects only")
-
-
 
 
 #----- Spatiotemporal Model  ----------
@@ -370,79 +204,70 @@ st.fit <- sdmTMB(
   data = menhaden.spring,
   mesh = mesh.spring,
   time = "Year", # column in `data`
-  spatial = "on",
-  spatiotemporal = "iid"
+  spatial = "off", #off when using spatiotemporal
+  spatiotemporal = "AR1"
 )
 toc()
-#287.46 sec elapsed
+#Test dataset won't converge
+#Full dataset: 4895.55  sec elapsed
 sanity(st.fit)
+#✔ Non-linear minimizer suggests successful convergence
+#✔ Hessian matrix is positive definite
+#✔ No extreme or very small eigenvalues detected
+#✔ No gradients with respect to fixed effects are >= 0.001
+#✔ No fixed-effect standard errors are NA
+#✖ `ln_smooth_sigma` standard error may be large
+#ℹ Try simplifying the model, adjusting the mesh, or adding priors
+#
+#✔ No sigma parameters are < 0.01
+#✔ No sigma parameters are > 100
+#✔ Range parameter doesn't look unreasonably large
 
 # Save and then move it to DATA storage
 # on mac
-# saveRDS(fit2, file = "/Users/janellemorano/MODEL_OUTPUT/_currentrun/fit2-spatiotemporal.rds")
+# saveRDS(st.fit, file = "/Users/janellemorano/MODEL_OUTPUT/_currentrun/st.fit-spatiotemporal.rds")
 # on Virtual PC
-saveRDS(fit2, file = "D:/MODEL_OUTPUT/fit2-spatiotemporal-test.rds" )
-fit2 <- readRDS("D:/MODEL_OUTPUT/fit2-spatiotemporal-test.rds")
-# fit2 <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/3-model-output-save/sdmTMB/fit2-spatiotemporal.rds")
-# fit2
-tidy(fit2)
-param <- tidy(fit2, effects = "ran_pars", conf.int = TRUE)
+saveRDS(st.fit, file = "D:/MODEL_OUTPUT/st.fit-spatiotemporal-fulldata.rds" )
+# st.fit <- readRDS("D:/MODEL_OUTPUT/st.fit-spatiotemporal-fulldata.rds")
+
+# Read on Mac
+st.fit <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/3-model-output-save/sdmTMB/st.fit-spatiotemporal-fulldata.rds")
+# st.fit
+tidy(st.fit)
+param <- tidy(st.fit, effects = "ran_pars", conf.int = TRUE)
 
 ## Basic sanity checks on model
-sanity(fit2)
+sanity(st.fit)
 
 ## Look at smoother effect in link space with randomized quantile partial residuals
-visreg::visreg(fit2, xvar = "Bottemp")
+#visreg::visreg(st.fit, xvar = "Bottemp")
 
 # Or on the response scale
-visreg::visreg(fit2, xvar = "Bottemp", scale = "response")
+#visreg::visreg(st.fit, xvar = "Bottemp", scale = "response")
+
 
 #----- Make predictions
-
-# Prepare prediction grid by repeating info for every year
-# on mac
-# nd.grid.yrs <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP.rds")
-# on Virtual PC
-nd.grid.yrs <- readRDS("D:/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP.rds")
-years <- sort(unique(menhaden.spring$Year)) #collect years
-
-# Prep some dfs to run loop properly
-temp <- nd.grid.yrs
-temp$Year <- years[1]
-new.nd.grid.yrs <- temp
-# Loop to amend the newdf2 prepped above
-for (i in years[2:length(years)]) {
-  temp$Year <- i #add the next year to the original list of lat/lon, bottemp
-  new.nd.grid.yrs <- rbind(new.nd.grid.yrs, temp)
-}
-# After checking, copy back to replace nd.grid
-nd.grid.yrs <- new.nd.grid.yrs
-
-# Add Bottemp
-mediantemp <- menhaden.spring %>%
-  group_by(Year) %>%
-  summarise(Bottemp = median(Bottemp))
-
-nd.grid.yrs <- nd.grid.yrs %>%
-  left_join(mediantemp, 
-            by = c("Year"),relationship = "many-to-many")
-saveRDS("D:/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP.rds")
-
-
-# Now predict
 tic()
-p2 <- predict(fit2, newdata = nd.grid.yrs)
+st.fit.pred <- predict(st.fit, newdata = nd.grid.yrs.spring, return_tmb_object = TRUE) #need return_tmb_object = TRUE to be able to do index and COG
 toc()
-# on Virtual PC
-saveRDS(p2, file = "D:/Atlantic_menhaden_modeling/3-model-output-save/fit2-spatiotemporal-predictions.rds" )
-# saveRDS(p2, file = "/Users/janellemorano/MODEL_OUTPUT/_currentrun/predictions.fit2-spatiotemporal.rds")
-p2 <- readRDS(p2, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/3-model-output-save/sdmTMB/predictions.fit2-spatiotemporal.rds")
-select(p2, Latitude, Longitude, est:epsilon_st) %>%
-  as_tibble()
+#1630.09 sec elapsed
 
+# on Virtual PC
+saveRDS(st.fit.pred, file = "D:/MODEL_OUTPUT/st.fit.pred-spatiotemporal-predictions.rds" )
+
+# Read into Mac
+st.fit.pred <- readRDS(file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/3-model-output-save/sdmTMB/st.fit.pred-spatiotemporal-predictions.rds")
+
+p <- select(st.fit.pred, Longitude:epsilon_st) %>%
+  as_tibble()
+# Save as a csv
+write.table(p, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/3-model-output-save/sdmTMB/st.fit.pred-spatiotemporal-predictions-byloc.csv")
+
+
+#----- Make figures
 # Function to make maps
 plot_map <- function(dat, column) {
-  ggplot(dat, aes(X, Y, color = {{ column }})) +
+  ggplot(dat, aes(X, Y, fill = {{ column }})) +
     geom_point() +
     coord_fixed()
 }
@@ -450,23 +275,19 @@ plot_map <- function(dat, column) {
 
 # Predictions with all fixed and random effects
 # Subset a few years
-# p2a <- p2 %>% filter(Year > 2010)
+psub <- p %>% filter(Year == 2021)
 
-ggplot(p2, aes(X, Y, color = exp(est))) +
+ggplot(psub, aes(X, Y, fill = exp(est))) +
   geom_point() +
   coord_fixed() +
-  facet_wrap(~Year)
-
-plot_map(p2, est) +
-  scale_fill_viridis_c(
-    trans = "sqrt",
-    # trim extreme high values to make spatial variation more visible
-    na.value = "grey", limits = c(0, quantile(exp(p2$est), 0.995))
-  ) +
-  facet_wrap(~Year) +
-  ggtitle("Prediction (fixed effects + all random effects)",
-          subtitle = paste("maximum estimated biomass density =", round(max(exp(p2$est))))
-  )
+  scale_fill_viridis_c(trans = "sqrt", 
+                       na.value = "grey", 
+                       limits = c(0, quantile(exp(psub$est), 0.995))) # trim extreme high values to make spatial variation more visible
+  #facet_wrap(~Year)
+ggtitle("Prediction (fixed effects + all random effects)",
+        subtitle = paste("maximum estimated biomass density =", round(max(exp(p2$est))))
+        
+        
 
 # Predictions with just fixed effects
 plot_map(p2, exp(est_non_rf)) +
@@ -480,117 +301,39 @@ plot_map(p2, omega_s) +
 
 
 
-#----- Presence-Absence Model  ----------
+
+
+# Area-weighted standardization population index
+index <- get_index(p)
+# Need to do the prediction with return_tmb_object = TRUE
+
+# Center of gravity
+cog <- get_cog(p, format = "wide")
+
+
+
+#----- Delta Spatio-Temporal Model ----------------------
+# Model Type        |	Built-in delta function	  | Presence-absence model		| Positive catch model
+# Delta-gamma	      | delta_gamma()		          | binomial(link = "logit")	| Gamma(link = "log")
+# Delta-lognormal		| delta_lognormal()		      | binomial(link = "logit")	| lognormal(link = "log")
+# Delta-NB1	        | delta_truncated_nbinom1()	| binomial(link = "logit")	| truncated_nbinom1(link = "log")
+# Delta-NB2	        |delta_truncated_nbinom2()	| binomial(link = "logit")	| truncated_nbinom2(link = "log")
+
 tic()
-pa.fit <- sdmTMB(
-  Presence ~ s(Bottemp) + s(Depth),
+delta.fit <- sdmTMB(
+  Biomass ~ 1 + s(Bottemp) + s(Depth),
   data = menhaden.spring,
   mesh = mesh.spring,
-  family = binomial(link = "logit"),
-  spatial = "on",
-  time = "Year",
-  spatiotemporal = "AR1"
+  time = "Year", # column in `data`
+  family = delta_gamma()
 )
 toc()
-#2052.41 sec elapsed
-sanity(pa.fit)
-pa.fit
-pa.fit <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/3-model-output-save/sdmTMB/pa-spatiotemporal-fit.rds")
+# 264.68 sec elapsed sec elapsed 0 + as.factor(Year) + s(log(Depth))
+# 576.69 sec elapsed s(Bottemp)
+# 644.38 sec elapsed (poisson link, delta_poisson_link_gamma())
 
-tidy(pa.fit)
-# Spatiotemporal model fit by ML ['sdmTMB']
-# Formula: Presence ~ s(Bottemp) + s(Depth)
-# Mesh: mesh.spring (isotropic covariance)
-# Time column: Year
-# Data: menhaden.spring
-# Family: binomial(link = 'logit')
-# 
-# coef.est coef.se
-# (Intercept)   -14.53    2.52
-# sBottemp      -31.06   50.45
-# sDepth          0.50  186.34
-# 
-# Smooth terms:
-#   Std. Dev.
-# sds(Bottemp)     37.55
-# sds(Depth)       72.84
-# 
-# Spatiotemporal AR1 correlation (rho): 0.21
-# Matern range: 0.96
-# Spatial SD: 8.48
-# Spatiotemporal SD: 9.12
-# ML criterion at convergence: 3372.987
-tidy(pa.fit, effects = "ran_pars")
-# term    estimate std.error
-# <chr>      <dbl> <lgl>    
-#   1 range      0.957 NA       
-# 2 sigma_O    8.48  NA       
-# 3 sigma_E    9.12  NA       
-# 4 rho        0.211 NA 
-
-menhaden.spring$resids <- residuals(pa.fit) # randomized quantile residuals
-qqnorm(menhaden.spring$resids)
-qqline(menhaden.spring$resids)
-
-saveRDS(pa.fit, "D:/MODEL_OUTPUT/pa-spatiotemporal-fit.rds")
-
-# Now predict
-tic()
-pa.pred <- predict(pa.fit, newdata = nd.grid.yrs)
-toc()
-# 152 sec elapsed
-saveRDS(pa.pred, file = "D:/MODEL_OUTPUT/pa-spatiotemporal-predictions.rds")
-select(pa.pred, Latitude, Longitude, est:epsilon_st) %>%
-  as_tibble()
-
-# First check that the prediction grid is as expected
-# Subset a few years
-nd.grid.yrs2 <- nd.grid.yrs %>% filter(Year > 2010)
-ggplot() +
-  geom_point( data = nd.grid.yrs2, aes(X, Y, color = log(Depth)), size = 0.25) +
-  scale_color_viridis_c(direction = -1) +
-  facet_wrap(~Year) +
-  ggtitle("Prediction Grid Bottemp")
-ggplot(nd.grid.yrs2, aes(X, Y, fill = Depth)) +
-  geom_point(size = 0.1) + 
-  scale_fill_viridis_c(direction = -1) +
-  facet_wrap(~Year) +
-  ggtitle("Prediction Grid Bottemp")
-ggplot(pgrid, aes(X, Y, color = plogis(est))) +
-  geom_point() +
-  scale_color_viridis_c() +
-  coord_fixed() +
-  theme_classic()
-
-
-# Function to make maps
-plot_map <- function(dat, column) {
-  ggplot(dat, aes(X, Y, color = {{ column }})) +
-    geom_point() +
-    coord_fixed()
-}
-
-# Predictions with all fixed and random effects
-
-plot_map(pa.pred.sub, est) +
-  scale_fill_viridis_c(
-    trans = "sqrt",
-    # trim extreme high values to make spatial variation more visible
-    na.value = "grey", limits = c(0, quantile(exp(pa.pred.sub$est), 0.995))
-  ) +
-  facet_wrap(~Year) +
-  ggtitle("Prediction (fixed effects + all random effects)",
-          subtitle = paste("maximum estimated biomass density =", round(max(exp(pa.pred.sub$est))))
-  )
-
-# Predictions with just fixed effects
-plot_map(pa.pred.sub, exp(est_non_rf)) +
-  scale_fill_viridis_c() +
-  ggtitle("Prediction (fixed effects only)")
-
-# Spatial random effects
-plot_map(p2, omega_s) +
-  scale_fill_gradient2() +
-  ggtitle("Spatial random effects only")
-
-
+## Basic sanity checks on model
+sanity(delta.fit)
+#See `?run_extra_optimization()`
+#ℹ Or refit with `control = sdmTMBcontrol(newton_loops = 1)`
+#Try simplifying the model, adjusting the mesh, or adding priors

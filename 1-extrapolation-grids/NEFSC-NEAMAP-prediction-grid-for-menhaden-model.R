@@ -4,9 +4,9 @@
 
 # Prediction grid for combined extent of NEFSC and NEAMAP surveys
 # Use in sdmTMB
-# sf() compatible (*sp and rgdal are depreciated)
+# sf() compatible (*sp and rgdal are depreciated as of Oct 2023)
 
-# last updated 23 October 2023
+# last updated 7 November 2023
 ###############################################
 ###############################################
 
@@ -15,7 +15,11 @@ library(sf)
 packageVersion('sf') 
 # 1.0.13
 library(sdmTMB)
+packageVersion('sdmTMB')
+# ‘0.4.0’
 library(terra)
+packageVersion('terra')
+# ‘1.7.29’
 
 
 
@@ -96,9 +100,9 @@ fedgrid.LL <- sdmTMB::add_utm_columns(fedgrid.LL, c("Longitude", "Latitude"))
 
 #----- Check for distance between points
 # Specifically, in qcs_grid in sdmTMB
-# Remember that UTM is in meters
+# Remember that UTM is in kilometers
 # sqrt((qcs_grid$X[2:4] - qcs_grid$X[1:4-1]) ^ 2 + (qcs_grid$Y[2:4] - qcs_grid$Y[1:4-1]) ^ 2)
-# 2 meters between points?!
+# 2 km
 
 
 #----- Add bathymetry
@@ -133,11 +137,10 @@ fedgrid.LL <- fedgrid.LL %>%
                            depth <0 ~ depth * -1))
 # Delete old depth col
 fedgrid.LL <- fedgrid.LL[-5]
-         
 
+#----- Save grid with depth for each X,Y as a data.frame class for sdmTMB --------------------------------
+saveRDS(fedgrid.LL, "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP.rds")
 
-#----- Write grid as rds file as a data.frame class for sdmTMB
-saveRDS(fedgrid.LL, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP.rds")
 
 #----- Add columns appropriate for VAST
 nefsc.gridVAST <- fedgrid.LL %>%
@@ -148,3 +151,133 @@ nefsc.gridVAST <- fedgrid.LL %>%
 ### Save it to be read in and passed to VAST later.
 saveRDS(nefsc.gridVAST, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/user_region_NEFSC-NEAMAP.rds")
 
+
+
+#--------------------------------------------------------------------
+  
+  
+#----- Create grid with depth & temp for every year ----------------------------------------         
+
+#----- First, repeat bathymetry grid for each year
+# Read in grid with depth and X,Y
+nd.grid.yrs <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP.rds")
+
+# Read in menhaden data with temp
+menhaden <- read.csv("~/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20230724.csv", header = TRUE)
+
+# Calculate average temperature by strata for each year and season
+menhaden <- read.csv("~/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20230724.csv", header = TRUE)
+# Keep only 1972-2021
+menhaden <- menhaden %>%
+  filter(Year >=1972 & Year <=2021)
+
+# Extract years
+years <- sort(unique(menhaden$Year)) #collect years
+
+# Prep some dfs to run loop properly
+temp <- nd.grid.yrs
+temp$Year <- years[1]
+new.nd.grid.yrs <- temp
+# Loop to amend the newdf2 prepped above
+for (i in years[2:length(years)]) {
+  temp$Year <- i #add the next year to the original list of lat/lon, bottemp
+  new.nd.grid.yrs <- rbind(new.nd.grid.yrs, temp)
+}
+# After checking, copy back to replace nd.grid
+nd.grid.yrs <- new.nd.grid.yrs
+
+
+#----- Add Bottom Temperature
+# Calculate average bottom temp by strata using centriod lat/lon
+mediantemp <- menhaden %>%
+  group_by(Season, Year, CentroidLat, CentroidLon, Depth) %>%
+  summarise(Bottemp = median(Bottemp))
+# How many NAs? Quite a few
+sapply(mediantemp, function(x) sum(is.na(x)))
+# Remove missing CentroidLat & CentroidLon
+mediantemp <- mediantemp %>%
+  drop_na(CentroidLat, CentroidLon, Depth)
+
+# For missing Bottemp rows, fill with adjacent Bottemp
+mediantemp <- mediantemp %>%
+  mutate(AdjustBottemp = if_else(is.na(Bottemp), lag(Bottemp, n =1, order_by = CentroidLat), Bottemp))
+# How many NAs?
+sapply(mediantemp, function(x) sum(is.na(x)))
+
+# Before addressing remaining NA, join temp in mediantemp to nd.grid.yrs data
+# First, create new cols in each that round centroid lat/lon to increase matches when joining
+mediantemp <- mediantemp %>% mutate(rdLat = round(CentroidLat, 1),
+                                      rdLon = round(CentroidLon, 1))
+nd.grid.yrs <- nd.grid.yrs %>% mutate(rdLat = round(Latitude, 1),
+                                    rdLon = round(Longitude, 1))
+
+# Separate spring and fall
+mediantemp.spring <- mediantemp %>% filter(Season == "SPRING")
+mediantemp.fall <- mediantemp %>% filter(Season == "FALL")
+
+# Join AdjustBottemp to season grids
+nd.grid.yrs.spring <- nd.grid.yrs |>
+  left_join(mediantemp.spring |> select(AdjustBottemp))
+nd.grid.yrs.fall <- nd.grid.yrs |>
+  left_join(mediantemp.fall |> select(AdjustBottemp))
+
+# Now, to address the remaining NAs,
+## Spring
+nd.grid.yrs.spring %>% summarise(mean(AdjustBottemp, na.rm = TRUE))
+# 7.453442
+nd.grid.yrs.spring <- nd.grid.yrs.spring |>
+  mutate(AdjustBottemp = if_else(is.na(AdjustBottemp), 7.45, AdjustBottemp))
+sapply(nd.grid.yrs.spring, function(x) sum(is.na(x)))
+# Clean up
+nd.grid.yrs.spring <- nd.grid.yrs.spring %>%
+  select(Longitude, Latitude, X, Y, Depth, Year, Season, AdjustBottemp) %>%
+  rename(Bottemp = AdjustBottemp)
+
+## Fall
+nd.grid.yrs.fall %>% summarise(mean(AdjustBottemp, na.rm = TRUE))
+# 13.60185
+nd.grid.yrs.fall <- nd.grid.yrs.fall |>
+  mutate(AdjustBottemp = if_else(is.na(AdjustBottemp), 13.60, AdjustBottemp))
+sapply(nd.grid.yrs.fall, function(x) sum(is.na(x)))
+# Clean up
+nd.grid.yrs.fall <- nd.grid.yrs.fall %>%
+  select(Longitude, Latitude, X, Y, Depth, Year, Season, AdjustBottemp) %>%
+  rename(Bottemp = AdjustBottemp)
+
+
+#----- Verify that the prediction grid is as expected
+# Spring
+# Subset a few years
+nd.grid.yrs.spring.sub <- nd.grid.yrs.spring %>% filter(Year > 2010)
+ggplot() +
+  geom_point( data = nd.grid.yrs.spring.sub, aes(X, Y, color = log(Depth)), size = 0.25) +
+  scale_color_viridis_c(direction = -1) +
+  facet_wrap(~Year) +
+  ggtitle("Spring Prediction Grid Depth")
+ggplot() +
+  geom_point( data = nd.grid.yrs.spring.sub, aes(X, Y, color = Bottemp), size = 0.25) +
+  scale_color_viridis_c(direction = -1) +
+  facet_wrap(~Year) +
+  ggtitle("Spring Prediction Grid Bottemp")
+
+# Fall
+# Subset a few years
+nd.grid.yrs.fall.sub <- nd.grid.yrs.fall %>% filter(Year == 2017)
+ggplot() +
+  geom_point( data = nd.grid.yrs.fall.sub, aes(X, Y, color = log(Depth)), size = 0.25) +
+  scale_color_viridis_c(direction = -1) +
+  facet_wrap(~Year) +
+  ggtitle("Fall Prediction Grid Depth")
+ggplot() +
+  geom_point( data = nd.grid.yrs.fall.sub, aes(X, Y, color = Bottemp), size = 0.25) +
+  scale_color_viridis_c(direction = -1) +
+  # facet_wrap(~Year) +
+  ggtitle("Fall Prediction Grid Bottemp")
+
+
+#----- Write grid as rds file as a data.frame class for sdmTMB
+# Spring
+saveRDS(nd.grid.yrs.spring, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP.rds")
+
+# Fall
+saveRDS(nd.grid.yrs.fall, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-fall_NEFSC-NEAMAP_byyears_fall.rds")

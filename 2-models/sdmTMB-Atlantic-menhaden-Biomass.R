@@ -321,6 +321,7 @@ cog <- get_cog(p, format = "wide")
 
 tic()
 delta.fit <- sdmTMB(
+  
   Biomass ~ 1 + s(Bottemp) + s(Depth),
   data = menhaden.spring,
   mesh = mesh.spring,

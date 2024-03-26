@@ -6,7 +6,7 @@
 # Use in sdmTMB
 # sf() compatible (*sp and rgdal are depreciated as of Oct 2023)
 
-# last updated 7 November 2023
+# last updated 4 January 2024
 ###############################################
 ###############################################
 
@@ -25,11 +25,11 @@ packageVersion('terra')
 
 #----- Read in shapefiles
 # NEFSC
-nefsc.shp <- st_read("/Users/janellemorano/DATA/NEFSC strata/BTS_Strata.shp")
+nefsc.shp <- st_read("/Volumes/Eurybia/NEFSC strata/BTS_Strata.shp")
 colnames(nefsc.shp)
 
 # NEAMAP
-neamap.shp <- st_read("/Users/janellemorano/DATA/NEAMAP/NEAMAP Strata/NMDepthStrataPolgyons.shp")
+neamap.shp <- st_read("/Volumes/Eurybia/NEAMAP/NEAMAP Strata/NMDepthStrataPolgyons.shp")
 colnames(neamap.shp)
 
 
@@ -70,7 +70,7 @@ fedunion.bb <- st_bbox(fedunion.ext)
 fedunion.bb.grid <- st_make_grid(fedunion.bb, n=1)
 
 # Make a new grid of 10x10 km
-fedunion.grid <- st_make_grid(fedunion.bb.grid, cellsize = 0.15, what = "centers") #ideally, move to 0.01 but it takes forever to process
+fedunion.grid <- st_make_grid(fedunion.bb.grid, cellsize = 0.2, what = "centers") #ideally, move to 0.01 but it takes forever to process
 plot(fedunion.grid)
 
 # Intersect grid and survey extent
@@ -93,9 +93,7 @@ names(fedgrid.LL)[2] <- "Latitude"
 fedgrid.LL <- sdmTMB::add_utm_columns(fedgrid.LL, c("Longitude", "Latitude"))
 # fedgrid.LL$X <- round(fedgrid.LL$X)
 # fedgrid.LL$Y <- round(fedgrid.LL$Y) 
-# # convert UTM from meters (default) to km
-# fedgrid.LL$X <- fedgrid.LL$X/1000
-# fedgrid.LL$Y <- fedgrid.LL$Y/1000
+
 
 
 #----- Check for distance between points
@@ -106,7 +104,7 @@ fedgrid.LL <- sdmTMB::add_utm_columns(fedgrid.LL, c("Longitude", "Latitude"))
 
 
 #----- Add bathymetry
-bathy <- terra::rast("/Users/janellemorano/DATA/Bathymetry-GEBCO_19_Oct_2023_8946e1573d02 2/gebco_2023_n45.0_s32.0_w-79.11_e-65.0.tif")
+bathy <- terra::rast("/Volumes/Eurybia/Bathymetry-GEBCO_19_Oct_2023_8946e1573d02 2/gebco_2023_n45.0_s32.0_w-79.11_e-65.0.tif")
 
 ## Get depth from raster for each lat/lon point in fedgrid.LL
 # Grab just lat/lon from fedgrid.LL
@@ -139,7 +137,7 @@ fedgrid.LL <- fedgrid.LL %>%
 fedgrid.LL <- fedgrid.LL[-5]
 
 #----- Save grid with depth for each X,Y as a data.frame class for sdmTMB --------------------------------
-saveRDS(fedgrid.LL, "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP.rds")
+saveRDS(fedgrid.LL, "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP-2.rds")
 
 
 #----- Add columns appropriate for VAST
@@ -160,13 +158,11 @@ saveRDS(nefsc.gridVAST, file = "/Users/janellemorano/DATA/Atlantic_menhaden_mode
 
 #----- First, repeat bathymetry grid for each year
 # Read in grid with depth and X,Y
-nd.grid.yrs <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP.rds")
+nd.grid.yrs <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP-2.rds")
 
-# Read in menhaden data with temp
+# Read in menhaden data with temp to extract the years being used
 menhaden <- read.csv("~/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20230724.csv", header = TRUE)
 
-# Calculate average temperature by strata for each year and season
-menhaden <- read.csv("~/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20230724.csv", header = TRUE)
 # Keep only 1972-2021
 menhaden <- menhaden %>%
   filter(Year >=1972 & Year <=2021)
@@ -188,6 +184,26 @@ nd.grid.yrs <- new.nd.grid.yrs
 
 
 #----- Add Bottom Temperature
+# # First, use bottom temperature from sample points and add to the extrapolation grid
+# 
+# # Create separate spring and fall grids
+# nd.grid.yrs.spring <- nd.grid.yrs %>% mutate(Season = "SPRING")
+# nd.grid.yrs.fall <- nd.grid.yrs %>% mutate(Season = "FALL")
+# 
+# # Create a subset of menhaden data to make the join easier
+# merge.sp <- menhaden |>
+#   filter(Season == "SPRING") |>
+#   select(Longitude, Latitude, Year, Bottemp)
+# # Add X, Y in UTM to menhaden
+# merge.sp <- sdmTMB::add_utm_columns(merge.sp, c("Longitude", "Latitude"))
+# 
+# # Join menhaden to season grids
+# test <- nd.grid.yrs.spring |>
+#   left_join(merge.sp)
+# 
+# nd.grid.yrs.fall <- nd.grid.yrs |>
+#   left_join(mediantemp.fall |> select(AdjustBottemp))
+
 # Calculate average bottom temp by strata using centriod lat/lon
 mediantemp <- menhaden %>%
   group_by(Season, Year, CentroidLat, CentroidLon, Depth) %>%
@@ -262,7 +278,7 @@ ggplot() +
 
 # Fall
 # Subset a few years
-nd.grid.yrs.fall.sub <- nd.grid.yrs.fall %>% filter(Year == 2017)
+nd.grid.yrs.fall.sub <- nd.grid.yrs.fall %>% filter(Year > 2017)
 ggplot() +
   geom_point( data = nd.grid.yrs.fall.sub, aes(X, Y, color = log(Depth)), size = 0.25) +
   scale_color_viridis_c(direction = -1) +
@@ -271,13 +287,13 @@ ggplot() +
 ggplot() +
   geom_point( data = nd.grid.yrs.fall.sub, aes(X, Y, color = Bottemp), size = 0.25) +
   scale_color_viridis_c(direction = -1) +
-  # facet_wrap(~Year) +
+  facet_wrap(~Year) +
   ggtitle("Fall Prediction Grid Bottemp")
 
 
 #----- Write grid as rds file as a data.frame class for sdmTMB
 # Spring
-saveRDS(nd.grid.yrs.spring, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP.rds")
+saveRDS(nd.grid.yrs.spring, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP-2.rds")
 
 # Fall
-saveRDS(nd.grid.yrs.fall, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-fall_NEFSC-NEAMAP_byyears_fall.rds")
+saveRDS(nd.grid.yrs.fall, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-fall_NEFSC-NEAMAP_byyears_fall-2.rds")

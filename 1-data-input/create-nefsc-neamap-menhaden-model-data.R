@@ -13,11 +13,17 @@
 # Adds strata centroids. 
 # Adds in Chlorophyll, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012-present, Monthly. Create another sample and covariate dataset with chlorophyll-a data
 
-# last updated 24 July 2023
+# last updated 19 February 2024
 
 
 # last datasets created 12 June 2023
-# note that inshore/offshore designation is messed up in these sets
+
+# note that there are duplicates these older sets
+# combined-catch-envtl-20230724.csv
+# VAST: menhaden-sample-data-20230724.csv
+# VAST: menhaden-covariate-data-20230724.csv
+
+# note that inshore/offshore designation is messed up in these older sets
 # combined-catch-envtl-20230612.csv
 # VAST: menhaden-sample-data-20230612.csv
 # VAST: menhaden-covariate-data-20230612.csv
@@ -46,7 +52,7 @@ library(janitor)
 # nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.1963-2021.csv") 
 # nefsc 1963-2022
 # copy also at "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/nefsc.menhaden.1963-2022.csv"
-nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.1963-2022.csv") 
+nefsc <- read.csv("/Volumes/Eurybia/NEFSC-Survdat/nefsc.menhaden.1963-2022.csv") 
 
 # NOTES ABOUT STRATA
 # Offshore strata belong to strata group "01" and inshore to "03" (at least north of Hatteras).  If the strata column is numeric, it typically drops the leading zero.  There is also a trailing zero on most strata numbers except for the rare instances where a strata was split.  So offshore strata 1 is 01010 and offshore strata 2 is 01020.  Survdat lists them as 1010 and 1020 respectively.  Inshore would be 03010 and 03020 or 3010 and 3020 in survdat.  The split strata are in the northern Gulf of Maine and are 01351 and 01352 or essentially offshore strata 35-1 and 35-2. 
@@ -113,9 +119,13 @@ nefsc.2$stratum <- as.character(nefsc.2$stratum)
 # Verify state assignments
 ggplot(data = nefsc.2, aes(longitude, latitude)) +
   geom_point(aes(color = factor(state)))
-# fix <- nefsc.2[is.na(nefsc.2$state), ]
-# sort(unique(fix$stratum))
-
+# There are a couple of outliers, so identify them and drop them
+plot(nefsc.2$longitude, nefsc.2$latitude)
+# identify(nefsc.2$longitude, nefsc.2$latitude, labels = row.names(nefsc.2))
+# 89 7009
+# Remove those
+nefsc.2 <- nefsc.2[-c(89, 7009),]
+plot(nefsc.2$longitude, nefsc.2$latitude)
 
 
 #----- 1b. Add centroids of strata to NEFSC
@@ -125,7 +135,7 @@ sf_use_s2(FALSE)
 
 # Bring in NEFSC shapefile and extract centroids
 # BTS_Strata.shp: CENTROIDS from these data are CORRECT
-nefsc.strata <- st_read("/Users/janellemorano/DATA/NEFSC strata/BTS_Strata.shp")
+nefsc.strata <- st_read("/Volumes/Eurybia/NEFSC strata/BTS_Strata.shp")
 # get the geometry only
 nefsc.geo <- st_geometry(nefsc.strata)
 plot(nefsc.geo)
@@ -152,7 +162,7 @@ nefsc.2 <- nefsc.2 %>%
 
 #----- 2. Add NEAMAP data to dataframe
 
-neamap <- read.csv("/Users/janellemorano/DATA/NEAMAP/NEAMAP_Atlantic Menhaden_2007_2021.csv", header = TRUE)
+neamap <- read.csv("/Volumes/Eurybia/NEAMAP/NEAMAP_Atlantic Menhaden_2007_2021.csv", header = TRUE)
 colnames(neamap)
 # [1] "cruise"    "station"   "year"      "season"    "towbegin"  "timezone"  "region"    "dstrat"   
 # [9] "latitude"  "longitude" "areasw"    "depth"     "WT"        "SA"        "DO"        "PS"       
@@ -224,7 +234,7 @@ neamap.2$stratum <- as.character(neamap.2$stratum)
 
 #----- 2b. Bring in NEAMAP shapefile and extract centroids
 
-neamap.strata <- st_read("/Users/janellemorano/DATA/NEAMAP/NEAMAP Strata/NMDepthStrataPolgyons.shp")
+neamap.strata <- st_read("/Volumes/Eurybia/NEAMAP/NEAMAP Strata/NMDepthStrataPolgyons.shp")
 
 # Get the centroids and put them in a dataframe with Region label and keep
 neamap.strata.geo <- st_geometry(neamap.strata)
@@ -252,18 +262,20 @@ neamap.2 <- neamap.2 %>%
 neamap.2$stratum <- paste0(neamap.2$stratum, "N")
 
 
+
 #----- 3. Bind NEFSC and NEAMAP into alldata which has NEFSC and NEAMAP in one
 
 alldata <- bind_rows(nefsc.2, neamap.2)
 alldata <- clean_names(alldata, "upper_camel")
 
 
+
 #----- 4. Add Chlorophyll data
 
 # Spring chlorophyll data
-chl.sp <- read.csv("/Users/janellemorano/DATA/Chlorophyll-a/chlorophyll-NOAA-S-NPPVIIRS-USeastcoast-2012-2021-spring-monthly-ave.csv", header = TRUE)
+chl.sp <- read.csv("/Volumes/Eurybia/Chlorophyll-a/chlorophyll-NOAA-S-NPPVIIRS-USeastcoast-2012-2021-spring-monthly-ave.csv", header = TRUE)
 # Fall chlorophyll data
-chl.fa <- read.csv("/Users/janellemorano/DATA/Chlorophyll-a/chlorophyll-NOAA-S-NPPVIIRS-USeastcoast-2012-2021-fall-monthly-ave.csv", header = TRUE)
+chl.fa <- read.csv("/Volumes/Eurybia/Chlorophyll-a/chlorophyll-NOAA-S-NPPVIIRS-USeastcoast-2012-2021-fall-monthly-ave.csv", header = TRUE)
 
 # Round Lat/Lon for matching Avechlor to within 10 km of covariate data
 library(janitor)
@@ -273,7 +285,7 @@ chl.fa <- clean_names(chl.fa, case = "upper_camel")
 chl.sp2 <- chl.sp %>%
   mutate(LatCat = Latitude) %>%
   mutate(LonCat = Longitude) %>%
-  mutate(across(c("LatCat", "LonCat"), round, 1))
+  mutate(across(c("LatCat", "LonCat"), round, digits = 1))
 chl.fa2 <- chl.fa %>%
   mutate(LatCat = Latitude) %>%
   mutate(LonCat = Longitude) %>%
@@ -281,7 +293,7 @@ chl.fa2 <- chl.fa %>%
 
 # Chlorophyll available only for 2013-2021, so create subset of alldata
 alldata.2 <- alldata %>%
-  filter(Year >= 2012) %>%
+  filter(Year >= 2013) %>%
   # Duplicate Lat/Lon and round to match with chl
   mutate(LatCat = Latitude) %>%
   mutate(LonCat = Longitude) %>%
@@ -291,13 +303,16 @@ alldata.2 <- alldata %>%
 # For spring,
 alldata.SP <- alldata.2 %>%
   filter(Season == "SPRING") %>%
-  left_join(chl.sp2, 
+  left_join(chl.sp2,
             by = c("LatCat", "LonCat", "Year"), relationship = "many-to-many")
 # For fall,
 alldata.FA <- alldata.2 %>%
   filter(Season == "FALL") %>%
   left_join(chl.fa2, 
+            select("Avechlor"),
             by = c("LatCat", "LonCat", "Year"),relationship = "many-to-many")
+
+# Above creates a lot of duplicates, and I can't figure out how to streamline it here, so I'll do it next.
 
 # Bind Spring and Fall covariate chlorophyll data
 alldata.CHL <- bind_rows(alldata.SP, alldata.FA)
@@ -305,6 +320,12 @@ alldata.CHL <- alldata.CHL %>%
   select(-c(X, Latitude.y, Longitude.y)) %>%
   rename(Latitude = Latitude.x,
          Longitude = Longitude.x)
+
+dups <- alldata.CHL %>%
+  janitor::get_dupes(-c(Avechlor))
+# Yup, lots
+# Drop them
+alldata.CHL <- distinct(alldata.CHL, Survey, Cruise, Station, Stratum, Inoffshore, State, Year, Season, Latitude, Longitude, Areasw, Depth, Abundance, Surftemp, Surfsalin, Bottemp, Botsalin, Abundance, Biomass, Presence, CentroidLat, CentroidLon, LatCat, LonCat, .keep_all = TRUE) 
 
 # Quick check chlorophyll data
 plot(alldata.CHL$Year, alldata.CHL$Avechlor)
@@ -316,18 +337,23 @@ alldata.b2012 <- alldata %>%
   mutate(LonCat = Longitude) %>%
   add_column(Avechlor = NA, .after = "LonCat") %>%
   mutate(across(c("LatCat", "LonCat"), round, 0)) %>%
-  filter(Year < 2012)
+  filter(Year <= 2012)
 # Then bind alldata.3 with alldata.CHL for a complete set
 alldata.complete <- bind_rows(alldata.b2012, alldata.CHL) 
 alldata.complete <- arrange(alldata.complete, Year, Season, Latitude)
 
+# Verify if there are duplicates
+dups <- alldata.complete %>%
+  janitor::get_dupes(-c(Avechlor))
+                       
+                       
 
 
 #-----  5. Write dataset as .csv file
 
 #save this as a new dataset. Amend the date to update
 # THIS OVERWRITES EXISTING FILE!!
-# write.csv(alldata.complete,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/combined-catch-envtl-20230724.csv", row.names = TRUE)
+# write.csv(alldata.complete,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240219.csv", row.names = TRUE)
 
 
 
@@ -344,7 +370,7 @@ covariatedata <- alldata.complete %>%
          Lon = Longitude)
 
 # THIS OVERWRITES EXISTING FILE!! Amend the date to update
-# write.csv(covariatedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden-covariate-data-20230724.csv", row.names = TRUE)
+# write.csv(covariatedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/menhaden-covariate-data-20240219.csv", row.names = TRUE)
 
 
 
@@ -360,4 +386,4 @@ sampledata <- alldata.complete %>%
          Lon = Longitude)
 
 # THIS OVERWRITES EXISTING FILE!! Amend the date to update
-# write.csv(sampledata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/menhaden-sample-data-20230724.csv", row.names = TRUE)
+# write.csv(sampledata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/menhaden-sample-data-20240219.csv", row.names = TRUE)

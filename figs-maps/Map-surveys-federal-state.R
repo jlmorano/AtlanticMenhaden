@@ -17,7 +17,7 @@
 #   (not yet) VIMS Shad Gill net
 #   Georgia EMTS
 
-# last updated 27 July 2023
+# last updated 20 December 2023
 ###############################################
 ###############################################
 
@@ -34,7 +34,7 @@ library(rnaturalearthdata)
 
 ### NEFSC
 # BTS_Strata.shp: CENTROIDS from these data are CORRECT
-nefsc <- st_read("/Users/janellemorano/DATA/NEFSC strata/BTS_Strata.shp")
+nefsc <- st_read("/Volumes/Eurybia/NEFSC strata/BTS_Strata.shp")
 plot(nefsc)
 # STR2 are the strata numbers
 # finstr_nad83.shp: CENTROIDS from these data are INCORRECT, so only use above
@@ -42,15 +42,15 @@ plot(nefsc)
 
 
 ### NEAMAP
-neamap <- st_read("/Users/janellemorano/DATA/NEAMAP/NEAMAP Strata/NMDepthStrataPolgyons.shp")
+neamap <- st_read("/Volumes/Eurybia/NEAMAP/NEAMAP Strata/NMDepthStrataPolgyons.shp")
 
 
 ### CTLISTS
-ct <- st_read("/Users/janellemorano/DATA/CT Long Island Sound survey/LISTS_sitegrid_040822_JanelleMorano/sitegrid_unproj.shp")
+ct <- st_read("/Volumes/Eurybia/CT Long Island Sound survey/LISTS_sitegrid_040822_JanelleMorano/sitegrid_unproj.shp")
 
 
 ### All other surveys with only Lat/Lon coordinates and no .shp
-state <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/statesurvey_menhaden_data_20230727.csv", header = TRUE)
+state <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20230727.csv", header = TRUE)
 
 
 #----- Add State Designation to NEFSC
@@ -170,7 +170,7 @@ ggplot(data = world) +
 
 #----- Survey areas of NY -----------------------------------------------------------
 # Add survey sites from NEFSC & NEAMAP
-federal <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/combined-catch-envtl-20230724.csv", header = TRUE)
+federal <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20230724.csv", header = TRUE)
 
 ggplot(data = world) +  
   geom_sf(data = us, color = "gray60", fill = "gray95") + #CCCC99
@@ -185,6 +185,42 @@ ggplot(data = world) +
   xlab("longitude") + 
   ylab("latitude")
 
+
+
+#----- Survey areas of NYBight -----------------------------------------------------------
+# Add survey sites from NEFSC & NEAMAP
+federal <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20230724.csv", header = TRUE)
+
+ggplot(data = world) +  
+  geom_sf(data = us, color = "gray60", fill = "gray95") + #CCCC99
+  geom_point(data = federal, aes(Longitude, Latitude), color = pal6[1], size =0.5) +
+  geom_point(data = subset(state, Survey %in% "CTLISTS"), aes(Longitude, Latitude), color = pal6[2], size = 0.5) +
+  geom_point(data = subset(state, Survey %in% "WLI"), aes(Longitude, Latitude), color = pal6[3], size = 0.5) +
+  geom_point(data = subset(state, Survey %in% "NJOT"), aes(Longitude, Latitude), color = pal6[4], size = 0.5) +
+  coord_sf (xlim = c(-75.5,-70), ylim = c (38,42), expand = FALSE ) + #Full coast
+  theme_void() +
+  theme(panel.background = element_rect(fill = "white")) + # slategray2
+  theme (axis.text = element_blank()) +
+  xlab("longitude") + 
+  ylab("latitude")
+
+
+
+#----- Survey areas of Chesapeake -----------------------------------------------------------
+# Add survey sites from NEFSC & NEAMAP
+federal <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20230724.csv", header = TRUE)
+
+ggplot(data = world) +  
+  geom_sf(data = us, color = "gray60", fill = "gray95") + #CCCC99
+  geom_point(data = federal, aes(Longitude, Latitude), color = pal6[1], size =0.5) +
+  geom_point(data = subset(state, Survey %in% "ChesMMAP"), aes(Longitude, Latitude), color = pal6[2], size = 0.5) +
+  geom_point(data = subset(state, Survey %in% "DEBay"), aes(Longitude, Latitude), color = pal6[3], size = 0.5) +
+  coord_sf (xlim = c(-77,-75), ylim = c (40,36.5), expand = FALSE ) + #Full coast
+  theme_void() +
+  theme(panel.background = element_rect(fill = "white")) + # slategray2
+  theme (axis.text = element_blank()) +
+  xlab("longitude") + 
+  ylab("latitude")
 
 
 

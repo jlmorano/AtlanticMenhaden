@@ -121,16 +121,16 @@ state_prov <- rnaturalearth::ne_states(c("united states of america", "canada", r
 ggplot(data = world) +  
   geom_sf(data = us, color = "gray60", fill = "gray95") + #CCCC99
   geom_sf(data = canada, color = "gray60", fill = "gray95") +
-  geom_sf(data = nefsc, color = "white", fill = pal8[8]) +
-  # geom_sf(data = neamap, color = pal8[1], fill = pal8lite[1]) +
+  # geom_sf(data = nefsc, color = "white", fill = pal8[8]) +
+  geom_sf(data = neamap, color = pal8[1], fill = pal8lite[1]) +
   geom_point(data = subset(state, Survey %in% "CTLISTS"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
   geom_point(data = subset(state, Survey %in% "WLI"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
   geom_point(data = subset(state, Survey %in% "NJOT"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
   geom_point(data = subset(state, Survey %in% "DEBay"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
   geom_point(data = subset(state, Survey %in% "ChesMMAP"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
   geom_point(data = subset(state, Survey %in% "GAEMTS"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
-  coord_sf (xlim = c(-83,-62), ylim = c (29,46), expand = FALSE ) + #Full coast
-  # coord_sf (xlim = c(-77,-69), ylim = c (35,42), expand = FALSE ) + #Zoomed in
+  # coord_sf (xlim = c(-83,-62), ylim = c (29,46), expand = FALSE ) + #Full coast
+  coord_sf (xlim = c(-74,-70), ylim = c (40,42), expand = FALSE ) + #Zoomed in
   theme_void() +
   theme(panel.background = element_rect(fill = "white")) + # slategray2
   theme (axis.text = element_blank()) +
@@ -197,7 +197,7 @@ ggplot(data = world) +
   geom_point(data = subset(state, Survey %in% "CTLISTS"), aes(Longitude, Latitude), color = pal6[2], size = 0.5) +
   geom_point(data = subset(state, Survey %in% "WLI"), aes(Longitude, Latitude), color = pal6[3], size = 0.5) +
   geom_point(data = subset(state, Survey %in% "NJOT"), aes(Longitude, Latitude), color = pal6[4], size = 0.5) +
-  coord_sf (xlim = c(-75.5,-70), ylim = c (38,42), expand = FALSE ) + #Full coast
+  coord_sf (xlim = c(-74,-70), ylim = c (39,41), expand = FALSE ) + #Full coast
   theme_void() +
   theme(panel.background = element_rect(fill = "white")) + # slategray2
   theme (axis.text = element_blank()) +

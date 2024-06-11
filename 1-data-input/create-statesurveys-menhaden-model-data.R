@@ -384,14 +384,14 @@ chesmap2$MenhadenTotal <- as.numeric(chesmap2$MenhadenTotal)
 
 #---- SEAMAP -----
 
-seamap <- read.csv("/Volumes/Eurybia/SEAMAP/janelle.morano.Coastal Survey.ABUNDANCEBIOMASS.2023-06-06T15.35.29.csv", header = TRUE)
+seamap <- read.csv("/Volumes/Eurybia/SEAMAP/janelle.morano.Coastal Survey.ABUNDANCEBIOMASS.2024-06-11T14.24.25.csv", header = TRUE)
 colnames(seamap)
 
 # library(lubridate)
-seamap$DATE <- mdy(seamap$DATE)
-seamap$Month <- month(seamap$DATE)
-seamap$Day <- day(seamap$DATE)
-seamap$Year <- year(seamap$DATE)
+seamap$DATEnew <- mdy(seamap$DATE)
+seamap$Month <- month(seamap$DATEnew)
+seamap$Day <- day(seamap$DATEnew)
+seamap$Year <- year(seamap$DATEnew)
 unique(seamap$Year)
 
 seamap2 <- seamap %>%

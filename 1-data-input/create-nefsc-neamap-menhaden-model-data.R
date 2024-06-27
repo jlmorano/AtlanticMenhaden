@@ -13,7 +13,7 @@
 # Adds strata centroids. 
 # Adds in Chlorophyll, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012-present, Monthly. Create another sample and covariate dataset with chlorophyll-a data
 
-# last updated 19 February 2024
+# last updated 17 June 2024
 
 
 # last datasets created 12 June 2023
@@ -52,7 +52,9 @@ library(janitor)
 # nefsc <- read.csv("/Users/janellemorano/DATA/NEFSC-Survdat/nefsc.menhaden.1963-2021.csv") 
 # nefsc 1963-2022
 # copy also at "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/nefsc.menhaden.1963-2022.csv"
-nefsc <- read.csv("/Volumes/Eurybia/NEFSC-Survdat/nefsc.menhaden.1963-2022.csv") 
+nefsc <- read.csv("/Volumes/Eurybia/NEFSC-Survdat/nefsc.menhaden.1963-2023.csv") 
+
+
 
 # NOTES ABOUT STRATA
 # Offshore strata belong to strata group "01" and inshore to "03" (at least north of Hatteras).  If the strata column is numeric, it typically drops the leading zero.  There is also a trailing zero on most strata numbers except for the rare instances where a strata was split.  So offshore strata 1 is 01010 and offshore strata 2 is 01020.  Survdat lists them as 1010 and 1020 respectively.  Inshore would be 03010 and 03020 or 3010 and 3020 in survdat.  The split strata are in the northern Gulf of Maine and are 01351 and 01352 or essentially offshore strata 35-1 and 35-2. 
@@ -122,9 +124,9 @@ ggplot(data = nefsc.2, aes(longitude, latitude)) +
 # There are a couple of outliers, so identify them and drop them
 plot(nefsc.2$longitude, nefsc.2$latitude)
 # identify(nefsc.2$longitude, nefsc.2$latitude, labels = row.names(nefsc.2))
-# 89 7009
+# 89 7009 7038
 # Remove those
-nefsc.2 <- nefsc.2[-c(89, 7009),]
+nefsc.2 <- nefsc.2[-c(89, 7009, 7038),]
 plot(nefsc.2$longitude, nefsc.2$latitude)
 
 
@@ -162,7 +164,8 @@ nefsc.2 <- nefsc.2 %>%
 
 #----- 2. Add NEAMAP data to dataframe
 
-neamap <- read.csv("/Volumes/Eurybia/NEAMAP/NEAMAP_Atlantic Menhaden_2007_2021.csv", header = TRUE)
+# neamap <- read.csv("/Volumes/Eurybia/NEAMAP/NEAMAP_Atlantic Menhaden_2007_2021.csv", header = TRUE)
+neamap <- read.csv("/Volumes/Eurybia/NEAMAP/NEAMAP_AtlanticMenhaden_Catch_2007-2023.csv", header = TRUE)
 colnames(neamap)
 # [1] "cruise"    "station"   "year"      "season"    "towbegin"  "timezone"  "region"    "dstrat"   
 # [9] "latitude"  "longitude" "areasw"    "depth"     "WT"        "SA"        "DO"        "PS"       
@@ -353,7 +356,7 @@ dups <- alldata.complete %>%
 
 #save this as a new dataset. Amend the date to update
 # THIS OVERWRITES EXISTING FILE!!
-# write.csv(alldata.complete,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240219.csv", row.names = TRUE)
+# write.csv(alldata.complete,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240617.csv", row.names = TRUE)
 
 
 
@@ -370,7 +373,7 @@ covariatedata <- alldata.complete %>%
          Lon = Longitude)
 
 # THIS OVERWRITES EXISTING FILE!! Amend the date to update
-# write.csv(covariatedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/menhaden-covariate-data-20240219.csv", row.names = TRUE)
+# write.csv(covariatedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/menhaden-covariate-data-20240617.csv", row.names = TRUE)
 
 
 
@@ -386,4 +389,4 @@ sampledata <- alldata.complete %>%
          Lon = Longitude)
 
 # THIS OVERWRITES EXISTING FILE!! Amend the date to update
-# write.csv(sampledata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/menhaden-sample-data-20240219.csv", row.names = TRUE)
+# write.csv(sampledata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/menhaden-sample-data-20240617.csv", row.names = TRUE)

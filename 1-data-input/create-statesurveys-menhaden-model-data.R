@@ -6,7 +6,7 @@
 # - CTLISTS data (Northern Adult Index)
 # - Delaware Bay (Northern Adult Index, 2 datasets: 30' and 16' trawls, only incorporated 30' into final statedata)
 # - Georgia EMTS (Southern Adult Index)
-# - Maryland Gill Net (lacks lat/long info) (Mid-Atlantic Adult Index)
+# - Maryland Gill Net (1985-2021 currently not in the dataset) (Mid-Atlantic Adult Index)
 # - NJ Ocean Trawl (Northern Adult Index)
 # - (not yet, and I think omit) VIMS Shad Gill net (Mid-Atlantic Adult Index)
 # - NC p915 (Southern Adult Index)
@@ -29,6 +29,8 @@ library(lubridate)
 ##### Load State Data -------------------------------------------------
 
 # Need survey, stratum, season, month, day, year, depth, lat, lon, salinity, temp, species, count, weight
+
+# Some datasets have bottom temperatures or just water temperatures, so those data were coerced to be Surface Temperatures. If a dataset had both, both measurements were kept. But analysis will focus on surface measurements.
 
 
 #---- CT Long Island Sound Trawl Survey (CTLISTS) -----
@@ -173,8 +175,44 @@ ga2$MenhadenTotal <- as.numeric(ga2$MenhadenTotal)
 
 # These data have info on set time, length, mesh size to calculate CPUE. I need to decide how to deal with this.
 
-md <- read.csv("/Volumes/Eurybia/MD Gill Net/MenhadenData_MDDNR Spring22and23_ASMFC SA.csv", header = TRUE)
-colnames(md)
+# 2 sets of data with different column names but basically the same info
+# 2022-2023
+md.a <- read.csv("/Volumes/Eurybia/MD Gill Net/MenhadenData_MDDNR Spring22and23_ASMFC SA.csv", header = TRUE)
+# 1986-2021
+md.b <- read.csv("/Volumes/Eurybia/MD Gill Net/MD_SprGN_1986-2021_AG.csv", header = TRUE)
+colnames(md.a)
+colnames(md.b)
+# revise md.b to match md.a
+md.bb <- md.b %>%
+  select(AREA, DATE, YEAR, MONTH, SETNO, SITENO, DEPMIN, DEPMAX, TEMPWATR, TEMPAIR, SAL, SECCHI, GEARLEN, GEARWDTH, MESH, DURATION, SPECCNT) %>%
+  rename(SET.NUMBER = SETNO,
+         SITE.NUMBER = SITENO,
+         MIN.WATER.DEPTH.FT = DEPMIN,
+         MAX.WATER.DEPTH.FT = DEPMAX,
+         SURF.TEMP.C = TEMPWATR,
+         AIR.TEMP.C = TEMPAIR,
+         SURF.SALINITY= SAL,
+         X = SECCHI,
+         LENGTH.NET.SET.FT = GEARLEN,
+         WIDTH.NET.SET.FT = GEARWDTH,
+         MESH.INCHES = MESH,
+         TOTAL.TIME.NET.SET = DURATION,
+         NUMBER.MENHADEN = SPECCNT) %>%
+  add_column(GEAR = NA, .after = "X") %>%
+  add_column(TIMESTRT = NA, .after = "MESH.INCHES") %>%
+  add_column(TIMESTOP = NA, .after = "TIMESTRT")
+md.bb$X <- as.character(md.bb$X)
+md.bb$GEAR <- as.character(md.bb$GEAR)
+md.bb$TIMESTRT <- as.character(md.bb$TIMESTRT)
+md.bb$TIMESTOP <- as.character(md.bb$TIMESTOP)
+
+str(md.a)
+str(md.bb)
+
+# Merge pre-2022 and 2022+
+md <- bind_rows(md.a, md.bb)
+
+# Bring in site location info
 md.locs <- read.csv("/Volumes/Eurybia/MD Gill Net/MD gill net Spring gill net sites.csv", header = TRUE)
 colnames(md.locs)
 
@@ -450,6 +488,9 @@ unique(statedata$Year)
 # [1] 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001
 # [19] 2002 2003 2004 2005 2006 2007 2008 2009 2011 2012 2013 2014 2015 2016 2017 2018 2019 2021
 # [37] 2022 2023 2010 1966 1967 1968 1969 1970 1971 1974 1979 1980 1981 1982 1983 2020   NA 2024
+
+
+# Because some datasets have
  
 statedata <- statedata %>%
   # Add Spring & Fall seasons (only)
@@ -469,7 +510,6 @@ statedata <- statedata %>%
   mutate(Presence = ifelse(.$MenhadenTotal >0, 1, 0)) %>%
   # Add state ID
   mutate(State = case_when(Survey =="CTLISTS" ~ "RICTNY",
-                           Survey =="WLI" ~ "RICTNY",
                            Survey =="NJOT" ~ "NJ",
                            Survey =="DEBay30ft" ~ "DEMD",
                            Survey =="MDGill" ~ "DEMD",
@@ -483,3 +523,9 @@ statedata <- statedata %>%
 
 #### THIS WILL OVERWRITE!!
 # write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/statesurvey_menhaden_data_20240611.csv", row.names = TRUE)
+
+
+summary <- statedata %>%
+  group_by(Survey) %>%
+  summarise(startyr = min(Year, na.rm=TRUE),
+            endyr = max(Year, na.rm=TRUE)) 

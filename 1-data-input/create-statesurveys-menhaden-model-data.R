@@ -18,7 +18,7 @@
 # - NYDEC Peconic Trawl Survey (YOY)
 # - NYDEC Western Long Island Sound seine survey data (YOY)
 
-# last updated 11 June 2024 to include data through 2023
+# last updated 27 June 2024 to include data through 2023
 ###############################################
 ###############################################
 

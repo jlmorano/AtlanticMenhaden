@@ -522,7 +522,7 @@ statedata <- statedata %>%
 #----- Write dataset as .csv file --------------------------------------------------
 
 #### THIS WILL OVERWRITE!!
-# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/statesurvey_menhaden_data_20240611.csv", row.names = TRUE)
+# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240627.csv", row.names = TRUE)
 
 
 summary <- statedata %>%

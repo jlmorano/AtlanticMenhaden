@@ -18,7 +18,7 @@
 # - NYDEC Peconic Trawl Survey (YOY)
 # - NYDEC Western Long Island Sound seine survey data (YOY)
 
-# last updated 27 June 2024 to include data through 2023
+# last updated 28 June 2024 to include data through 2023
 ###############################################
 ###############################################
 
@@ -519,13 +519,31 @@ statedata <- statedata %>%
                            Survey =="SEAMAP" ~ "NC"))
 
 
+# Remove samples that are missing data from Year, Latitude, Longitude, MenhadenTotal.
+sapply(state, function(x) sum(is.na(x)))
+state <- state %>%
+  filter_at(vars(Year, Latitude, Longitude, MenhadenTotal), all_vars(!is.na(.)))
+
 #----- Write dataset as .csv file --------------------------------------------------
 
 #### THIS WILL OVERWRITE!!
-# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240627.csv", row.names = TRUE)
+# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240628.csv", row.names = TRUE)
 
+
+plot(state$Latitude, state$Longitude)
 
 summary <- statedata %>%
   group_by(Survey) %>%
   summarise(startyr = min(Year, na.rm=TRUE),
             endyr = max(Year, na.rm=TRUE)) 
+
+# Survey    startyr endyr
+# <chr>       <dbl> <dbl>
+#   1 CTLISTS      1984  2023
+# 2 ChesMMAP     2002  2024
+# 3 DEBay30ft    1966  2023
+# 4 GAEMTS       1995  2023
+# 5 MDGill       1986  2023
+# 6 NCp915       2003  2023
+# 7 NJOT         1988  2024
+# 8 SEAMAP       1989  2022

@@ -1,10 +1,10 @@
-# Figures-ms.R
+# Figure-2-TempDepth.R
 ######################################
 # Janelle L. Morano
 
 # Figures for manuscript
 
-# last updated 5 February 2024
+# last updated 1 July 2024
 ###############################################
 ###############################################
 
@@ -13,12 +13,12 @@ library(ggbreak)
 library(viridis)
 library(gridExtra)
 
-fed <- read.csv("~/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20230724.csv", header = TRUE)
+fed <- read.csv("~/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240617.csv", header = TRUE)
 
-state <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20230727.csv")
+state <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240701.csv")
 
 
-#----- Figure 1. Biomass vs Temperature for Spring & Fall, Federal & State -------------
+#----- Figure 2. Biomass vs Temperature for Spring & Fall, Federal & State -------------
 
 
 #### A. Federal, BotTemp

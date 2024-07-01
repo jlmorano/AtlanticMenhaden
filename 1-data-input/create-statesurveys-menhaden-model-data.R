@@ -18,7 +18,7 @@
 # - NYDEC Peconic Trawl Survey (YOY)
 # - NYDEC Western Long Island Sound seine survey data (YOY)
 
-# last updated 28 June 2024 to include data through 2023
+# last updated 1 July 2024 to include data through 2023
 ###############################################
 ###############################################
 
@@ -46,10 +46,10 @@ ct$DATE <- mdy(ct$Date)
 ct$MONTH <- month(ct$DATE)
 ct$DAY <- day(ct$DATE)
 ct$YEAR <- year(ct$DATE)
-unique(ct$MONTH)
-plot(ct$MONTH, ct$TotalCount)
-unique(ct$YEAR)
-plot(ct$YEAR, ct$TotalCount)
+# unique(ct$MONTH)
+# plot(ct$MONTH, ct$TotalCount)
+# unique(ct$YEAR)
+# plot(ct$YEAR, ct$TotalCount)
 
 ct2 <- ct %>%
   select(MONTH, DAY, YEAR, Latitude, Longitude, Depth.m, SurfSalin, SurfTemp, BotSalin, BotTemp, TotalCount, Weight.kg) %>%
@@ -60,7 +60,7 @@ ct2 <- ct %>%
   add_column(Survey = "CTLISTS", .before = "Month") %>%
   add_column(Stratum = NA, .after = "Survey") %>%
   add_column(Season = NA, .after = "Stratum")
-str(ct2)
+# str(ct2)
 ct2$Stratum <- as.character(ct2$Stratum)
 ct2$Season <- as.character(ct2$Season)
 ct2$Day <- as.numeric(ct2$Day)
@@ -72,18 +72,18 @@ ct2$Day <- as.numeric(ct2$Day)
 #---- Delaware Bay ------
 
 de30 <- read.csv("/Volumes/Eurybia/Delaware Bay Adult Trawl/DEBay_trawl_survey_30ft_2023.csv", header = TRUE, na.strings = c("."))
-de16 <- read.csv("/Volumes/Eurybia/Delaware Bay Adult Trawl/DEBay_trawl_survey_16ft_2023.csv", header = TRUE, na.strings = c("."))
-colnames(de30)
-unique(de30$Month)
-plot(de30$Month, de30$Number.Menhaden.Caught)
-unique(de30$Year)
-plot(de30$Year, de30$Number.Menhaden.Caught)
+# de16 <- read.csv("/Volumes/Eurybia/Delaware Bay Adult Trawl/DEBay_trawl_survey_16ft_2023.csv", header = TRUE, na.strings = c("."))
+# colnames(de30)
+# unique(de30$Month)
+# plot(de30$Month, de30$Number.Menhaden.Caught)
+# unique(de30$Year)
+# plot(de30$Year, de30$Number.Menhaden.Caught)
 
-colnames(de16)
-unique(de16$Month)
-plot(de16$Month, de16$Number.Menhaden.Caught)
-unique(de16$Year)
-plot(de16$Year, de16$Number.Menhaden.Caught)
+# colnames(de16)
+# unique(de16$Month)
+# plot(de16$Month, de16$Number.Menhaden.Caught)
+# unique(de16$Year)
+# plot(de16$Year, de16$Number.Menhaden.Caught)
 
 de30.2 <- de30 %>%
   select(Month, Day, Year, EndLat..DD., EndLon..DD., Depth..m., SurSal..ppt., SurTemp..C.., BotSal..ppt., BotTemp..C.., Number.Menhaden.Caught, Weight..kg.) %>%
@@ -100,7 +100,7 @@ de30.2 <- de30 %>%
   add_column(Survey = "DEBay30ft", .before = "Stratum") %>%
   add_column(Season = NA, .after = "Stratum") %>%
   mutate(Longitude = Longitude*-1) #Fix Longitude, it's without the "-" in the data
-str(de30.2)
+# str(de30.2)
 de30.2$Stratum <- as.character(de30.2$Stratum)
 de30.2$Season <- as.character(de30.2$Season)
 de30.2$Month <- as.numeric(de30.2$Month)
@@ -109,7 +109,9 @@ de30.2$Year <- as.numeric(de30.2$Year)
 de30.2$Depth.m <- as.numeric(de30.2$Depth.m)
 de30.2$MenhadenTotal <- as.numeric(de30.2$MenhadenTotal)
 
-
+# plot(de30.2$Longitude, de30.2$Latitude)
+# Remove errant points
+de30.2 <- de30.2 %>% filter(Latitude > 35 & Latitude <40.1)
 
 # de16.2 <- de16 %>%
 #   select(Month, Day, Year, EndLat..DD., EndLon..DD., Depth..ft., SurSal..ppt., SurTemp..C.., BotSal..ppt., BotTemp..C.., Number.Menhaden.Caught) %>%
@@ -131,7 +133,7 @@ de30.2$MenhadenTotal <- as.numeric(de30.2$MenhadenTotal)
 #---- Georgia EMTS -----
 
 ga <- read.csv("/Volumes/Eurybia/GA EMTS/EMTS Menhaden all data 1995-2023.csv", header = TRUE)
-colnames(ga)
+# colnames(ga)
 
 # library(lubridate)
 ga$TowDate <- mdy(ga$TowDate)
@@ -139,9 +141,9 @@ ga$Month <- month(ga$TowDate)
 ga$Day <- day(ga$TowDate)
 ga$Year <- year(ga$TowDate)
 
-unique(ga$Year)
-unique(ga$Month)
-plot(ga$Year, ga$TotNum)
+# unique(ga$Year)
+# unique(ga$Month)
+# plot(ga$Year, ga$TotNum)
 
 # convert Depth_ft to meters
 ga <- mutate(ga, Depth.m = Depth..ft./3.281 )
@@ -160,7 +162,7 @@ ga2 <- ga %>%
   add_column(Season = NA, .after = "Stratum") %>%
   add_column(BotSalin = NA, .after = "SurfTemp") %>%
   add_column(BotTemp = NA, .after = "BotSalin")
-str(ga2)
+# str(ga2)
 ga2$Stratum <- as.character(ga2$Stratum)
 ga2$Season <- as.character(ga2$Season)
 ga2$Day <- as.numeric(ga2$Day)
@@ -168,7 +170,9 @@ ga2$BotSalin <- as.numeric(ga2$BotSalin)
 ga2$BotTemp <- as.numeric(ga2$BotTemp)
 ga2$MenhadenTotal <- as.numeric(ga2$MenhadenTotal)
 
-
+# plot(ga2$Longitude, ga2$Latitude)
+# Remove errant points
+ga2 <- ga2 %>% filter(Longitude < 0)
 
 
 #---- Maryland Gill Net (Upper Chesapeake Bay and Potomac River) -----
@@ -180,8 +184,8 @@ ga2$MenhadenTotal <- as.numeric(ga2$MenhadenTotal)
 md.a <- read.csv("/Volumes/Eurybia/MD Gill Net/MenhadenData_MDDNR Spring22and23_ASMFC SA.csv", header = TRUE)
 # 1986-2021
 md.b <- read.csv("/Volumes/Eurybia/MD Gill Net/MD_SprGN_1986-2021_AG.csv", header = TRUE)
-colnames(md.a)
-colnames(md.b)
+# colnames(md.a)
+# colnames(md.b)
 # revise md.b to match md.a
 md.bb <- md.b %>%
   select(AREA, DATE, YEAR, MONTH, SETNO, SITENO, DEPMIN, DEPMAX, TEMPWATR, TEMPAIR, SAL, SECCHI, GEARLEN, GEARWDTH, MESH, DURATION, SPECCNT) %>%
@@ -206,19 +210,20 @@ md.bb$GEAR <- as.character(md.bb$GEAR)
 md.bb$TIMESTRT <- as.character(md.bb$TIMESTRT)
 md.bb$TIMESTOP <- as.character(md.bb$TIMESTOP)
 
-str(md.a)
-str(md.bb)
+# str(md.a)
+# str(md.bb)
 
 # Merge pre-2022 and 2022+
 md <- bind_rows(md.a, md.bb)
 
 # Bring in site location info
-md.locs <- read.csv("/Volumes/Eurybia/MD Gill Net/MD gill net Spring gill net sites.csv", header = TRUE)
-colnames(md.locs)
+md.locs <- read.csv("/Volumes/Eurybia/MD Gill Net/MD gill net Spring gill net sites latlon.csv", header = TRUE)
+# colnames(md.locs)
+
 
 # Merge lat/long for site locations
 md.merge <- left_join(md.locs, md, by = c("AREA", "SITE.NUMBER"))
-colnames(md.merge)
+# colnames(md.merge)
 
 # Grab month, day, year from DATE
 md.merge$NewDate <- mdy(md.merge$DATE)
@@ -238,13 +243,14 @@ md.2 <- md.merge %>%
          SurfTemp = SURF.TEMP.C,
          MenhadenTotal = NUMBER.MENHADEN) %>%
   mutate(Depth.m = Depth.m/3.281) %>% #convert from feet to meters
+  mutate(Longitude = Longitude*-1) %>% #Fix Longitude, it's without the "-" in the data
   add_column(Season = NA, .before = "Month") %>%
   add_column(Stratum = NA, .before = "Season") %>%
   add_column(Survey = "MDGill", .before = "Stratum") %>%
   add_column(BotSalin = NA, .after = "SurfTemp") %>%
   add_column(BotTemp = NA, .after = "BotSalin") %>%
   add_column(Weight.kg = NA, .after = "MenhadenTotal")
-str(md.2)
+# str(md.2)
 md.2$Stratum <- as.character(md.2$Stratum)
 md.2$Season <- as.character(md.2$Season)
 md.2$Day <- as.numeric(md.2$Day)
@@ -254,16 +260,21 @@ md.2$MenhadenTotal <- as.numeric(md.2$MenhadenTotal)
 md.2$Weight.kg <- as.numeric(md.2$Weight.kg)
 
 
+# plot(md.2$Longitude, md.2$Latitude) #
+
 
 
 #---- NJ Ocean Trawl Survey -----
 
 nj <- read.csv("/Volumes/Eurybia/New Jersey Ocean Trawl Survey/NJOTMenhadenCatch_1988-2023.csv", header = TRUE, na.strings = c("."))
-colnames(nj)
-unique(nj$Month)
-plot(nj$Month, nj$NUMBER)
-unique(nj$Year)
-plot(nj$Year, nj$NUMBER)
+# colnames(nj)
+# unique(nj$Month)
+# plot(nj$Month, nj$NUMBER)
+# unique(nj$Year)
+# plot(nj$Year, nj$NUMBER)
+# Remove ELAT and ELON with 0s
+nj <- nj %>% filter(!ELAT.DecimalDegrees == 0,
+                    !ELON.DecimalDegrees ==0)
 
 nj2 <- nj %>%
   select(STRATUM, Month, STA, Year, ELAT.DecimalDegrees, ELON.DecimalDegrees, ENDDEPTH, SALSURF, TEMPSURF, SALBOT, TEMPBOT, NUMBER, WEIGHT) %>%
@@ -279,14 +290,22 @@ nj2 <- nj %>%
          MenhadenTotal = NUMBER,
          Weight.kg = WEIGHT) %>%
   add_column(Survey = "NJOT", .before = "Stratum") %>%
-  add_column(Season = NA, .after = "Stratum")
-str(nj2)
+  add_column(Season = NA, .after = "Stratum") %>%
+  mutate(Longitude = Longitude*-1) #Fix Longitude, it's without the "-" in the data
+# str(nj2)
 nj2$Stratum <- as.character(nj2$Stratum)
 nj2$Season <- as.character(nj2$Season)
 nj2$Month <- as.numeric(nj2$Month)
 nj2$Day <- as.numeric(nj2$Day)
 nj2$Year <- as.numeric(nj2$Year)
 nj2$MenhadenTotal <- as.numeric(nj2$MenhadenTotal)
+
+# plot(nj2$Longitude, nj2$Latitude)
+# Remove errant points
+# identify(nj2$Longitude, nj2$Latitude, labels=row.names(nj2))
+# 84  664 1740 4026 5568 5878 6046
+nj2 <- nj2 %>% filter(!row_number() %in% c(84, 664, 1740, 4026, 5568, 5878, 6046))
+
 
 
 
@@ -327,13 +346,15 @@ nc.a <- read.csv("/Volumes/Eurybia/North Carolina Division of Marine Fisheries /
 nc.b <- read.csv("/Volumes/Eurybia/North Carolina Division of Marine Fisheries /AtlMenhadenDataTemplate_NC_2008-2023-Rivers.csv", header = TRUE, na.strings = c("."))
 nc.c <- read.csv("/Volumes/Eurybia/North Carolina Division of Marine Fisheries /AtlMenhadenDataTemplate_NC_2008-2023-PamSnd.csv", header = TRUE, na.strings = c("."))
 nc <- rbind(nc.a, nc.b, nc.c)
-unique(nc$YEAR)
-str(nc)
-colnames(nc)
-unique(nc$MONTH)
-plot(nc$MONTH, nc$COLNUM)
-unique(nc$YEAR)
-plot(nc$YEAR, nc$COLNUM)
+nc <- nc %>% distinct() #remove duplicates
+# unique(nc$YEAR)
+# str(nc)
+# colnames(nc)
+# unique(nc$MONTH)
+# plot(nc$MONTH, nc$COLNUM)
+# unique(nc$YEAR)
+# plot(nc$YEAR, nc$COLNUM)
+
 
 # Need survey, stratum, season, month, day, year, depth, lat, lon, salinity, temp, species, count, weight
 
@@ -354,13 +375,20 @@ nc.2 <- nc %>%
   add_column(Survey = "NCp915", .before = "Stratum") %>%
   add_column(Season = NA, .after = "Stratum") %>%
   add_column(Weight.kg = NA, .after = "MenhadenTotal")
-str(nc.2)
+# str(nc.2)
 nc.2$Season <- as.character(nc.2$Season)
 nc.2$Month <- as.numeric(nc.2$Month)
 nc.2$Day <- as.numeric(nc.2$Day)
 nc.2$Year <- as.numeric(nc.2$Year)
 nc.2$Weight.kg <- as.numeric(nc.2$Weight.kg)
 
+# plot(nc.2$Longitude, nc.2$Latitude)
+nc.2 <- nc.2 %>% distinct() #remove duplicates
+nc.2 <- nc.2 %>% filter(!Latitude >36,
+                        !Latitude <33.5,
+                        !Longitude > -75)
+nc.2 <- nc.2 %>% filter(!Latitude > 35.5 & Longitude > -77.5)
+nc.2 <- nc.2 %>% filter(!Latitude < 34.4)
 
 
 
@@ -382,11 +410,11 @@ nc.2$Weight.kg <- as.numeric(nc.2$Weight.kg)
 #---- ChesMMAP -----
 
 chesmap <- read.csv("/Volumes/Eurybia/ChesMMAP/ChesMMAP_AtlanticMenhaden_Catch-2002-2024.csv", header = TRUE)
-colnames(chesmap)
-unique(chesmap$month)
-plot(chesmap$month, chesmap$raw_total_count)
-unique(chesmap$year)
-plot(chesmap$year, chesmap$raw_total_count)
+# colnames(chesmap)
+# unique(chesmap$month)
+# plot(chesmap$month, chesmap$raw_total_count)
+# unique(chesmap$year)
+# plot(chesmap$year, chesmap$raw_total_count)
 
 
 chesmap2 <- chesmap %>%
@@ -406,7 +434,7 @@ chesmap2 <- chesmap %>%
   add_column(BotSalin = NA, .after = "SurfTemp") %>%
   add_column(BotTemp = NA, .after = "BotSalin") %>%
   add_column(Day = NA, .after = "Month")
-str(chesmap2)
+# str(chesmap2)
 chesmap2$Stratum <- as.character(chesmap2$Stratum)
 chesmap2$Season <- as.character(chesmap2$Season)
 chesmap2$Month <- as.numeric(chesmap2$Month)
@@ -423,14 +451,14 @@ chesmap2$MenhadenTotal <- as.numeric(chesmap2$MenhadenTotal)
 #---- SEAMAP -----
 
 seamap <- read.csv("/Volumes/Eurybia/SEAMAP/janelle.morano.Coastal Survey.ABUNDANCEBIOMASS.2024-06-11T14.24.25.csv", header = TRUE)
-colnames(seamap)
+# colnames(seamap)
 
 # library(lubridate)
 seamap$DATEnew <- mdy(seamap$DATE)
 seamap$Month <- month(seamap$DATEnew)
 seamap$Day <- day(seamap$DATEnew)
 seamap$Year <- year(seamap$DATEnew)
-unique(seamap$Year)
+# unique(seamap$Year)
 
 seamap2 <- seamap %>%
   select(REGION, Month, Day, Year, LATITUDESTART, LONGITUDESTART, SALINITYSURFACE, SALINITYBOTTOM, TEMPSURFACE, TEMPBOTTOM, NUMBERTOTAL, SPECIESTOTALWEIGHT) %>%
@@ -449,24 +477,27 @@ seamap2 <- seamap %>%
 
 seamap2$Stratum <- gsub("=","",as.character(seamap2$Stratum) )
 
-str(seamap2)
+# str(seamap2)
 seamap2$Season <- as.character(seamap2$Season)
 seamap2$Day <- as.numeric(seamap2$Day)
 seamap2$Depth.m <- as.numeric(seamap2$Depth.m)
 seamap2$MenhadenTotal <- as.numeric(seamap2$MenhadenTotal)
 
+# plot(seamap2$Longitude, seamap2$Latitude)
+
+
 
 #----- Merge datasets ------------------------------------------------------
 
 # Verify colnames are the same
-colnames(ct2)
-colnames(de30.2)
-colnames(ga2)
-colnames(md.2)
-colnames(nc.2)
-colnames(nj2)
-colnames(chesmap2)
-colnames(seamap2)
+# colnames(ct2)
+# colnames(de30.2)
+# colnames(ga2)
+# colnames(md.2)
+# colnames(nc.2)
+# colnames(nj2)
+# colnames(chesmap2)
+# colnames(seamap2)
 
 # Merge state data
 statedata <- bind_rows(ct2, de30.2, ga2, md.2, nc.2, nj2, chesmap2, seamap2)
@@ -490,8 +521,7 @@ unique(statedata$Year)
 # [37] 2022 2023 2010 1966 1967 1968 1969 1970 1971 1974 1979 1980 1981 1982 1983 2020   NA 2024
 
 
-# Because some datasets have
- 
+# Add seasons
 statedata <- statedata %>%
   # Add Spring & Fall seasons (only)
   mutate(Season = case_when(Month == 1 ~ NA,
@@ -520,23 +550,23 @@ statedata <- statedata %>%
 
 
 # Remove samples that are missing data from Year, Latitude, Longitude, MenhadenTotal.
-sapply(state, function(x) sum(is.na(x)))
-state <- state %>%
+sapply(statedata, function(x) sum(is.na(x)))
+statedata <- statedata %>%
   filter_at(vars(Year, Latitude, Longitude, MenhadenTotal), all_vars(!is.na(.)))
+
 
 #----- Write dataset as .csv file --------------------------------------------------
 
 #### THIS WILL OVERWRITE!!
-# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240628.csv", row.names = TRUE)
+# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240701.csv", row.names = TRUE)
 
 
-plot(state$Latitude, state$Longitude)
 
 summary <- statedata %>%
   group_by(Survey) %>%
   summarise(startyr = min(Year, na.rm=TRUE),
             endyr = max(Year, na.rm=TRUE)) 
-
+summary
 # Survey    startyr endyr
 # <chr>       <dbl> <dbl>
 #   1 CTLISTS      1984  2023

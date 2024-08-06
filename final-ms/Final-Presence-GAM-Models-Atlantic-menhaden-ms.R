@@ -2,11 +2,9 @@
 ######################################
 # Janelle L. Morano
 
-# Data and choice models for the Atlantic menhaden manuscript...
+# Data and choice models for the Atlantic menhaden manuscript.
 
-# last updated 27 July 2023
-# *State data were updated to correct NJ lat/lon on July 27. But the change doesn't affect model output and for time, I didn't re-run the models.
-# I am only updating the state data file name for next time.
+# last updated 26 July 2024
 
 ###############################################
 ###############################################
@@ -31,17 +29,18 @@ library(mgcv)
 ###########################################################################################
 
 
-#----- Federal surveys
+# #----- Federal surveys
 # Atlantic menhaden data from NEFSC and NEAMAP surveys
-federal <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/combined-catch-envtl-20230724.csv", header = TRUE)
+federal <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240617.csv", header = TRUE)
 # Add Presence/Absence column numeric
 federal$Presence <- as.numeric(federal$Presence)
 
 # Remove NAs
 sapply(federal, function(x) sum(is.na(x)))
 federal <- federal %>%
-  filter_at(vars(Depth, Bottemp, Abundance, Presence), all_vars(!is.na(.)))
-
+  # filter_at(vars(Depth, Bottemp, Abundance, Presence), all_vars(!is.na(.)))
+  filter_at(vars(Abundance, Presence), all_vars(!is.na(.)))
+  
 # Create Spring and Fall datasets, from 1972+
 federal.spring <- federal %>%
   filter(Season == "SPRING") %>%
@@ -51,10 +50,14 @@ federal.fall <- federal %>%
   filter(Year >=1972)
 
 
-#----- State Data
-statedata <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/statesurvey_menhaden_data_20230727.csv", header = TRUE)
+# #----- State Data
+statedata <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240726.csv", header = TRUE)
 
 sapply(statedata, function(x) sum(is.na(x)))
+# SEAMAP doesn't have any depth, and so is completely lost
+# Ignore temp and depth to maximize spatial coverage
+statedata <- statedata %>%
+  filter_at(vars(MenhadenTotal, Presence), all_vars(!is.na(.)))
 
 
 #----- Create Spring and Fall datasets
@@ -66,10 +69,10 @@ state.fall <- statedata[statedata$Month > 8 & statedata$Month <11 ,]
 data.list <- list(federal.spring = federal.spring, federal.fall = federal.fall, state.spring = state.spring, state.fall = state.fall)
 
 #----- Save list as object
-# saveRDS(data.list, "/Users/janellemorano/Git/AtlanticMenhaden/final-ms/data.list.rds")
+saveRDS(data.list, "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/final-ms/2024 output/data.list.rds")
 
 # Read in saved RDS
-# data.list <- readRDS("/Users/janellemorano/Git/AtlanticMenhaden/final-ms/data.list.rds")
+data.list <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/final-ms/2024 output/data.list.rds")
 
 
 
@@ -79,25 +82,25 @@ data.list <- list(federal.spring = federal.spring, federal.fall = federal.fall, 
 ###########################################################################################
 
 
-#----- Run the models  ---------------------------------------------------------------
+#----- Run the models: Just Presence, no covariates -----------------------------------
 # Federal spring and fall
 pa.gam.list <- list()
 pa.gam.summaries <- list()
 for (name in names(data.list[1:2])) {
-  pa.gam.list[[name = name]] = gam(Presence ~ s(Year, by = as.factor(State)) + s(Bottemp) + s(Depth) + as.factor(State), family = binomial(link = "logit"), method = "REML", data = data.list[[name]])
+  pa.gam.list[[name = name]] = gam(Presence ~ s(Year, by = as.factor(State)) + as.factor(State), family = binomial(link = "logit"), method = "REML", data = data.list[[name]])
   pa.gam.summaries[[name = name]] <- summary(pa.gam.list[[name]])
 }
 
 # State spring and fall
 # Append to previous list
 for (name in names(data.list[3:4])) {
-  pa.gam.list[[name = name]] = gam(Presence ~ s(Year, by = as.factor(State)) + s(SurfTemp) + s(Depth.m) + as.factor(State), family = binomial(link = "logit"), method = "REML", data = data.list[[name]])
+  pa.gam.list[[name = name]] = gam(Presence ~ s(Year, by = as.factor(State)) + as.factor(State), family = binomial(link = "logit"), method = "REML", data = data.list[[name]])
   pa.gam.summaries[[name = name]] <- summary(pa.gam.list[[name]])
 }
 
 #----- Save model runs as RDS
-saveRDS(pa.gam.list, file = "/Users/janellemorano/Git/AtlanticMenhaden/final-ms/PA-GAM-results.rds")
-saveRDS(pa.gam.summaries, file = "/Users/janellemorano/Git/AtlanticMenhaden/final-ms/PA-GAM-summaries.rds")
+saveRDS(pa.gam.list, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/final-ms/2024 output/PA-GAM-results.rds")
+saveRDS(pa.gam.summaries, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/final-ms/2024 output/PA-GAM-summaries.rds")
 
 #----- Check the models ---------------------------------------------------------------
 # Get model coefficients to compare
@@ -237,14 +240,14 @@ saveRDS(predictions.pa.gam.list, file = "//Users/janellemorano/Git/AtlanticMenha
 bgam.list <- list()
 bgam.summaries <- list()
 for (name in names(data.list[1:2])) {
-  bgam.list[[name = name]] = gam(Biomass ~ s(Year, by = as.factor(State)) + s(Bottemp) + s(Depth) + as.factor(State), family ="quasipoisson"(link="log"), method = "REML", data = data.list[[name]])
+  bgam.list[[name = name]] = gam(Biomass ~ s(Year, by = as.factor(State)) + s(Bottemp) + s(Depth) + as.factor(State) + (1|Survey), family ="quasipoisson"(link="log"), method = "REML", data = data.list[[name]])
   bgam.summaries[[name = name]] <- summary(bgam.list[[name]])
 }
 
 # State spring and fall
 # Append to previous list
 for (name in names(data.list[3:4])) {
-  bgam.list[[name = name]] = gam(Weight.kg ~ s(Year, by = as.factor(State)) + s(SurfTemp) + s(Depth.m) + as.factor(State), family ="quasipoisson"(link="log"), data = data.list[[name]], method = "REML")
+  bgam.list[[name = name]] = gam(Weight.kg ~ s(Year, by = as.factor(State)) + s(SurfTemp) + s(Depth.m) + as.factor(State) + (1|Survey), family ="quasipoisson"(link="log"), data = data.list[[name]], method = "REML")
   bgam.summaries[[name = name]] <- summary(bgam.list[[name]])
 }
 

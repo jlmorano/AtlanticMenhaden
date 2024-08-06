@@ -2,9 +2,10 @@
 ######################################
 # Janelle L. Morano
 
-# "Figure 1. Map of surveys" for menhaden distribution manuscript)
+# "Figure 1. Map of surveys" for menhaden distribution manuscript
+# AND Figure 3/4 A-B map inset for state region reference
 
-# last updated 1 July 2024
+# last updated 5 August 2024
 ###############################################
 ###############################################
 
@@ -36,7 +37,8 @@ st_crs(ct)
 # CRS: NAD83 (EPSG,4269)
 
 ### All other surveys with only Lat/Lon coordinates and no .shp
-state <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240701.csv", header = TRUE)
+# In the GAEMTS, the lat/lon has an issue and I'm waiting to hear from Eddie about when it can be resolved.
+state <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240726.csv", header = TRUE)
 state.sf <- st_as_sf(state, coords = c("Longitude", "Latitude"), crs = 4269)
 st_crs(state.sf)
 # sapply(state, function(x) sum(is.na(x)))
@@ -44,10 +46,9 @@ st_crs(state.sf)
 
 
 #----- Generate Figure 1 -----------------------------------------------------------------
-pal8 <- c("#b5de2b", "#6ece58", "#440154", "#482878", "#3e4989", "#31688e", "#26828e", "#1f9e89")
-pal8lite <- adjustcolor(pal8, alpha.f =0.5) #make transparent
+pal3 <- c("#b5de2b", "#482878", "#1f9e89")
 
-legendcols <- c(pal8[8], pal8[4])
+legendcols <- c(pal3[3], pal2[2])
 
 # Create basemap
 world <- ne_countries(scale = "medium", returnclass = "sf")  
@@ -59,16 +60,19 @@ state_prov <- rnaturalearth::ne_states(c("united states of america", "canada", r
 ggplot(data = world) +  
   geom_sf(data = us, color = "gray60", fill = "gray95") + #CCCC99
   geom_sf(data = canada, color = "gray60", fill = "gray95") +
-  geom_sf(data = nefsc, color = "white", fill = pal8[8]) +
-  geom_sf(data = neamap, color = pal8[1], fill = pal8lite[1]) +
-  geom_sf(data = ct, color = pal8[4]) +
-  geom_point(data = subset(state, Survey %in% "DEBay30ft"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
-  geom_point(data = subset(state, Survey %in% "GAEMTS"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
-  geom_point(data = subset(state, Survey %in% "MDGill"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
-  geom_point(data = subset(state, Survey %in% "NCp915"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
-  geom_point(data = subset(state, Survey %in% "NJOT"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
-  geom_point(data = subset(state, Survey %in% "ChesMMAP"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
-  geom_point(data = subset(state, Survey %in% "SEAMAP"), aes(Longitude, Latitude), color = pal8[4], size = 0.5) +
+  # strata lines and differentiation between NEAMAP and NEFSC
+  # geom_sf(data = nefsc, color = "white", fill = pal3[3]) +
+  # geom_sf(data = neamap, color = pal3[1], fill = pal3lite[1]) +
+  geom_sf(data = nefsc, color = pal3[3], fill = pal3[3]) +
+  geom_sf(data = neamap, color = pal3[3], fill = pal3[3]) +
+  geom_sf(data = ct, color = pal3[2]) +
+  geom_point(data = subset(state, Survey %in% "DEBay30ft"), aes(Longitude, Latitude), color = pal3[2], size = 0.25) +
+  geom_point(data = subset(state, Survey %in% "GAEMTS"), aes(Longitude, Latitude), color = pal3[2], size = 0.25) +
+  geom_point(data = subset(state, Survey %in% "MDGill"), aes(Longitude, Latitude), color = pal3[2], size = 0.25) +
+  geom_point(data = subset(state, Survey %in% "NCp915"), aes(Longitude, Latitude), color = pal3[2], size = 0.25) +
+  geom_point(data = subset(state, Survey %in% "NJOT"), aes(Longitude, Latitude), color = pal3[2], size = 0.25) +
+  geom_point(data = subset(state, Survey %in% "ChesMMAP"), aes(Longitude, Latitude), color = pal3[2], size = 0.25) +
+  geom_point(data = subset(state, Survey %in% "SEAMAP"), aes(Longitude, Latitude), color = pal3[2], size = 0.25) +
   coord_sf (xlim = c(-83,-62), ylim = c (28,46), expand = FALSE ) + #Full coast
   # coord_sf (xlim = c(-77,-69), ylim = c (35,42), expand = FALSE ) + #Zoomed in
   # theme_void() +
@@ -78,4 +82,72 @@ ggplot(data = world) +
   xlab("longitude") + 
   ylab("latitude") 
 # Legend will have to be added later
+#ggsave(file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/final-ms/2024 output/Fig1-federal-state-survey-map.png", width=5.5, height = 6)
+
+
+
+#----- Generate Figure 3/4 A/B Color by State --------------------------------------------
+
+#----- Add state designation to NEFSC shapefile (which will match the NEFSC/NEAMAP data)
+# Add inshore/offshore designation
+nefsc <- nefsc %>%
+  mutate(inoffshore = case_when(STRATA <2000 ~ "offshore",
+                                STRATA >3000 & STRATA <5000 ~ "inshore",                              STRATA >3000 & STRATA <5000 ~ "inshore",
+                                STRATA >5000 ~ "offshore",
+                                STRATA >=7000 & STRATA <8000 ~ "inshore",
+                                STRATA >=8000 ~ "offshore")) %>%
+  # Add state designation. Strata are assigned to the closest state waters. RI-CT-NY are collectively assigned because of the overlap of the strata with the span of the states and the location of the mouth of Long Island Sound.
+  mutate(State = case_when(STRATA >=3570 & STRATA <=3990 ~ "GME", # Inshore GME (north of 42 lat) 
+                           STRATA >=1260 & STRATA <=1420 ~ "GME", # Offshore GME
+                           STRATA ==1490 ~ "GME", # Offshore GME
+                           STRATA >=5430 & STRATA <=5480 ~ "GME", # Offshore GME
+                           STRATA ==3460 ~ "MA", #Inshore MA
+                           STRATA >=3480 & STRATA <=3560 ~ "MA", #Inshore MA
+                           STRATA >=1090 & STRATA <=1250  ~ "MA", #Offshore MA (south of 42 lat)
+                           STRATA >=3010 & STRATA <=3140 ~ "RICTNY", #Inshore RICTNY
+                           STRATA ==3450 ~ "RICTNY", #Inshore RICTNY
+                           STRATA ==3470 ~ "RICTNY", #Inshore RICTNY
+                           STRATA ==3490 ~ "RICTNY", #Inshore RICTNY
+                           STRATA ==3910 ~ "RICTNY", #Inshore RICTNY
+                           STRATA >=1010 & STRATA <=1140 ~ "RICTNY", #Offshore RICTNY
+                           STRATA >=3150 & STRATA <=3230 ~ "NJ", #Inshore NJ                
+                           STRATA >=1730 & STRATA <=1760 ~ "NJ", #Offshore NJ
+                           STRATA >=3240 & STRATA <=3290 ~ "DEMD", #Inshore DEMD
+                           STRATA >=1690 & STRATA <=1720 ~ "DEMD", #Offshore DEMD
+                           STRATA >=3300 & STRATA <=3380 ~ "VA", #Inshore VA
+                           STRATA >=1650 & STRATA <=1680 ~ "VA", #Offshore VA
+                           STRATA >=3390 & STRATA <=3580 ~ "NC", #Inshore NC and south
+                           STRATA >=1610 & STRATA <=1640 ~ "NC", #Offshore NC and south
+                           .default = "NC"))
+
+
+
+pal7 <- c("#440154", "#414487", "#2a788e", "#22a884", "#7ad151", "#bddf26", "#fde725")
+pal7lite <- adjustcolor(pal7, alpha.f = 0.5) #make transparent
+
+#----- Map Federal Data lighter than State data
+ggplot(data = world) +  
+  geom_sf(data = us, color = "gray60", fill = "gray95") + #CCCC99
+  geom_sf(data = canada, color = "gray60", fill = "gray95") +
+  #geom_sf(data = subset(nefsc, State %in% "GME"), color = "white", fill = pal7lite[1]) +
+  geom_sf(data = subset(nefsc, State %in% "MA"), color = "white", fill = pal7lite[1]) +
+  geom_sf(data = subset(nefsc, State %in% "RICTNY"), color = "white", fill = pal7lite[2]) +
+  geom_sf(data = subset(nefsc, State %in% "NJ"), color = "white", fill = pal7lite[3]) +
+  geom_sf(data = subset(nefsc, State %in% "DEMD"), color = "white", fill = pal7lite[4]) +
+  geom_sf(data = subset(nefsc, State %in% "VA"), color = "white", fill = pal7lite[5]) +
+  geom_sf(data = subset(nefsc, State %in% "NC"), color = "white", fill = pal7lite[6]) +
+  geom_point(data = subset(state, State %in% "RICTNY"), aes(Longitude, Latitude), color = pal7[2], size = 0.25) +
+  geom_point(data = subset(state, State %in% "NJ"), aes(Longitude, Latitude), color = pal7[3], size = 0.25) +
+  geom_point(data = subset(state, State %in% "DEMD"), aes(Longitude, Latitude), color = pal7[4], size = 0.25) +
+  geom_point(data = subset(state, State %in% "VA"), aes(Longitude, Latitude), color = pal7[5], size = 0.25) +
+  geom_point(data = subset(state, State %in% "NC"), aes(Longitude, Latitude), color = pal7[6], size = 0.25) +
+  geom_point(data = subset(state, State %in% "SCGAFL"), aes(Longitude, Latitude), color = pal7[7], size = 0.25) +
+  # coord_sf (xlim = c(-83,-62), ylim = c (28,46), expand = FALSE ) + #Full coast
+  coord_sf (xlim = c(-82.5,-64), ylim = c (28,43), expand = FALSE ) + #tighter crop
+  theme_void() +
+  theme(panel.background = element_rect(fill = "white")) + # slategray2
+  theme (axis.text = element_blank()) +
+  xlab("longitude") + 
+  ylab("latitude")
+#ggsave(file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/final-ms/2024 output/federal-state-REGIONS-map.png", width=5.5, height = 6)
 

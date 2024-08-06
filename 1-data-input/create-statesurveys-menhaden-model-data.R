@@ -18,7 +18,7 @@
 # - NYDEC Peconic Trawl Survey (YOY)
 # - NYDEC Western Long Island Sound seine survey data (YOY)
 
-# last updated 1 July 2024 to include data through 2023
+# last updated 26 July 2024 to include data through 2023
 ###############################################
 ###############################################
 
@@ -51,9 +51,13 @@ ct$YEAR <- year(ct$DATE)
 # unique(ct$YEAR)
 # plot(ct$YEAR, ct$TotalCount)
 
+
 ct2 <- ct %>%
-  select(MONTH, DAY, YEAR, Latitude, Longitude, Depth.m, SurfSalin, SurfTemp, BotSalin, BotTemp, TotalCount, Weight.kg) %>%
+  # When count = 0, weight is NA, so fix such that weight is 0
+  mutate(Weight.kg2 = case_match(TotalCount, 0 ~ 0, .default = Weight.kg)) %>%
+  select(MONTH, DAY, YEAR, Latitude, Longitude, Depth.m, SurfSalin, SurfTemp, BotSalin, BotTemp, TotalCount, Weight.kg2) %>%
   rename(MenhadenTotal = TotalCount,
+         Weight.kg = Weight.kg2,
          Month = MONTH,
          Day = DAY,
          Year = YEAR) %>%
@@ -64,6 +68,7 @@ ct2 <- ct %>%
 ct2$Stratum <- as.character(ct2$Stratum)
 ct2$Season <- as.character(ct2$Season)
 ct2$Day <- as.numeric(ct2$Day)
+
 
 
 
@@ -86,7 +91,9 @@ de30 <- read.csv("/Volumes/Eurybia/Delaware Bay Adult Trawl/DEBay_trawl_survey_3
 # plot(de16$Year, de16$Number.Menhaden.Caught)
 
 de30.2 <- de30 %>%
-  select(Month, Day, Year, EndLat..DD., EndLon..DD., Depth..m., SurSal..ppt., SurTemp..C.., BotSal..ppt., BotTemp..C.., Number.Menhaden.Caught, Weight..kg.) %>%
+  # Sometimes when count > 0, weight is 0, so fix such that weight is NA
+  mutate(Weight.kg2 = case_when(Number.Menhaden.Caught >0 & Weight..kg. == 0 ~ NA, .default = Weight..kg.)) %>%
+  select(Month, Day, Year, EndLat..DD., EndLon..DD., Depth..m., SurSal..ppt., SurTemp..C.., BotSal..ppt., BotTemp..C.., Number.Menhaden.Caught, Weight.kg2) %>%
   rename(Latitude = EndLat..DD.,
          Longitude = EndLon..DD.,
          Depth.m = Depth..m.,
@@ -95,7 +102,7 @@ de30.2 <- de30 %>%
          BotSalin = BotSal..ppt.,
          BotTemp = BotTemp..C..,
          MenhadenTotal = Number.Menhaden.Caught,
-         Weight.kg = Weight..kg.) %>%
+         Weight.kg = Weight.kg2) %>%
   add_column(Stratum = NA, .before = "Month") %>%
   add_column(Survey = "DEBay30ft", .before = "Stratum") %>%
   add_column(Season = NA, .after = "Stratum") %>%
@@ -132,7 +139,8 @@ de30.2 <- de30.2 %>% filter(Latitude > 35 & Latitude <40.1)
 
 #---- Georgia EMTS -----
 
-ga <- read.csv("/Volumes/Eurybia/GA EMTS/EMTS Menhaden all data 1995-2023.csv", header = TRUE)
+# The lat/lon has an issue and I'm waiting to hear from Eddie about when it can be resolved.
+ga <- read.csv("/Volumes/Eurybia/GA EMTS/CoordCorrected_EMTS Menhaden all data 1995-2023.csv", header = TRUE)
 # colnames(ga)
 
 # library(lubridate)
@@ -171,8 +179,7 @@ ga2$BotTemp <- as.numeric(ga2$BotTemp)
 ga2$MenhadenTotal <- as.numeric(ga2$MenhadenTotal)
 
 # plot(ga2$Longitude, ga2$Latitude)
-# Remove errant points
-ga2 <- ga2 %>% filter(Longitude < 0)
+
 
 
 #---- Maryland Gill Net (Upper Chesapeake Bay and Potomac River) -----
@@ -545,8 +552,9 @@ statedata <- statedata %>%
                            Survey =="MDGill" ~ "DEMD",
                            Survey =="ChesMMAP" ~ "VA",
                            Survey =="NCp915" ~ "NC",
-                           Survey =="GAEMTS" ~ "NC",
-                           Survey =="SEAMAP" ~ "NC"))
+                           Survey =="GAEMTS" ~ "SCGAFL",
+                           Survey =="SEAMAP" & Latitude >= 33.8 ~ "NC",
+                           Survey =="SEAMAP" & Latitude < 33.8 ~ "SCGAFL"))
 
 
 # Remove samples that are missing data from Year, Latitude, Longitude, MenhadenTotal.
@@ -558,7 +566,7 @@ statedata <- statedata %>%
 #----- Write dataset as .csv file --------------------------------------------------
 
 #### THIS WILL OVERWRITE!!
-# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240701.csv", row.names = TRUE)
+# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240726.csv", row.names = TRUE)
 
 
 

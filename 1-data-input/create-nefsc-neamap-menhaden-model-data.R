@@ -15,19 +15,6 @@
 
 # last updated 17 June 2024
 
-
-# last datasets created 12 June 2023
-
-# note that there are duplicates these older sets
-# combined-catch-envtl-20230724.csv
-# VAST: menhaden-sample-data-20230724.csv
-# VAST: menhaden-covariate-data-20230724.csv
-
-# note that inshore/offshore designation is messed up in these older sets
-# combined-catch-envtl-20230612.csv
-# VAST: menhaden-sample-data-20230612.csv
-# VAST: menhaden-covariate-data-20230612.csv
-
 ###############################################
 ###############################################
 
@@ -266,10 +253,12 @@ neamap.2$stratum <- paste0(neamap.2$stratum, "N")
 
 
 
+
 #----- 3. Bind NEFSC and NEAMAP into alldata which has NEFSC and NEAMAP in one
 
 alldata <- bind_rows(nefsc.2, neamap.2)
 alldata <- clean_names(alldata, "upper_camel")
+
 
 
 

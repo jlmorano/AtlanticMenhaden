@@ -7,7 +7,6 @@
 # This is run on the VirtualPC (RedCloud)
 
 # last updated 19 August 2024
-##### NEED TO UPDATE R and SDMTMB on VPC
 
 ###############################################
 ###############################################
@@ -40,8 +39,8 @@ sessionInfo()
 #----- Data Prep ------------------------------------------------------------
 
 # Full dataset
-menhaden <- read.csv("D:/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240617.csv", header = TRUE)
-# menhaden <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240617.csv", header = TRUE)
+menhaden <- read.csv("D:/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240819.csv", header = TRUE)
+# menhaden <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240819.csv", header = TRUE)
 
 # Remove NAs and amend column headings to lower case to avoid problems (old bug, but keeping for ease)
 sapply(menhaden, function(x) sum(is.na(x)))
@@ -62,6 +61,7 @@ menhaden <- menhaden[-1]
 get_crs(menhaden, c("longitude", "latitude"))
 # Suggests UTM zone 19N; CRS = 32619, but 
 # choosing to use UTM zone 18N; CRS = 32618.
+menhaden2 <- sdmTMB::add_utm_columns(menhaden, c("longitude", "latitude"))
 menhaden <- sdmTMB::add_utm_columns(menhaden, ll_crs = 32618, utm_crs = 32618, c("longitude", "latitude"))
 # Move X, Y columns because there was a bug with cog(), but now keeping for cleanliness
 colord <- c( "X", "Y", "survey", "vessel", "cruise", "station", "stratum", "inoffshore", "state", "year", "season", "latitude", "longitude", "areasw", "depth", "surftemp", "surfsalin", "bottemp", "botsalin", "abundance", "biomass", "presence", "centroidLat", "centroidLon", "latCat", "lonCat", "avechlor") 

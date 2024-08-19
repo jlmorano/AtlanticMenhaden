@@ -6,20 +6,20 @@
 # Use in sdmTMB
 # sf() compatible (*sp and rgdal are depreciated as of Oct 2023)
 
-# last updated 4 January 2024
+# last updated 19 August 2024
 ###############################################
 ###############################################
 
 library(tidyverse)
 library(sf)
 packageVersion('sf') 
-# 1.0.13
+# 1.0.16
 library(sdmTMB)
 packageVersion('sdmTMB')
-# ‘0.4.0’
+# ‘0.6.0’
 library(terra)
 packageVersion('terra')
-# ‘1.7.29’
+# ‘1.7.78’
 
 
 
@@ -52,14 +52,14 @@ sf::sf_use_s2(FALSE)
 
 # This should result in essentially the NEFSC extent, but there is a little near the northern edge that is added by NEAMAP
 fedunion <- st_union(nefsc.sf$geometry, neamap.sf$geometry)
-plot(fedunion)
+# plot(fedunion)
 
 # Project fedunion
 fedunion <- st_transform(fedunion, crs=st_crs(4269))
 
 # Dissolve interior borders
 fedunion.ext <- st_union(fedunion)
-plot(fedunion.ext)
+# plot(fedunion.ext)
 
 
 #----- Make a 10x10 km grid over the NEFSC & NEAMAP survey extent
@@ -70,12 +70,12 @@ fedunion.bb <- st_bbox(fedunion.ext)
 fedunion.bb.grid <- st_make_grid(fedunion.bb, n=1)
 
 # Make a new grid of 10x10 km
-fedunion.grid <- st_make_grid(fedunion.bb.grid, cellsize = 0.2, what = "centers") #ideally, move to 0.01 but it takes forever to process
-plot(fedunion.grid)
+fedunion.grid <- st_make_grid(fedunion.bb.grid, cellsize = 0.2, what = "centers") 
+# plot(fedunion.grid)
 
 # Intersect grid and survey extent
 fedgrid <- st_intersection(fedunion.grid, fedunion.ext)
-plot(fedgrid)
+# plot(fedgrid)
 
 
 #----- Convert grid to dataframe with lat/lon
@@ -90,10 +90,7 @@ fedgrid.LL <- fedgrid %>%
 # Add UTM
 names(fedgrid.LL)[1] <- "Longitude"
 names(fedgrid.LL)[2] <- "Latitude"
-fedgrid.LL <- sdmTMB::add_utm_columns(fedgrid.LL, c("Longitude", "Latitude"))
-# fedgrid.LL$X <- round(fedgrid.LL$X)
-# fedgrid.LL$Y <- round(fedgrid.LL$Y) 
-
+fedgrid.LL <- sdmTMB::add_utm_columns(fedgrid.LL, ll_crs = 32618, utm_crs = 32618, c("Longitude", "Latitude"))
 
 
 #----- Check for distance between points
@@ -101,7 +98,8 @@ fedgrid.LL <- sdmTMB::add_utm_columns(fedgrid.LL, c("Longitude", "Latitude"))
 # Remember that UTM is in kilometers
 # sqrt((qcs_grid$X[2:4] - qcs_grid$X[1:4-1]) ^ 2 + (qcs_grid$Y[2:4] - qcs_grid$Y[1:4-1]) ^ 2)
 # 2 km
-
+sqrt((fedgrid.LL$X[2:4] - fedgrid.LL$X[1:4-1]) ^ 2 + (fedgrid.LL$Y[2:4] - fedgrid.LL$Y[1:4-1]) ^ 2)
+#.0002828427 0.0002000000 0.0002000000
 
 #----- Add bathymetry
 bathy <- terra::rast("/Volumes/Eurybia/Bathymetry-GEBCO_19_Oct_2023_8946e1573d02 2/gebco_2023_n45.0_s32.0_w-79.11_e-65.0.tif")
@@ -137,7 +135,7 @@ fedgrid.LL <- fedgrid.LL %>%
 fedgrid.LL <- fedgrid.LL[-5]
 
 #----- Save grid with depth for each X,Y as a data.frame class for sdmTMB --------------------------------
-saveRDS(fedgrid.LL, "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP-2.rds")
+saveRDS(fedgrid.LL, "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP.rds")
 
 
 #----- Add columns appropriate for VAST
@@ -161,11 +159,11 @@ saveRDS(nefsc.gridVAST, file = "/Users/janellemorano/DATA/Atlantic_menhaden_mode
 nd.grid.yrs <- readRDS("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid_NEFSC-NEAMAP-2.rds")
 
 # Read in menhaden data with temp to extract the years being used
-menhaden <- read.csv("~/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20230724.csv", header = TRUE)
+menhaden <- read.csv("~/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240617.csv", header = TRUE)
 
-# Keep only 1972-2021
+# Keep only 1972+
 menhaden <- menhaden %>%
-  filter(Year >=1972 & Year <=2021)
+  filter(Year >=1972)
 
 # Extract years
 years <- sort(unique(menhaden$Year)) #collect years
@@ -264,7 +262,7 @@ nd.grid.yrs.fall <- nd.grid.yrs.fall %>%
 #----- Verify that the prediction grid is as expected
 # Spring
 # Subset a few years
-nd.grid.yrs.spring.sub <- nd.grid.yrs.spring %>% filter(Year > 2010)
+nd.grid.yrs.spring.sub <- nd.grid.yrs.spring %>% filter(Year > 2020)
 ggplot() +
   geom_point( data = nd.grid.yrs.spring.sub, aes(X, Y, color = log(Depth)), size = 0.25) +
   scale_color_viridis_c(direction = -1) +
@@ -293,7 +291,7 @@ ggplot() +
 
 #----- Write grid as rds file as a data.frame class for sdmTMB
 # Spring
-saveRDS(nd.grid.yrs.spring, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP-2.rds")
+saveRDS(nd.grid.yrs.spring, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP.rds")
 
 # Fall
-saveRDS(nd.grid.yrs.fall, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-fall_NEFSC-NEAMAP_byyears_fall-2.rds")
+saveRDS(nd.grid.yrs.fall, file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-fall_NEFSC-NEAMAP.rds")

@@ -6,7 +6,7 @@
 # Spatio-temporal model for menhaden biomass in sdmTMB
 # This is run on the VirtualPC (RedCloud)
 
-# last updated 15 August 2024
+# last updated 19 August 2024
 ##### NEED TO UPDATE R and SDMTMB on VPC
 
 ###############################################
@@ -41,7 +41,7 @@ sessionInfo()
 
 # Full dataset
 menhaden <- read.csv("D:/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240617.csv", header = TRUE)
-menhaden <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240617.csv", header = TRUE)
+# menhaden <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240617.csv", header = TRUE)
 
 # Remove NAs and amend column headings to lower case to avoid problems (old bug, but keeping for ease)
 sapply(menhaden, function(x) sum(is.na(x)))
@@ -124,11 +124,10 @@ plot(mesh.fall)
 
 # Grid has bathymetry and bottom temp data for each X,Y
 # Read in SPRING grid by years
-#nd.grid.yrs.spring <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP.rds")
-nd.grid.yrs.spring <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP-2.rds")
+nd.grid.yrs.spring <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP.rds")
 
-#nd.grid.yrs.fall <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-fall_NEFSC-NEAMAP.rds")
-nd.grid.yrs.fall <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-fall_NEFSC-NEAMAP-2.rds")
+# Read in FALL grid by years
+nd.grid.yrs.fall <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-fall_NEFSC-NEAMAP.rds")
 
 # Change column names to match lowercase of dataset now
 nd.grid.yrs.spring <- nd.grid.yrs.spring %>% 

@@ -4,7 +4,7 @@
 
 # Visualizations (graphs and maps) from the models run in "Final-Models-Atlantic-menhaden-ms.R" for the Atlantic menhaden manuscript
 
-# last updated 13 August 2024
+# last updated 24 August 2024
 ###############################################
 ###############################################
 
@@ -68,7 +68,7 @@ f3a <- ggplot() +
   theme(legend.position = "none") +
   theme(text = element_text(size = 12)) +
   ylim(c(0,1)) +
-  xlim(c(1972, 2021)) +
+  xlim(c(1972, 2023)) +
   labs(x= " ", y = "Presence") + 
   ggtitle("Spring (Federal)")
 
@@ -91,7 +91,7 @@ f3b <- ggplot() +
   theme(legend.position = "none") +
   theme(text = element_text(size = 12)) +  
   ylim(c(0,1)) +
-  xlim(c(1972, 2021)) +
+  xlim(c(1972, 2023)) +
   labs(x= " ", y = " ")+
   ggtitle("Fall (Federal)")
 
@@ -116,7 +116,7 @@ f3c <- ggplot() +
   theme(legend.position = "none") +
   theme(text = element_text(size = 12)) +
   ylim(c(0,1)) +
-  xlim(c(1972, 2021)) +
+  xlim(c(1972, 2023)) +
   labs(x= " ", y = "Presence") +
   ggtitle("Spring (State)")
 
@@ -141,15 +141,17 @@ f3d <- ggplot() +
   theme(legend.position = "none") +
   theme(text = element_text(size = 12)) +  
   ylim(c(0,1)) +
-  xlim(c(1972, 2021)) +
+  xlim(c(1972, 2023)) +
   labs(x= " ", y = " ") +
   ggtitle("Fall (State)")
 
 
 plot_grid(f3a, f3b, f3c, f3d, labels=c("A", "B", "C", "D"), ncol = 2, nrow = 2)
 #ggsave(file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/final-ms/Summer2024figures/Fig3-PA-GAM-separate.png", width=7, height = 7)
-
-
+plot_grid(f3a, f3b, labels=c("A", "B"), ncol = 2, nrow = 1)
+#ggsave(file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/final-ms/Summer2024figures/Fig3AB-PA-GAM-separate.png", width=7, height = 3.5)
+plot_grid(f3c, f3d, labels=c("C", "D"), ncol = 2, nrow = 1)
+#ggsave(file = "/Users/janellemorano/DATA/Atlantic_menhaden_modeling/final-ms/Summer2024figures/Fig3CD-PA-GAM-separate.png", width=7, height = 3.5)
 
 
 ###########################################################################################
@@ -176,7 +178,7 @@ f4a <- ggplot() +
   theme(legend.position = "none") +
   theme(text = element_text(size = 12)) +
   ylim(c(0,1)) +
-  xlim(c(1972, 2021)) +
+  xlim(c(1972, 2023)) +
   labs(x= " ", y = "Presence") +
   ggtitle("Spring (Federal and State)")
 
@@ -201,7 +203,7 @@ f4b <- ggplot() +
   theme(legend.position = "none") +
   theme(text = element_text(size = 12)) +
   ylim(c(0,1)) +
-  xlim(c(1972, 2021)) +
+  xlim(c(1972, 2023)) +
   labs(x= " ", y = "Presence") +
   ggtitle("Fall (Federal and State)")
 

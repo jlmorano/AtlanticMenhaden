@@ -1,4 +1,16 @@
-# Testing index by region
+# sdmTMB-Atlantic-menhaden-Biomass-indexbyregion.R
+######################################
+# Janelle L. Morano
+
+# Objectives:
+# Use model fit already generated to predict and index
+# by state-region
+
+
+# last updated 21 August 2024
+###############################################
+###############################################
+
 library(sdmTMB)
 library(tidyverse)
 library(tictoc)
@@ -9,7 +21,7 @@ library(tictoc)
 fit.sp <- readRDS("D:/MODEL_OUTPUT/twar.fit.spring.rds")
 
 # Add "region" to the prediction grid
-nd.grid.yrs.spring <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP-2.rds")
+nd.grid.yrs.spring <- readRDS("D:/DATA/Atlantic_menhaden_modeling/1-extrapolation-grids/grid-by-years-spring_NEFSC-NEAMAP.rds")
 
 # Change column names to match lowercase of dataset
 newgrid <- nd.grid.yrs.spring %>% 
@@ -17,7 +29,8 @@ newgrid <- nd.grid.yrs.spring %>%
   rename("X" = "x",
          "Y" = "y")
 
-# Adding rough region by latitude for now
+# Designating region by latitude
+# MA, RICTNY, NJ, DEMD, VA, NC, (SCGAFL does not exist in federal data)
 newgrid <- newgrid |>
    mutate(region = case_when(latitude <=36.5547 ~ "NC",
                              latitude >36.5547 & latitude <=38.0000 ~ "VA",
@@ -80,16 +93,18 @@ newgrid.fa <- nd.grid.yrs.fall %>%
   rename("X" = "x",
          "Y" = "y")
 
-# Adding rough region by latitude for now
-newgrid.fa <- newgrid.fa |>
-   mutate(region = case_when(latitude <=36.5547 ~ "NC",
-                             latitude >36.5547 & latitude <=38.0000 ~ "VA",
-                             latitude >38.0000 & latitude <=38.7817 ~ "DEMD",
-                             latitude >38.7817 & latitude <=40.4678 ~ "NJ",
-                             latitude >40.4678 & latitude <=41.4205 ~ "NYCTRI",
-                             latitude >41.4205 ~ "MA"))
-unique(newgrid.fa$region)
-#"NC"     "VA"     "DEMD"   "NJ"     "NYCTRI" "MA"   
+# Designating region by latitude
+# MA, RICTNY, NJ, DEMD, VA, NC, (SCGAFL does not exist in federal data)
+newgrid <- newgrid |>
+  mutate(region = case_when(latitude <=36.5547 ~ "NC",
+                            latitude >36.5547 & latitude <=38.0000 ~ "VA",
+                            latitude >38.0000 & latitude <=38.7817 ~ "DEMD",
+                            latitude >38.7817 & latitude <=40.4678 ~ "NJ",
+                            latitude >40.4678 & latitude <=41.4205 ~ "NYCTRI",
+                            latitude >41.4205 ~ "MA"))
+unique(newgrid$region)
+# "NC"     "VA"     "DEMD"   "NJ"     "NYCTRI" "MA" 
+
 
 #----- Make predictions
 tic()

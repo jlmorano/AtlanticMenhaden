@@ -13,6 +13,8 @@
 
 
 # Best practice to clean up and then restart R
+# Do this after every major computation and it processes on the order of <10-20 mins
+# intead of hours!! And you avoid not having enough memory to write.
 rm(list = ls(all.names = TRUE)) #will clear all objects including hidden objects.
 gc() #free up memory and report the memory usage
 #used (Mb) gc trigger (Mb) max used (Mb)
@@ -26,10 +28,10 @@ packageVersion('sdmTMB') #‘0.6.0’ #Need to re-run models; Previously Updated
 library(tidyverse)
 library(janitor)
 library(tictoc)
-library(sf)
+#library(sf)
 
 sessionInfo()
-#R version 4.3.2 (2023-10-31 ucrt)
+#R version 4.4.1 (2024-06-14 ucrt)
 #Platform: x86_64-w64-mingw32/x64 (64-bit)
 #Running under: Windows Server 2022 x64 (build 20348)
 
@@ -59,12 +61,10 @@ menhaden$vessel <- as.factor(menhaden$vessel)
 # add UTM
 menhaden <- menhaden[-1]
 get_crs(menhaden, c("longitude", "latitude"))
-# Suggests UTM zone 19N; CRS = 32619, but 
-# choosing to use UTM zone 18N; CRS = 32618.
-menhaden2 <- sdmTMB::add_utm_columns(menhaden, c("longitude", "latitude"))
-menhaden <- sdmTMB::add_utm_columns(menhaden, ll_crs = 32618, utm_crs = 32618, c("longitude", "latitude"))
+# Suggests UTM zone 19N; CRS = 32619
+menhaden <- sdmTMB::add_utm_columns(menhaden, c("longitude", "latitude"))
 # Move X, Y columns because there was a bug with cog(), but now keeping for cleanliness
-colord <- c( "X", "Y", "survey", "vessel", "cruise", "station", "stratum", "inoffshore", "state", "year", "season", "latitude", "longitude", "areasw", "depth", "surftemp", "surfsalin", "bottemp", "botsalin", "abundance", "biomass", "presence", "centroidLat", "centroidLon", "latCat", "lonCat", "avechlor") 
+colord <- c( "X", "Y", "survey", "vessel", "cruise", "station", "stratum", "inoffshore", "state", "year", "season", "latitude", "longitude", "areasw", "depth", "surftemp", "surfsalin", "bottemp", "botsalin", "abundance", "biomass", "presence", "centroidLat", "centroidLon") 
 menhaden <- menhaden[, colord]
 
 # Create Spring and Fall datasets, from 1972+
@@ -78,6 +78,7 @@ menhaden.fall <- menhaden %>%
 
 # Verify map
 # Create basemap
+library(rnaturalearth)
 world <- ne_countries(scale = "medium", returnclass = "sf") 
 us <- ne_states(geounit = "United States of America", returnclass = "sf")  
 canada <- ne_states(geounit = "Canada", returnclass = "sf")  
@@ -93,9 +94,9 @@ ggplot() +
   geom_sf(data = us, color = "gray60", fill = "gray95") + #CCCC99
   geom_sf(data = canada, color = "gray60", fill = "gray95") 
 
-# transform into UTM zone 18N; CRS = 32618
-useastcoast <- sf::st_transform(us, crs = 32618)
-canadaeastcoast <- sf::st_transform(canada, crs = 32618)
+# transform into UTM zone 19N; CRS = 32619
+useastcoast <- sf::st_transform(us, crs = 32619)
+canadaeastcoast <- sf::st_transform(canada, crs = 32619)
 ggplot() +
   geom_sf(data = useastcoast, color = "gray60", fill = "gray95") +
   geom_sf(data = canadaeastcoast, color = "gray60", fill = "gray95") +
@@ -115,7 +116,7 @@ plot(mesh.spring)
 # FALL
 mesh.fall <- make_mesh(menhaden.fall, xy_cols = c("X", "Y"), n_knots = 150, type = "cutoff_search")
 plot(mesh.fall)
-#png(file="D:/MODEL_OUTPUT/mesh300.fall.png") #, width=600, height=350)
+#png(file="D:/MODEL_OUTPUT/mesh150.fall.png") #, width=600, height=350)
 #dev.off()
 
 
@@ -146,7 +147,7 @@ nd.grid.yrs.fall <- nd.grid.yrs.fall %>%
 #----- Spring ------------------------------------------------
 tic()
 fit.sp <- sdmTMB(
-  biomass ~ s(bottemp),# try with + (1| vessel)
+  biomass ~ s(bottemp),
   family = tweedie(link = "log"),
   data = menhaden.spring,
   mesh = mesh.spring,
@@ -156,8 +157,8 @@ fit.sp <- sdmTMB(
 )
 a <- toc()
 
-#764.05 sec elapsed
-
+#593.14 sec elapsed
+# tried with + (1| vessel), didn't converge
 
 # Save and read back in
 saveRDS(fit.sp, file = "D:/MODEL_OUTPUT/twar.fit.spring.rds" )
@@ -170,6 +171,7 @@ tidy(fit.sp, effects = "ran_pars", conf.int = TRUE)
 
 # QQ plot
 menhaden.spring$resids <- residuals(fit.sp) # randomized quantile residuals
+#dev.new(width = 6, height = 6, unit = "in")
 qqnorm(menhaden.spring$resids) #, ylim=c(-5,5))
 qqline(menhaden.spring$resids)
 
@@ -187,7 +189,7 @@ ggplot(subset(menhaden.spring, year %in% c(1980, 1990, 2000, 2010, 2020)), aes(l
 tic()
 p.sp <- predict(fit.sp, newdata = nd.grid.yrs.spring, return_tmb_object = TRUE) #need return_tmb_object = TRUE to be able to do index and COG
 b <- toc()
-#681.76 sec elapsed
+#811.97 sec elapsed
 
 # Save and then move it to DATA storage on Virtual PC
 saveRDS(p.sp, file = "D:/MODEL_OUTPUT/twar.predictions.spring.rds" )
@@ -203,9 +205,9 @@ uncertdata.p.sp <- p.sp$data %>%
   select(longitude:epsilon_st)
 
 tic()
-unc.sp <- predict(fit.sp, newdata = uncertdata.p.sp, nsim = 100)
+unc.sp <- predict(fit.sp, newdata = uncertdata.p.sp, nsim = 50)
 e <- toc()
-#793.94 sec elapsed
+#1613.21 sec elapsed
 uncertdata.p.sp$se <- apply(unc.sp, 1, sd)
 saveRDS(uncertdata.p.sp, file="D:/MODEL_OUTPUT/predictions-uncertainty-spring-data.rds")
 
@@ -224,7 +226,7 @@ ggplot() +
 tic()
 cog <- get_cog(p.sp, format = "wide")
 c <- toc()
-#17174.78 sec elapsed
+#1013.95 sec elapsed
 write.csv(cog, file="D:/MODEL_OUTPUT/cog-spring-data.csv")
 
 ggplot(cog, aes(est_x, est_y, colour = year)) +
@@ -240,7 +242,7 @@ ggplot(cog, aes(est_x, est_y, colour = year)) +
 tic()
 index <- get_index(p.sp)
 d <- toc()
-#9368.27 sec elapsed
+#822.94  sec elapsed
 
 write.csv(index, file="D:/MODEL_OUTPUT/index-spring-data.csv")
 
@@ -302,7 +304,7 @@ ggplot(subset(menhaden.fall, year %in% c(1980, 1990, 2000, 2010, 2020)), aes(lon
 tic()
 p.fa <- predict(fit.fa, newdata = nd.grid.yrs.fall, return_tmb_object = TRUE) #need return_tmb_object = TRUE to be able to do index and COG
 d <- toc()
-#835.4 sec elapsed
+#1009.87 sec elapsed
 
 # Save and then move it to DATA storage on Virtual PC
 saveRDS(p.fa, file = "D:/MODEL_OUTPUT/twar.predictions.fall.rds" )
@@ -311,6 +313,27 @@ saveRDS(p.fa, file = "D:/MODEL_OUTPUT/twar.predictions.fall.rds" )
 p.fa <- readRDS(file = "D:/MODEL_OUTPUT/twar.predictions.fall.rds")
 
 
+#----- Uncertainty on spatial predictions
+# Create newdata from predictions
+uncertdata.p.fa <- p.fa$data %>%
+  select(longitude:epsilon_st)
+
+tic()
+unc.fa <- predict(fit.fa, newdata = uncertdata.p.fa, nsim = 50)
+f <- toc()
+#1947.11 sec elapsed
+uncertdata.p.fa$se <- apply(unc.fa, 1, sd)
+saveRDS(uncertdata.p.fa, file="D:/MODEL_OUTPUT/predictions-uncertainty-fall-data.rds")
+
+
+ggplot() +
+  geom_point(data = uncertdata.p.sp, 
+             aes(longitude, latitude, color = se)) +
+  scale_color_viridis_c(option ="magma",
+                        name = "S.E.") +
+  theme_classic() +
+  ggtitle("Uncertainty of Spatial Predictions")
+
 
 
 #----- Area-weighted standardization population index
@@ -318,7 +341,7 @@ p.fa <- readRDS(file = "D:/MODEL_OUTPUT/twar.predictions.fall.rds")
 tic()
 index <- get_index(p.fa)
 toc()
-#9536.53 sec elapsed
+#829.76 sec elapsed
 write.csv(index, file="D:/MODEL_OUTPUT/index-fall-data.csv")
 
 ggplot(index, aes(year, est)) +
@@ -334,7 +357,7 @@ ggplot(index, aes(year, est)) +
 tic()
 cog.fa <- get_cog(p.fa, format = "wide")
 toc()
-#47695.46 sec elapsed
+#788.62  sec elapsed
 write.csv(cog.fa, file="D:/MODEL_OUTPUT/cog-fall-data.csv")
 
 ggplot(cog.fa, aes(est_x, est_y, colour = year)) +

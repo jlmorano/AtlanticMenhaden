@@ -69,8 +69,9 @@ fedunion.bb <- st_bbox(fedunion.ext)
 # Convert to a spatial feature of a grid covering the extend of the bounding box with a single grid cell
 fedunion.bb.grid <- st_make_grid(fedunion.bb, n=1)
 
-# Make a new grid of 10x10 km
-fedunion.grid <- st_make_grid(fedunion.bb.grid, cellsize = 0.1, what = "centers") 
+# Make a new grid of 20x20 km
+# REMEMBER: trying to get to a 10x10 km is too memory intensive for predicting on. Don't go lower than 0.2 cellsize!
+fedunion.grid <- st_make_grid(fedunion.bb.grid, cellsize = 0.2, what = "centers") 
 # plot(fedunion.grid)
 
 # Intersect grid and survey extent
@@ -102,8 +103,8 @@ fedgrid.LL <- sdmTMB::add_utm_columns(fedgrid.LL, c("Longitude", "Latitude"))
 # sqrt((qcs_grid$X[2:4] - qcs_grid$X[1:4-1]) ^ 2 + (qcs_grid$Y[2:4] - qcs_grid$Y[1:4-1]) ^ 2)
 # 2 km
 sqrt((fedgrid.LL$X[2:4] - fedgrid.LL$X[1:4-1]) ^ 2 + (fedgrid.LL$Y[2:4] - fedgrid.LL$Y[1:4-1]) ^ 2)
-#14.648519  9.458747  9.456933
-# Close enough to 10km
+#29.28881 18.88895 18.88169
+# Close enough to 20km
 
 
 #----- Add bathymetry

@@ -24,7 +24,7 @@ gc() #free up memory and report the memory usage
 
 
 library(sdmTMB)
-packageVersion('sdmTMB') #‘0.6.0’ #Need to re-run models; Previously Updated 9 Feb 2024
+packageVersion('sdmTMB') #‘0.6.0’ 
 library(tidyverse)
 library(janitor)
 library(tictoc)

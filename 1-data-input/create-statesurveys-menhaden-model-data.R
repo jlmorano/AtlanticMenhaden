@@ -18,7 +18,8 @@
 # - NYDEC Peconic Trawl Survey (YOY)
 # - NYDEC Western Long Island Sound seine survey data (YOY)
 
-# last updated 26 July 2024 to include data through 2023
+# last updated 2 April 2025 to accurately document if measured water temperature
+# was surface or bottom temperature. New dataset (20250402) has minor changes.
 ###############################################
 ###############################################
 
@@ -30,7 +31,7 @@ library(lubridate)
 
 # Need survey, stratum, season, month, day, year, depth, lat, lon, salinity, temp, species, count, weight
 
-# Some datasets have bottom temperatures or just water temperatures, so those data were coerced to be Surface Temperatures. If a dataset had both, both measurements were kept. But analysis will focus on surface measurements.
+# Some datasets have surface temperatures, bottom temperatures, both or just "water temperatures". Bottom Temperature was kept for all datasets except MDGill Net. Here, it was coerced to be Bottom Temperature since analysis will focus on bottom temp.
 
 
 #---- CT Long Island Sound Trawl Survey (CTLISTS) -----
@@ -139,7 +140,6 @@ de30.2 <- de30.2 %>% filter(Latitude > 35 & Latitude <40.1)
 
 #---- Georgia EMTS -----
 
-# The lat/lon has an issue and I'm waiting to hear from Eddie about when it can be resolved.
 ga <- read.csv("/Volumes/Eurybia/GA EMTS/CoordCorrected_EMTS Menhaden all data 1995-2023.csv", header = TRUE)
 # colnames(ga)
 
@@ -161,15 +161,13 @@ ga2 <- ga %>%
   select(Month, Day, Year, LatBeg, LonBeg, Depth.m, Salinity.ppt., Wtemp.C., TotNum, TotWt) %>%
   rename(Latitude = LatBeg,
          Longitude = LonBeg,
-         SurfSalin = Salinity.ppt.,
-         SurfTemp = Wtemp.C.,
+         BotSalin = Salinity.ppt.,
+         BotTemp = Wtemp.C.,
          MenhadenTotal = TotNum,
          Weight.kg = TotWt) %>%
   add_column(Stratum = NA, .before = "Month") %>%
   add_column(Survey = "GAEMTS", .before = "Stratum") %>%
-  add_column(Season = NA, .after = "Stratum") %>%
-  add_column(BotSalin = NA, .after = "SurfTemp") %>%
-  add_column(BotTemp = NA, .after = "BotSalin")
+  add_column(Season = NA, .after = "Stratum") 
 # str(ga2)
 ga2$Stratum <- as.character(ga2$Stratum)
 ga2$Season <- as.character(ga2$Season)
@@ -183,8 +181,6 @@ ga2$MenhadenTotal <- as.numeric(ga2$MenhadenTotal)
 
 
 #---- Maryland Gill Net (Upper Chesapeake Bay and Potomac River) -----
-
-# These data have info on set time, length, mesh size to calculate CPUE. I need to decide how to deal with this.
 
 # 2 sets of data with different column names but basically the same info
 # 2022-2023
@@ -238,6 +234,7 @@ md.merge$MONTH <- month(md.merge$NewDate)
 md.merge$DAY <- day(md.merge$NewDate)
 md.merge$YEAR <- year(md.merge$NewDate)
 
+# When merging, coerce "SurfTemp" as BotTemp
 md.2 <- md.merge %>%
   select(MONTH, DAY, YEAR, Lat.DecimalDegrees, Lon.DecimalDegrees, MAX.WATER.DEPTH.FT, SURF.SALINITY, SURF.TEMP.C, NUMBER.MENHADEN) %>%
   rename(Month = MONTH,
@@ -255,8 +252,8 @@ md.2 <- md.merge %>%
   add_column(Stratum = NA, .before = "Season") %>%
   add_column(Survey = "MDGill", .before = "Stratum") %>%
   add_column(BotSalin = NA, .after = "SurfTemp") %>%
-  add_column(BotTemp = NA, .after = "BotSalin") %>%
-  add_column(Weight.kg = NA, .after = "MenhadenTotal")
+  add_column(Weight.kg = NA, .after = "MenhadenTotal") %>%
+  mutate(BotTemp = SurfTemp, .after = "BotSalin")
 # str(md.2)
 md.2$Stratum <- as.character(md.2$Stratum)
 md.2$Season <- as.character(md.2$Season)
@@ -431,15 +428,13 @@ chesmap2 <- chesmap %>%
          Latitude = latitude,
          Longitude = longitude,
          Depth.m = depth_m,
-         SurfSalin = SA,
-         SurfTemp = WT,
+         BotSalin = SA,
+         BotTemp = WT,
          MenhadenTotal = raw_total_count,
          Weight.kg = raw_total_biomass) %>%
   add_column(Stratum = NA, .before = "Month") %>%
   add_column(Survey = "ChesMMAP", .before = "Stratum") %>%
   add_column(Season = NA, .after = "Stratum") %>%
-  add_column(BotSalin = NA, .after = "SurfTemp") %>%
-  add_column(BotTemp = NA, .after = "BotSalin") %>%
   add_column(Day = NA, .after = "Month")
 # str(chesmap2)
 chesmap2$Stratum <- as.character(chesmap2$Stratum)
@@ -566,7 +561,7 @@ statedata <- statedata %>%
 #----- Write dataset as .csv file --------------------------------------------------
 
 #### THIS WILL OVERWRITE!!
-# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20240726.csv", row.names = TRUE)
+# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20250402.csv", row.names = TRUE)
 
 
 

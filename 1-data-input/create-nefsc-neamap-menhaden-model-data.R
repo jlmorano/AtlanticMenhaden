@@ -13,7 +13,7 @@
 # Adds strata centroids. 
 # Adds in Chlorophyll, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012-present, Monthly. Create another sample and covariate dataset with chlorophyll-a data
 
-# last updated 19 August 2024 (latest update drops Avechlor and used default UTM zone 19)
+# last updated 26 March 2025 (latest update adds Avechlor back in and used default UTM zone 19)
 
 ###############################################
 ###############################################
@@ -111,7 +111,7 @@ ggplot(data = nefsc.2, aes(longitude, latitude)) +
 # There are a couple of outliers, so identify them and drop them
 plot(nefsc.2$longitude, nefsc.2$latitude)
 # identify(nefsc.2$longitude, nefsc.2$latitude, labels = row.names(nefsc.2))
-# 89 7009 7038
+# 89 7009 7038 7037
 # Remove those
 nefsc.2 <- nefsc.2[-c(89, 7009, 7038),]
 plot(nefsc.2$longitude, nefsc.2$latitude)
@@ -203,6 +203,10 @@ neamap <- neamap %>%
 # Create new stratum category that combines region and depthzone
 neamap <- unite(neamap, stratum, c("region","dstrat"), sep = "0", remove = FALSE)
 
+# I don't know what Strata NA01N and NA02N are. Cannot find documentation about them, so am dropping them.
+check <- neamap[is.na(neamap$region), ]
+points(check$Longitude, check$Latitude, col = "red")
+neamap <- neamap[!is.na(neamap$region), ]
 
 neamap.2 <- neamap %>%
   select(cruise, station, stratum, inoffshore, state, year, season, latitude, longitude, areasw, depth, WT, SA, count, weight) %>%
@@ -262,119 +266,119 @@ alldata <- clean_names(alldata, "upper_camel")
 
 
 
-#----- 4. SKIP - didn't use in end - Add Chlorophyll data
+#----- 4. Add Chlorophyll data
 
-# # Spring chlorophyll data
-# chl.sp <- read.csv("/Volumes/Eurybia/Chlorophyll-a/chlorophyll-NOAA-S-NPPVIIRS-USeastcoast-2012-2021-spring-monthly-ave.csv", header = TRUE)
-# # Fall chlorophyll data
-# chl.fa <- read.csv("/Volumes/Eurybia/Chlorophyll-a/chlorophyll-NOAA-S-NPPVIIRS-USeastcoast-2012-2021-fall-monthly-ave.csv", header = TRUE)
-# 
-# # Round Lat/Lon for matching Avechlor to within 10 km of covariate data
-# library(janitor)
-# chl.sp <- clean_names(chl.sp, case = "upper_camel")
-# chl.fa <- clean_names(chl.fa, case = "upper_camel")
-# 
-# chl.sp2 <- chl.sp %>%
-#   mutate(LatCat = Latitude) %>%
-#   mutate(LonCat = Longitude) %>%
-#   mutate(across(c("LatCat", "LonCat"), round, digits = 1))
-# chl.fa2 <- chl.fa %>%
-#   mutate(LatCat = Latitude) %>%
-#   mutate(LonCat = Longitude) %>%
-#   mutate(across(c("LatCat", "LonCat"), round, 1))
-# 
-# # Chlorophyll available only for 2013-2021, so create subset of alldata
-# alldata.2 <- alldata %>%
-#   filter(Year >= 2013) %>%
-#   # Duplicate Lat/Lon and round to match with chl
-#   mutate(LatCat = Latitude) %>%
-#   mutate(LonCat = Longitude) %>%
-#   mutate(across(c("LatCat", "LonCat"), round, 1))
-# 
-# # Match coordinates in chl and covariate_data
-# # For spring,
-# alldata.SP <- alldata.2 %>%
-#   filter(Season == "SPRING") %>%
-#   left_join(chl.sp2,
-#             by = c("LatCat", "LonCat", "Year"), relationship = "many-to-many")
-# # For fall,
-# alldata.FA <- alldata.2 %>%
-#   filter(Season == "FALL") %>%
-#   left_join(chl.fa2, 
-#             select("Avechlor"),
-#             by = c("LatCat", "LonCat", "Year"),relationship = "many-to-many")
-# 
-# # Above creates a lot of duplicates, and I can't figure out how to streamline it here, so I'll do it next.
-# 
-# # Bind Spring and Fall covariate chlorophyll data
-# alldata.CHL <- bind_rows(alldata.SP, alldata.FA)
-# alldata.CHL <- alldata.CHL %>% 
-#   select(-c(X, Latitude.y, Longitude.y)) %>%
-#   rename(Latitude = Latitude.x,
-#          Longitude = Longitude.x)
-# 
-# dups <- alldata.CHL %>%
-#   janitor::get_dupes(-c(Avechlor))
-# # Yup, lots
-# # Drop them
-# alldata.CHL <- distinct(alldata.CHL, Survey, Cruise, Station, Stratum, Inoffshore, State, Year, Season, Latitude, Longitude, Areasw, Depth, Abundance, Surftemp, Surfsalin, Bottemp, Botsalin, Abundance, Biomass, Presence, CentroidLat, CentroidLon, LatCat, LonCat, .keep_all = TRUE) 
-# 
-# # Quick check chlorophyll data
-# plot(alldata.CHL$Year, alldata.CHL$Avechlor)
-# 
-# # Add back years before 2012 to re-create alldata with chlorophyll...
-# # First prep alldata with additional columns and drop years >2012
-# alldata.b2012 <- alldata %>%
-#   mutate(LatCat = Latitude) %>%
-#   mutate(LonCat = Longitude) %>%
-#   add_column(Avechlor = NA, .after = "LonCat") %>%
-#   mutate(across(c("LatCat", "LonCat"), round, 0)) %>%
-#   filter(Year <= 2012)
-# # Then bind alldata.3 with alldata.CHL for a complete set
-# alldata.complete <- bind_rows(alldata.b2012, alldata.CHL) 
-# alldata.complete <- arrange(alldata.complete, Year, Season, Latitude)
-# 
-# # Verify if there are duplicates
-# dups <- alldata.complete %>%
-#   janitor::get_dupes(-c(Avechlor))
-#                        
-#                        
+# Spring chlorophyll data
+chl.sp <- read.csv("/Volumes/Eurybia/Chlorophyll-a/chlorophyll-NOAA-S-NPPVIIRS-USeastcoast-2012-2021-spring-monthly-ave.csv", header = TRUE)
+# Fall chlorophyll data
+chl.fa <- read.csv("/Volumes/Eurybia/Chlorophyll-a/chlorophyll-NOAA-S-NPPVIIRS-USeastcoast-2012-2021-fall-monthly-ave.csv", header = TRUE)
+
+# Round Lat/Lon for matching Avechlor to within 10 km of covariate data
+library(janitor)
+chl.sp <- clean_names(chl.sp, case = "upper_camel")
+chl.fa <- clean_names(chl.fa, case = "upper_camel")
+
+chl.sp2 <- chl.sp %>%
+  mutate(LatCat = Latitude) %>%
+  mutate(LonCat = Longitude) %>%
+  mutate(across(c("LatCat", "LonCat"), round, digits = 1))
+chl.fa2 <- chl.fa %>%
+  mutate(LatCat = Latitude) %>%
+  mutate(LonCat = Longitude) %>%
+  mutate(across(c("LatCat", "LonCat"), round, 1))
+
+# Chlorophyll available only for 2013-2021, so create subset of alldata
+alldata.2 <- alldata %>%
+  filter(Year >= 2013) %>%
+  # Duplicate Lat/Lon and round to match with chl
+  mutate(LatCat = Latitude) %>%
+  mutate(LonCat = Longitude) %>%
+  mutate(across(c("LatCat", "LonCat"), round, 1))
+
+# Match coordinates in chl and covariate_data
+# For spring,
+alldata.SP <- alldata.2 %>%
+  filter(Season == "SPRING") %>%
+  left_join(chl.sp2,
+            by = c("LatCat", "LonCat", "Year"), relationship = "many-to-many")
+# For fall,
+alldata.FA <- alldata.2 %>%
+  filter(Season == "FALL") %>%
+  left_join(chl.fa2,
+            select("Avechlor"),
+            by = c("LatCat", "LonCat", "Year"),relationship = "many-to-many")
+
+# Above creates a lot of duplicates, and I can't figure out how to streamline it here, so I'll do it next.
+
+# Bind Spring and Fall covariate chlorophyll data
+alldata.CHL <- bind_rows(alldata.SP, alldata.FA)
+alldata.CHL <- alldata.CHL %>%
+  select(-c(X, Latitude.y, Longitude.y)) %>%
+  rename(Latitude = Latitude.x,
+         Longitude = Longitude.x)
+
+dups <- alldata.CHL %>%
+  janitor::get_dupes(-c(Avechlor))
+# Yup, lots
+# Drop them
+alldata.CHL <- distinct(alldata.CHL, Survey, Cruise, Station, Stratum, Inoffshore, State, Year, Season, Latitude, Longitude, Areasw, Depth, Abundance, Surftemp, Surfsalin, Bottemp, Botsalin, Abundance, Biomass, Presence, CentroidLat, CentroidLon, LatCat, LonCat, .keep_all = TRUE)
+
+# Quick check chlorophyll data
+plot(alldata.CHL$Year, alldata.CHL$Avechlor)
+
+# Add back years before 2012 to re-create alldata with chlorophyll...
+# First prep alldata with additional columns and drop years >2012
+alldata.b2012 <- alldata %>%
+  mutate(LatCat = Latitude) %>%
+  mutate(LonCat = Longitude) %>%
+  add_column(Avechlor = NA, .after = "LonCat") %>%
+  mutate(across(c("LatCat", "LonCat"), round, 0)) %>%
+  filter(Year <= 2012)
+# Then bind alldata.3 with alldata.CHL for a complete set
+alldata.complete <- bind_rows(alldata.b2012, alldata.CHL)
+alldata.complete <- arrange(alldata.complete, Year, Season, Latitude)
+
+# Verify if there are duplicates
+dups <- alldata.complete %>%
+  janitor::get_dupes(-c(Avechlor))
+
+
 
 
 #-----  5. Write dataset as .csv file
 
 #save this as a new dataset. Amend the date to update
 # THIS OVERWRITES EXISTING FILE!!
-# write.csv(alldata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20240819.csv", row.names = TRUE)
+# write.csv(alldata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20250326.csv", row.names = TRUE)
 
 
-### SKIP AS OF 19 AUGUST 2024
 # #----- B. Make "menhaden-covariate-data" for VAST ---------------------------------------------------------
-# 
-# # For VAST, Habitat covariates must be in a separate df and must include columns `Lat`, `Lon`, and `Year`
-# # Go back and grab the covariate data from alldata.complete
-# colnames(alldata.complete)
-# 
-# covariatedata <- alldata.complete %>%
-#   select(Survey, Cruise, Station, Stratum, Inoffshore, Year, Season, Latitude, Longitude, Areasw, Depth, Surftemp, Surfsalin, Bottemp, Botsalin, Avechlor) %>%
-#   rename(Lat = Latitude,
-#          Lon = Longitude)
-# 
-# # THIS OVERWRITES EXISTING FILE!! Amend the date to update
-# # write.csv(covariatedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/menhaden-covariate-data-20240617.csv", row.names = TRUE)
-# 
-# 
-# 
-# 
-# #----- C. Make "menhaden-sample-data" for VAST ---------------------------------------------------------
-# # For VAST, abundance and biomass must be in a separate df and must include columns `Lat`, `Lon`, and `Year`
-# # Go back and grab the abundance and biomasss data from alldata.complete
-# colnames(alldata.complete)
-# 
-# sampledata <- alldata.complete %>%
-#   select(Survey, Cruise, Station, Stratum, Inoffshore, Year, Season, Latitude, Longitude, Abundance, Biomass) %>%
-#   rename(Lat = Latitude,
-#          Lon = Longitude)
-# 
-# # THIS OVERWRITES EXISTING FILE!! Amend the date to update
-# # write.csv(sampledata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/menhaden-sample-data-20240617.csv", row.names = TRUE)
+
+# For VAST, Habitat covariates must be in a separate df and must include columns `Lat`, `Lon`, and `Year`
+# Go back and grab the covariate data from alldata.complete
+colnames(alldata.complete)
+
+covariatedata <- alldata.complete %>%
+  select(Survey, Cruise, Station, Stratum, Inoffshore, Year, Season, Latitude, Longitude, Areasw, Depth, Surftemp, Surfsalin, Bottemp, Botsalin, Avechlor) %>%
+  rename(Lat = Latitude,
+         Lon = Longitude)
+
+# THIS OVERWRITES EXISTING FILE!! Amend the date to update
+# write.csv(covariatedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/menhaden-covariate-data-20250326.csv", row.names = TRUE)
+
+
+
+
+#----- C. Make "menhaden-sample-data" for VAST ---------------------------------------------------------
+# For VAST, abundance and biomass must be in a separate df and must include columns `Lat`, `Lon`, and `Year`
+# Go back and grab the abundance and biomasss data from alldata.complete
+colnames(alldata.complete)
+
+sampledata <- alldata.complete %>%
+  select(Survey, Cruise, Station, Stratum, Inoffshore, Year, Season, Latitude, Longitude, Abundance, Biomass) %>%
+  rename(Lat = Latitude,
+         Lon = Longitude)
+
+# THIS OVERWRITES EXISTING FILE!! Amend the date to update
+# write.csv(sampledata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/menhaden-sample-data-20250326.csv", row.names = TRUE)
+

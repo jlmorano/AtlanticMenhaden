@@ -2,9 +2,9 @@
 ######################################
 # Janelle L. Morano
 
-# Combines data from federal and state survey data previously collated ("combined-catch-envtl-20240616.csv" and "statesurvey_menhaden_data_20250402.csv") into a single dataset (1972-2023) for use in distribution modeling of Atlantic menhaden presence in GAM in manuscript
+# Combines data from federal surveys and state survey data previously collated ("statesurvey_menhaden_data_20260414.csv") into a single dataset (1972-2023) for use in distribution modeling of Atlantic menhaden presence in GAM in manuscript
 
-# last updated 2 April 2025
+# last updated 14 April 2026
 
 ###############################################
 ###############################################
@@ -18,96 +18,106 @@ library(mgcv)
 ###########################################################################################
 
 # Atlantic menhaden data from NEFSC and NEAMAP surveys
-federal <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20250326.csv", header = TRUE)
+federal <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/nefsc-neamap-menhaden-data-20260414.csv", header = TRUE)
 # Add Presence/Absence column numeric
 federal$Presence <- as.numeric(federal$Presence)
 
-# Remove NAs where there are no samples of menhaden
+# Remove rows with NAs for Abundance and Presence of menhaden
 sapply(federal, function(x) sum(is.na(x)))
 federal <- federal %>%
   # filter_at(vars(Depth, Bottemp, Abundance, Presence), all_vars(!is.na(.)))
   filter_at(vars(Abundance, Presence), all_vars(!is.na(.)))
 
-# Create Spring and Fall datasets, from 1972-2023
-federal.spring <- federal %>%
-  filter(Season == "SPRING") %>%
-  filter(Year >=1972 & Year <=2023) %>%
-  arrange(Year)
-federal.fall <- federal %>%
-  filter(Season == "FALL") %>%
-  filter(Year >=1972 & Year <=2023)%>%
-  arrange(Year)
+colnames(federal)
+# "X"           "Survey"      "Cruise"      "Station"     "Stratum"     "Inoffshore"  "State"       "Year"       
+# "Season"      "Latitude"    "Longitude"   "Areasw"      "Depth"       "Surftemp"    "Surfsalin"   "Bottemp"    
+# "Botsalin"    "Abundance"   "Biomass"     "Presence"    "CentroidLat" "CentroidLon"
 
+# Select choice columns and modify names to match statedata
+federal2 <- federal |>
+  select(Survey, Season, Year, Depth, Bottemp, Botsalin, Surftemp, Surfsalin, Biomass, Presence, State, Inoffshore) |>
+  rename(BotTemp = Bottemp,
+         BotSalin = Botsalin,
+         SurfTemp = Surftemp,
+         SurfSalin = Surfsalin) |>
+  mutate(Month = case_when(Season == "SPRING" ~ 3.5, 
+                               Season == "FALL" ~ 9.5),
+                               .after = "Year")
+    
 
+  
 
 ###########################################################################################
 #----- State surveys --------------------------------------------------
 ###########################################################################################
 
-statedata <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20250402.csv", header = TRUE)
+statedata <- read.csv("/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey-menhaden-data-20260414.csv", header = TRUE)
 
 sapply(statedata, function(x) sum(is.na(x)))
-# SEAMAP doesn't have any depth, and so would be completely lost
-# Ignore depth to maximize spatial coverage
+# SEAMAP doesn't have any depth recorded. To add an approximate value to keep the data, samples were taken between 3 and 10 meters, so add 6.5
+statedata$Depth.m[is.na(statedata$Depth.m) & statedata$Survey == "SEAMAP"] <- 6.5
+
+# Remove any samples without menhaden (NAs)
 statedata <- statedata %>%
   filter_at(vars(MenhadenTotal, Presence), all_vars(!is.na(.)))
 
+colnames(statedata)
+# "X"             "Survey"        "Stratum"       "Season"        "Month"         "Day"           "Year"         
+# "Latitude"      "Longitude"     "Depth.m"       "SurfSalin"     "SurfTemp"      "BotSalin"      "BotTemp"      
+# "MenhadenTotal" "Weight.kg"     "Presence"      "State" 
 
-#----- Create Spring and Fall datasets
-state.spring <- statedata |>
-  filter(Month > 2 & Month <5) |>
-  filter(Year >=1972 & Year <=2023) |>
-  arrange(Year)
-state.fall <- statedata |>
-  filter(Month > 8 & Month < 11) |>
-  filter(Year >=1972 & Year <=2023) |>
-  arrange(Year)
+statedata2 <- statedata %>%
+  select(Survey, Season, Year, Month, Depth.m, BotTemp, BotSalin, SurfTemp, SurfSalin, Weight.kg, Presence, State) %>%
+  rename(Depth = Depth.m) |>
+  rename(Biomass = Weight.kg) |>
+  mutate(Inoffshore = case_when(Survey == "NJOT" | Survey == "SEAMAP" ~ "nearshore",
+                                TRUE ~ "inshore"),
+         Seasonn)
+
 
 
 ###########################################################################################
 #----- Combine federal and state --------------------------------------------------
 ###########################################################################################
-federal.spring2 <- federal.spring %>%
-  select(Survey, Season, Year, Depth, Bottemp, Biomass, Presence, State, Inoffshore) %>%
-  rename(WaterTemp = Bottemp)
-federal.fall2 <- federal.fall %>%
-  select(Survey, Season, Year, Depth, Bottemp, Biomass, Presence, State, Inoffshore) %>%
-  rename(WaterTemp = Bottemp)
 
-
-state.spring2 <- state.spring %>%
-  select(Survey, Season, Year, Depth.m, BotTemp, Weight.kg, Presence, State) %>%
-  rename(Depth = Depth.m) |>
-  rename(WaterTemp = BotTemp) %>%
-  rename(Biomass = Weight.kg) |>
-  mutate(Inoffshore = "coastal")
-state.fall2 <- state.fall %>%
-  select(Survey, Season, Year, Depth.m, BotTemp, Weight.kg, Presence, State) %>%
-  rename(Depth = Depth.m) |>
-  rename(WaterTemp = BotTemp) %>%
-  rename(Biomass = Weight.kg) |>
-  mutate(Inoffshore = "coastal")
-
-# Combined federal and state data
-alldata.spring <- rbind(federal.spring2, state.spring2)
-alldata.fall <- rbind(federal.fall2, state.fall2)
+alldata <- rbind(federal2, statedata2)
 
 # Convert State to factor with ordered levels from North to South
-alldata.spring$State <- factor(alldata.spring$State, levels = c("GME", "MA", "RICTNY", "NJ", "DEMD", "VA", "NC", "SCGAFL"))
-alldata.fall$State <- factor(alldata.fall$State, levels = c("GME", "MA", "RICTNY", "NJ", "DEMD", "VA", "NC", "SCGAFL"))
+alldata$State <- factor(alldata$State, levels = c("GME", "MA", "RICTNY", "NJ", "DEMD", "VA", "NC", "SCGAFL"))
 
 # Convert Survey and Inoffshore to factor
 cvt <- c("Survey", "Inoffshore")
-alldata.spring[cvt] <- lapply(alldata.spring[cvt], factor)
-alldata.fall[cvt] <- lapply(alldata.fall[cvt], factor)
+alldata[cvt] <- lapply(alldata[cvt], factor)
 
 # Convert Year to numeric
-alldata.spring$Year <- as.numeric(alldata.spring$Year)
-alldata.fall$Year <- as.numeric(alldata.fall$Year)
+alldata$Year <- as.numeric(alldata$Year)
+
+# Save dataset
+# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-fed-state-menhaden-data-20260414.csv", row.names = TRUE)
+
+
+
+
+###########################################################################################
+#----- Create Spring and Fall datasets for modeling ---------------------------------------
+###########################################################################################
+
+alldata.spring <- alldata |>
+  filter(Year >=1972 & Year <=2023) |>
+  filter(Season == "SPRING") |>
+  arrange(Year)
+alldata.fall <- alldata |>
+  filter(Year >=1972 & Year <=2023) |>
+  filter(Season == "FALL") |>
+  arrange(Year)
+
+
+
 
 
 # # ----- Create a list of the datasets
 gam.data.list <- list(alldata.spring = alldata.spring, alldata.fall = alldata.fall)
 
 #----- Save list as object
-# saveRDS(gam.data.list, "/Users/janellemorano/Git/menhaden-dist-ms/data/menhaden.data.list.rds")
+# saveRDS(gam.data.list, "/Users/janellemorano/Git/menhaden-dist-ms/2-input-data/menhaden.data.list.rds")
+

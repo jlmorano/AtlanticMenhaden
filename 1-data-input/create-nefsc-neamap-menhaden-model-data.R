@@ -2,18 +2,18 @@
 ######################################
 # Janelle L. Morano
 # Compile data from NEFSC and NEAMAP into: 
-#   A. "combined-catch-envtl": all variables
+#   A. "cnefsc-neamap-menhaden-data": all variables
 #   B. "menhaden-covariate-data" (for VAST): only has temp, salinity, chlorophyll, and depth with the dates and locs
 #   C. sample data (for VAST): only has Abundance and Biomass with the dates and locs
 
 
 # Adds presence/absence column.
-# Adds inshore/offshore column designation based on stratum number.
+# Adds nearshore/offshore column designation based on stratum number.
 # Adds state column which assigns stratum to nearest state waters.
 # Adds strata centroids. 
 # Adds in Chlorophyll, NOAA S-NPP VIIRS, Science Quality, Global 4km, Level 3, 2012-present, Monthly. Create another sample and covariate dataset with chlorophyll-a data
 
-# last updated 26 March 2025 (latest update adds Avechlor back in and used default UTM zone 19)
+# last updated 14 April 2026
 
 ###############################################
 ###############################################
@@ -23,7 +23,7 @@ library(janitor)
 
 
 
-#----- A. Make "combined-catch-envtl" menhaden survey data ---------------------------------------------------
+#----- A. Make "nefsc-neamap-menhaden-data" survey data ---------------------------------------------------
 
 
 #----- 1. Bring in NEFSC data
@@ -44,14 +44,14 @@ nefsc <- read.csv("/Volumes/Eurybia/NEFSC-Survdat/nefsc.menhaden.1963-2023.csv")
 
 
 # NOTES ABOUT STRATA
-# Offshore strata belong to strata group "01" and inshore to "03" (at least north of Hatteras).  If the strata column is numeric, it typically drops the leading zero.  There is also a trailing zero on most strata numbers except for the rare instances where a strata was split.  So offshore strata 1 is 01010 and offshore strata 2 is 01020.  Survdat lists them as 1010 and 1020 respectively.  Inshore would be 03010 and 03020 or 3010 and 3020 in survdat.  The split strata are in the northern Gulf of Maine and are 01351 and 01352 or essentially offshore strata 35-1 and 35-2. 
+# Offshore strata belong to strata group "01" and nearshore to "03" (at least north of Hatteras).  If the strata column is numeric, it typically drops the leading zero.  There is also a trailing zero on most strata numbers except for the rare instances where a strata was split.  So offshore strata 1 is 01010 and offshore strata 2 is 01020.  Survdat lists them as 1010 and 1020 respectively.  Nearshore would be 03010 and 03020 or 3010 and 3020 in survdat.  The split strata are in the northern Gulf of Maine and are 01351 and 01352 or essentially offshore strata 35-1 and 35-2. 
 # Strata groups: 
 # 01 Offshore
-# 03 Inshore
+# 03 Nearshore
 # 05 Scotian Shelf strata "offshore"
-# 07 Inshore South of Hatteras
+# 07 Nearshore South of Hatteras
 # 08 Offshore South of Hatteras
-# in nefsc.strata$Strata, begins with 1- offshore, begins with 3- inshore
+# in nefsc.strata$Strata, begins with 1- offshore, begins with 3- Nearshore
 # The next 2 digits are the strata
 ### HOWEVER, some of strata assignments have erroneous assignments (see details and fixes below)
 
@@ -67,33 +67,33 @@ nefsc.2 <- nefsc %>%
   add_column(areasw = 0.0384, .after = "longitude") %>%
   # Add numeric presence/absence
   mutate(presence = ifelse(.$abundance >0, 1, 0)) %>%
-  # Add inshore/offshore designation
+  # Add Nearshore/offshore designation
   mutate(inoffshore = case_when(.$stratum <2000 ~ "offshore", 
-                                .$stratum >3000 & .$stratum <5000 ~ "inshore",
+                                .$stratum >3000 & .$stratum <5000 ~ "nearshore",
                                 .$stratum >5000 ~ "offshore",
-                                .$stratum >=7000 & .$stratum <8000 ~ "inshore",
+                                .$stratum >=7000 & .$stratum <8000 ~ "nearshore",
                                 .$stratum >=8000 ~ "offshore"), .after = "stratum") %>%
   # Add state designation. Strata are assigned to the closest state waters. RI-CT-NY are collectively assigned because of the overlap of the strata with the span of the states and the location of the mouth of Long Island Sound.
-  mutate(state = case_when(.$stratum >=3570 & .$stratum <=3990 ~ "GME", # Inshore GME (north of 42 lat) 
+  mutate(state = case_when(.$stratum >=3570 & .$stratum <=3990 ~ "GME", # Nearshore GME (north of 42 lat) 
                            .$stratum >=1260 & .$stratum <=1420 ~ "GME", # Offshore GME
                            .$stratum ==1490 ~ "GME", # Offshore GME
                            .$stratum >=5430 & .$stratum <=5480 ~ "GME", # Offshore GME
-                           .$stratum ==3460 ~ "MA", #Inshore MA
-                           .$stratum >=3480 & .$stratum <=3560 ~ "MA", #Inshore MA
+                           .$stratum ==3460 ~ "MA", #Nearshore MA
+                           .$stratum >=3480 & .$stratum <=3560 ~ "MA", #Nearshore MA
                            .$stratum >=1090 & .$stratum <=1250  ~ "MA", #Offshore MA (south of 42 lat)
-                           .$stratum >=3010 & .$stratum <=3140 ~ "RICTNY", #Inshore RICTNY
-                           .$stratum ==3450 ~ "RICTNY", #Inshore RICTNY
-                           .$stratum ==3470 ~ "RICTNY", #Inshore RICTNY
-                           .$stratum ==3490 ~ "RICTNY", #Inshore RICTNY
-                           .$stratum ==3910 ~ "RICTNY", #Inshore RICTNY
+                           .$stratum >=3010 & .$stratum <=3140 ~ "RICTNY", #Nearshore RICTNY
+                           .$stratum ==3450 ~ "RICTNY", #Nearshore RICTNY
+                           .$stratum ==3470 ~ "RICTNY", #Nearshore RICTNY
+                           .$stratum ==3490 ~ "RICTNY", #Nearshore RICTNY
+                           .$stratum ==3910 ~ "RICTNY", #Nearshore RICTNY
                            .$stratum >=1010 & .$stratum <=1140 ~ "RICTNY", #Offshore RICTNY
-                           .$stratum >=3150 & .$stratum <=3230 ~ "NJ", #Inshore NJ                           
+                           .$stratum >=3150 & .$stratum <=3230 ~ "NJ", #Nearshore NJ                           
                            .$stratum >=1730 & .$stratum <=1760 ~ "NJ", #Offshore NJ
-                           .$stratum >=3240 & .$stratum <=3290 ~ "DEMD", #Inshore DEMD
+                           .$stratum >=3240 & .$stratum <=3290 ~ "DEMD", #Nearshore DEMD
                            .$stratum >=1690 & .$stratum <=1720 ~ "DEMD", #Offshore DEMD
-                           .$stratum >=3300 & .$stratum <=3380 ~ "VA", #Inshore VA
+                           .$stratum >=3300 & .$stratum <=3380 ~ "VA", #Nearshore VA
                            .$stratum >=1650 & .$stratum <=1680 ~ "VA", #Offshore VA
-                           .$stratum >=3390 & .$stratum <=3580 ~ "NC", #Inshore NC and south
+                           .$stratum >=3390 & .$stratum <=3580 ~ "NC", #Nearshore NC and south
                            .$stratum >=1610 & .$stratum <=1640 ~ "NC", #Offshore NC and south
                            .$stratum >7000 ~ "NC", #Offshore NC and south (includes confirmed strata and numbers including 7000+ and 8000+ that don't directly correspond to maps, but follow convention described above)
                            
@@ -162,7 +162,7 @@ colnames(neamap)
 # Modify region identification columns
 # For unknown reasons, this next step only works here, not in the select, rename, add step
 neamap <- neamap %>%
-  mutate(inoffshore = case_when(.$dstrat == 1 ~ "inshore",
+  mutate(inoffshore = case_when(.$dstrat == 1 ~ "nearshore",
                               .$dstrat == 2 ~ "offshore",
                               .$dstrat == 3 ~ "offshore",
                               .$dstrat == 4 ~ "offshore"), .after = "region") %>%
@@ -210,8 +210,8 @@ neamap <- neamap[!is.na(neamap$region), ]
 
 neamap.2 <- neamap %>%
   select(cruise, station, stratum, inoffshore, state, year, season, latitude, longitude, areasw, depth, WT, SA, count, weight) %>%
-  rename(Bottemp = WT,
-         Botsalin = SA,
+  rename(Bottemp = WT, #These are bottom readings
+         Botsalin = SA, #These are bottom readings
          abundance = count,
          biomass = weight) %>%
   # Add numeric presence/absence
@@ -272,6 +272,7 @@ alldata <- clean_names(alldata, "upper_camel")
 chl.sp <- read.csv("/Volumes/Eurybia/Chlorophyll-a/chlorophyll-NOAA-S-NPPVIIRS-USeastcoast-2012-2021-spring-monthly-ave.csv", header = TRUE)
 # Fall chlorophyll data
 chl.fa <- read.csv("/Volumes/Eurybia/Chlorophyll-a/chlorophyll-NOAA-S-NPPVIIRS-USeastcoast-2012-2021-fall-monthly-ave.csv", header = TRUE)
+
 
 # Round Lat/Lon for matching Avechlor to within 10 km of covariate data
 library(janitor)
@@ -349,7 +350,10 @@ dups <- alldata.complete %>%
 
 #save this as a new dataset. Amend the date to update
 # THIS OVERWRITES EXISTING FILE!!
-# write.csv(alldata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/combined-catch-envtl-20250326.csv", row.names = TRUE)
+# write.csv(alldata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/nefsc-neamap-menhaden-data-20260414.csv", row.names = TRUE)
+
+
+
 
 
 # #----- B. Make "menhaden-covariate-data" for VAST ---------------------------------------------------------

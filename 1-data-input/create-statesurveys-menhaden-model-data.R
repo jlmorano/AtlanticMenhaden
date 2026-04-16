@@ -18,8 +18,8 @@
 # - NYDEC Peconic Trawl Survey (YOY)
 # - NYDEC Western Long Island Sound seine survey data (YOY)
 
-# last updated 2 April 2025 to accurately document if measured water temperature
-# was surface or bottom temperature. New dataset (20250402) has minor changes.
+# last updated 14 April 2026
+# Produced dataset (202604014) has minor changes.
 ###############################################
 ###############################################
 
@@ -31,7 +31,7 @@ library(lubridate)
 
 # Need survey, stratum, season, month, day, year, depth, lat, lon, salinity, temp, species, count, weight
 
-# Some datasets have surface temperatures, bottom temperatures, both or just "water temperatures". Bottom Temperature was kept for all datasets except MDGill Net. Here, it was coerced to be Bottom Temperature since analysis will focus on bottom temp.
+# Some datasets have surface temperatures, bottom temperatures, both or just "water temperatures". When metadata does not explain, the assumption was "water temperature" was taken at depth of sample. Since these datasets are shallow (<50m), those values were assumed as Surface Temperature.
 
 
 #---- CT Long Island Sound Trawl Survey (CTLISTS) -----
@@ -161,19 +161,21 @@ ga2 <- ga %>%
   select(Month, Day, Year, LatBeg, LonBeg, Depth.m, Salinity.ppt., Wtemp.C., TotNum, TotWt) %>%
   rename(Latitude = LatBeg,
          Longitude = LonBeg,
-         BotSalin = Salinity.ppt.,
-         BotTemp = Wtemp.C.,
+         SurfSalin = Salinity.ppt.,
+         SurfTemp = Wtemp.C.,
          MenhadenTotal = TotNum,
          Weight.kg = TotWt) %>%
   add_column(Stratum = NA, .before = "Month") %>%
+  add_column(Season = NA, .before = "Month") %>%
   add_column(Survey = "GAEMTS", .before = "Stratum") %>%
-  add_column(Season = NA, .after = "Stratum") 
+  add_column(BotSalin = NA, .after = "SurfTemp") %>%
+  add_column(BotTemp = NA, .before = "MenhadenTotal")
 # str(ga2)
 ga2$Stratum <- as.character(ga2$Stratum)
 ga2$Season <- as.character(ga2$Season)
 ga2$Day <- as.numeric(ga2$Day)
-ga2$BotSalin <- as.numeric(ga2$BotSalin)
-ga2$BotTemp <- as.numeric(ga2$BotTemp)
+ga2$SurfSalin <- as.numeric(ga2$BotSalin)
+ga2$SurfTemp <- as.numeric(ga2$BotTemp)
 ga2$MenhadenTotal <- as.numeric(ga2$MenhadenTotal)
 
 # plot(ga2$Longitude, ga2$Latitude)
@@ -234,8 +236,8 @@ md.merge$MONTH <- month(md.merge$NewDate)
 md.merge$DAY <- day(md.merge$NewDate)
 md.merge$YEAR <- year(md.merge$NewDate)
 
-# When merging, coerce "SurfTemp" as BotTemp
-md.2 <- md.merge %>%
+# Merge
+md2 <- md.merge %>%
   select(MONTH, DAY, YEAR, Lat.DecimalDegrees, Lon.DecimalDegrees, MAX.WATER.DEPTH.FT, SURF.SALINITY, SURF.TEMP.C, NUMBER.MENHADEN) %>%
   rename(Month = MONTH,
          Day = DAY,
@@ -253,18 +255,18 @@ md.2 <- md.merge %>%
   add_column(Survey = "MDGill", .before = "Stratum") %>%
   add_column(BotSalin = NA, .after = "SurfTemp") %>%
   add_column(Weight.kg = NA, .after = "MenhadenTotal") %>%
-  mutate(BotTemp = SurfTemp, .after = "BotSalin")
-# str(md.2)
-md.2$Stratum <- as.character(md.2$Stratum)
-md.2$Season <- as.character(md.2$Season)
-md.2$Day <- as.numeric(md.2$Day)
-md.2$BotSalin <- as.numeric(md.2$BotSalin)
-md.2$BotTemp <- as.numeric(md.2$BotTemp)
-md.2$MenhadenTotal <- as.numeric(md.2$MenhadenTotal)
-md.2$Weight.kg <- as.numeric(md.2$Weight.kg)
+  mutate(BotTemp = NA, .after = "BotSalin")
+# str(md2)
+md2$Stratum <- as.character(md2$Stratum)
+md2$Season <- as.character(md2$Season)
+md2$Day <- as.numeric(md2$Day)
+md2$SurfSalin <- as.numeric(md2$SurfSalin)
+md2$SurfTemp <- as.numeric(md2$SurfTemp)
+md2$MenhadenTotal <- as.numeric(md2$MenhadenTotal)
+md2$Weight.kg <- as.numeric(md2$Weight.kg)
 
 
-# plot(md.2$Longitude, md.2$Latitude) #
+# plot(md2$Longitude, md2$Latitude) #
 
 
 
@@ -362,7 +364,7 @@ nc <- nc %>% distinct() #remove duplicates
 
 # Need survey, stratum, season, month, day, year, depth, lat, lon, salinity, temp, species, count, weight
 
-nc.2 <- nc %>%
+nc2 <- nc %>%
   select(AREA, MONTH, DAY, YEAR, LATITUDE, LONGITUDE, DEPTH, Surface.Salinity..ppt., Surface.Temperature...C., Bottom.Salinity..ppt., Bottom.Temperature...C., COLNUM) %>%
   rename(Stratum = AREA,
          Month = MONTH,
@@ -379,20 +381,20 @@ nc.2 <- nc %>%
   add_column(Survey = "NCp915", .before = "Stratum") %>%
   add_column(Season = NA, .after = "Stratum") %>%
   add_column(Weight.kg = NA, .after = "MenhadenTotal")
-# str(nc.2)
-nc.2$Season <- as.character(nc.2$Season)
-nc.2$Month <- as.numeric(nc.2$Month)
-nc.2$Day <- as.numeric(nc.2$Day)
-nc.2$Year <- as.numeric(nc.2$Year)
-nc.2$Weight.kg <- as.numeric(nc.2$Weight.kg)
+# str(nc2)
+nc2$Season <- as.character(nc2$Season)
+nc2$Month <- as.numeric(nc2$Month)
+nc2$Day <- as.numeric(nc2$Day)
+nc2$Year <- as.numeric(nc2$Year)
+nc2$Weight.kg <- as.numeric(nc2$Weight.kg)
 
-# plot(nc.2$Longitude, nc.2$Latitude)
-nc.2 <- nc.2 %>% distinct() #remove duplicates
-nc.2 <- nc.2 %>% filter(!Latitude >36,
+# plot(nc2$Longitude, nc2$Latitude)
+nc2 <- nc2 %>% distinct() #remove duplicates
+nc2 <- nc2 %>% filter(!Latitude >36,
                         !Latitude <33.5,
                         !Longitude > -75)
-nc.2 <- nc.2 %>% filter(!Latitude > 35.5 & Longitude > -77.5)
-nc.2 <- nc.2 %>% filter(!Latitude < 34.4)
+nc2 <- nc2 %>% filter(!Latitude > 35.5 & Longitude > -77.5)
+nc2 <- nc2 %>% filter(!Latitude < 34.4)
 
 
 
@@ -428,22 +430,24 @@ chesmap2 <- chesmap %>%
          Latitude = latitude,
          Longitude = longitude,
          Depth.m = depth_m,
-         BotSalin = SA,
-         BotTemp = WT,
+         SurfSalin = SA,
+         SurfTemp = WT,
          MenhadenTotal = raw_total_count,
          Weight.kg = raw_total_biomass) %>%
   add_column(Stratum = NA, .before = "Month") %>%
   add_column(Survey = "ChesMMAP", .before = "Stratum") %>%
   add_column(Season = NA, .after = "Stratum") %>%
-  add_column(Day = NA, .after = "Month")
+  add_column(Day = NA, .after = "Month") %>%
+  add_column(BotSalin = NA, .after = "SurfTemp") %>%
+  add_column(BotTemp = NA, .after = "BotSalin")
 # str(chesmap2)
 chesmap2$Stratum <- as.character(chesmap2$Stratum)
 chesmap2$Season <- as.character(chesmap2$Season)
 chesmap2$Month <- as.numeric(chesmap2$Month)
 chesmap2$Day <- as.numeric(chesmap2$Day)
 chesmap2$Year <- as.numeric(chesmap2$Year)
-chesmap2$BotSalin <- as.numeric(chesmap2$BotSalin)
-chesmap2$BotTemp <- as.numeric(chesmap2$BotTemp)
+chesmap2$SurfSalin <- as.numeric(chesmap2$BotSalin)
+chesmap2$SurfTemp <- as.numeric(chesmap2$BotTemp)
 chesmap2$MenhadenTotal <- as.numeric(chesmap2$MenhadenTotal)
 
 
@@ -495,14 +499,14 @@ seamap2$MenhadenTotal <- as.numeric(seamap2$MenhadenTotal)
 # colnames(ct2)
 # colnames(de30.2)
 # colnames(ga2)
-# colnames(md.2)
-# colnames(nc.2)
+# colnames(md2)
+# colnames(nc2)
 # colnames(nj2)
 # colnames(chesmap2)
 # colnames(seamap2)
 
 # Merge state data
-statedata <- bind_rows(ct2, de30.2, ga2, md.2, nc.2, nj2, chesmap2, seamap2)
+statedata <- bind_rows(ct2, de30.2, ga2, md2, nc2, nj2, chesmap2, seamap2)
 unique(statedata$Survey)
 # [1] "CTLISTS"   "DEBay30ft" "GAEMTS"    "MDGill"    "NCp915"    "NJOT"      "ChesMMAP" 
 # [8] "SEAMAP" 
@@ -521,7 +525,9 @@ unique(statedata$Year)
 # [1] 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001
 # [19] 2002 2003 2004 2005 2006 2007 2008 2009 2011 2012 2013 2014 2015 2016 2017 2018 2019 2021
 # [37] 2022 2023 2010 1966 1967 1968 1969 1970 1971 1974 1979 1980 1981 1982 1983 2020   NA 2024
-
+statedata |> 
+  group_by(Survey) |>
+  summarize(unq.months = paste(sort(unique(Month)), collapse = ", "))
 
 # Add seasons
 statedata <- statedata %>%
@@ -561,7 +567,7 @@ statedata <- statedata %>%
 #----- Write dataset as .csv file --------------------------------------------------
 
 #### THIS WILL OVERWRITE!!
-# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey_menhaden_data_20250402.csv", row.names = TRUE)
+# write.csv(statedata,"/Users/janellemorano/DATA/Atlantic_menhaden_modeling/1-data-input/statesurvey-menhaden-data-20260414.csv", row.names = TRUE)
 
 
 

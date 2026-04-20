@@ -35,7 +35,7 @@ colnames(federal)
 
 # Select choice columns and modify names to match statedata
 federal2 <- federal |>
-  select(Survey, Season, Year, Depth, Bottemp, Botsalin, Surftemp, Surfsalin, Abundance, Biomass, Presence, State, Inoffshore) |>
+  select(Survey, Season, Year, Latitude, Longitude, Depth, Bottemp, Botsalin, Surftemp, Surfsalin, Abundance, Biomass, Presence, State, Inoffshore) |>
   rename(MenhadenTotal = Abundance,
          Weight.kg = Biomass,
          BotTemp = Bottemp,
@@ -69,7 +69,7 @@ colnames(statedata)
 # "MenhadenTotal" "Weight.kg"     "Presence"      "State" 
 
 statedata2 <- statedata %>%
-  select(Survey, Season, Year, Month, Depth.m, BotTemp, BotSalin, SurfTemp, SurfSalin, MenhadenTotal, Weight.kg, Presence, State) %>%
+  select(Survey, Season, Year, Month, Latitude, Longitude, Depth.m, BotTemp, BotSalin, SurfTemp, SurfSalin, MenhadenTotal, Weight.kg, Presence, State) %>%
   rename(Depth = Depth.m) |>
   mutate(Inoffshore = case_when(Survey == "NJOT" | Survey == "SEAMAP" ~ "nearshore",
                                 TRUE ~ "inshore"))
